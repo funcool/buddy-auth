@@ -12,6 +12,12 @@ Andrey Antukh, <niwi@niwi.be>
 Buddy *auth* module is dedicated for to provide authentication facilities for
 ring and ring based web applications.
 
+
+== Project Maturity
+
+Since _buddy-auth_ is a young project there can be some API breakage.
+
+
 == Install
 
 This section covers the _buddy-auth_ library installing process and its requirements.
