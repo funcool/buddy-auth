@@ -1,0 +1,9 @@
+= Changelog
+
+== Version 0.3.0
+
+Date: unreleased
+
+- First version splitted from monolitic buddy package.
+- Refactored auth access rules module with features from
+  https://github.com/yogthos/ring-access-rules
