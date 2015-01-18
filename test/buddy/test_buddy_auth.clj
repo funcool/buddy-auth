@@ -16,10 +16,9 @@
     {:headers {}}))
 
 (defn httpbasic-auth-fn
-  [request parsed-data]
-  (let [username (:username parsed-data)]
-    (cond
-      (= username "foo") :foo)))
+  [request {:keys [username]}]
+  (when (= username "foo")
+    :foo))
 
 (def secret-key "test-secret-key")
 
@@ -192,15 +191,7 @@
       (is (= (:status resp) 403)))))
 
 (deftest authentication-middleware-test-with-httpbasic
-  (testing "Auth middleware with http-basic backend 01"
-    (let [backend (http-basic-backend {:realm "Foo"})
-          handler (fn [req] req)
-          handler (wrap-authentication handler backend)
-          req     (make-httpbasic-request "user" "pass")
-          resp    (handler req)]
-        (is (nil? (:identity resp)))))
-
-  (testing "Auth middleware with http-basic backend 02"
+  (testing "Auth middleware with http-basic backend"
     (let [backend (http-basic-backend {:realm "Foo" :authfn httpbasic-auth-fn})
           handler (fn [req] req)
           handler (wrap-authentication handler backend)]
