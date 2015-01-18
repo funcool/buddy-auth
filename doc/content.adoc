@@ -25,7 +25,7 @@ This section covers the _buddy-auth_ library installing process and its requirem
 
 === Requirements
 
-_suricatta_ is tested with these platforms:
+_buddy-auth_ is tested with these platforms:
 
 - JDK7
 - JDK8
@@ -33,7 +33,7 @@ _suricatta_ is tested with these platforms:
 
 === Leiningen
 
-The simplest way to use _suricatta_ in a clojure project, is by including it in the dependency
+The simplest way to use _buddy-auth_ in a clojure project, is by including it in the dependency
 vector on your *_project.clj_* file:
 
 ._on project.clj_
@@ -61,7 +61,6 @@ You can clone the public repository with this command:
 ----
 git clone https://github.com/funcool/buddy-auth
 ----
-
 
 == Authentication
 
@@ -110,7 +109,6 @@ systems, but is a good first step for understand how buddy authentication works.
     (response (format "Hello %s" (:identity request)))
     (response "Hello Anonymous")))
 ----
-
 
 Http Basic backend in this case requires one function with parameter
 that takes a responsability to identify the incoming request.
@@ -169,8 +167,7 @@ It checks the `:identity` key in the session to authenticate the user with its
 value. The value is identified as logged-in user if it contains any logical true
 value.
 
-
-.Simple example creatin session backend instance and wrapping our handler
+.Simple example creating session backend instance and wrapping our handler
 [source, clojure]
 ----
 (require '[buddy.auth.backends.session :refer [session-backend]])
@@ -185,7 +182,6 @@ value.
 
 TIP: As you can view, the authentication is completely independent of login/signin. In
 that case, the login handler is a respoibility of user define it.
-
 
 You can see the complete example of using this backend link:[here] (also with authorization).
 
