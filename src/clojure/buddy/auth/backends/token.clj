@@ -30,46 +30,42 @@
               matches     (re-find pattern auth-header)]
     (get matches 1)))
 
-(defrecord SignedTokenBackend [pkey unauthorized-handler max-age]
-  proto/Authentication
-  (parse [_ request]
-    (parse-authorization-header request))
-  (authenticate [_ request data]
-    (assoc request :identity (loads data pkey {:max-age max-age})))
-
-  proto/Authorization
-  (handle-unauthorized [_ request metadata]
-    (if unauthorized-handler
-      (unauthorized-handler request metadata)
-      (if (authenticated? request)
-        (-> (response "Permission denied")
-            (status 403))
-        (-> (response "Unauthorized")
-            (status 401))))))
-
-(defrecord TokenBackend [authfn unauthorized-handler]
-  proto/Authentication
-  (parse [_ request]
-    (parse-authorization-header request))
-  (authenticate [_ request token]
-    (let [rsq (when authfn (authfn request token))]
-      (if (response? rsq) rsq
-        (assoc request :identity rsq))))
-
-  proto/Authorization
-  (handle-unauthorized [_ request metadata]
-    (if unauthorized-handler
-      (unauthorized-handler request metadata)
-      (if (authenticated? request)
-        (-> (response "Permission denied")
-            (status 403))
-        (-> (response "Unauthorized")
-            (status 401))))))
-
 (defn signed-token-backend
   [& [{:keys [privkey unauthorized-handler max-age]}]]
-  (->SignedTokenBackend privkey unauthorized-handler max-age))
+  (reify
+    proto/Authentication
+    (parse [_ request]
+      (parse-authorization-header request))
+    (authenticate [_ request data]
+      (assoc request :identity (loads data pkey {:max-age max-age})))
+
+    proto/Authorization
+    (handle-unauthorized [_ request metadata]
+      (if unauthorized-handler
+        (unauthorized-handler request metadata)
+        (if (authenticated? request)
+          (-> (response "Permission denied")
+              (status 403))
+          (-> (response "Unauthorized")
+              (status 401)))))))
 
 (defn token-backend
   [& [{:keys [authfn unauthorized-handler]}]]
-  (->TokenBackend authfn unauthorized-handler))
+  (reify
+    proto/Authentication
+    (parse [_ request]
+      (parse-authorization-header request))
+    (authenticate [_ request token]
+      (let [rsq (when authfn (authfn request token))]
+        (if (response? rsq) rsq
+            (assoc request :identity rsq))))
+
+    proto/Authorization
+    (handle-unauthorized [_ request metadata]
+      (if unauthorized-handler
+        (unauthorized-handler request metadata)
+        (if (authenticated? request)
+          (-> (response "Permission denied")
+              (status 403))
+          (-> (response "Unauthorized")
+              (status 401)))))))
