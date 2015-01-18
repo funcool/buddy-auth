@@ -37,7 +37,7 @@
     (parse [_ request]
       (parse-authorization-header request))
     (authenticate [_ request data]
-      (assoc request :identity (loads data pkey {:max-age max-age})))
+      (assoc request :identity (loads data privkey {:max-age max-age})))
 
     proto/IAuthorization
     (handle-unauthorized [_ request metadata]
