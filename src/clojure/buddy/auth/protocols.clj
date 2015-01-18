@@ -42,3 +42,8 @@
     "This function is executed when a ``NotAuthorizedException``
     exception is intercepted by authorization wrapper.
     It should return a valid ring response."))
+
+(defprotocol IAuthorizationdError
+  "Protocol that acts like a marker for allow extend
+  authorization exception management."
+  (get-error-data [_] "Ger error information."))

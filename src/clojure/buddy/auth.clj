@@ -13,7 +13,9 @@
 ;; limitations under the License.
 
 (ns buddy.auth
-  (:import (buddy.exceptions UnauthorizedAccessException)))
+  (:require [buddy.auth.protocols :as proto]
+            [slingshot.slingshot :refer [throw+ try+]])
+  (:import buddy.exceptions.UnauthorizedAccessException))
 
 (defn authenticated?
   "Test if a current request is
@@ -23,5 +25,7 @@
 
 (defn throw-unauthorized
   ([] (throw-unauthorized {}))
-  ([metadata]
-   (throw (UnauthorizedAccessException. metadata))))
+  ([errordata]
+   (throw+ (reify
+             proto/IAuthorizationdError
+             (get-error-data [_] errordata)))))

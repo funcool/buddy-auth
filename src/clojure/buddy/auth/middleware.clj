@@ -16,8 +16,9 @@
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.accessrules :as accessrules]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
-            [ring.util.response :refer [response response?]])
-  (:import (buddy.exceptions UnauthorizedAccessException)))
+            [ring.util.response :refer [response response?]]
+            [slingshot.slingshot :refer [throw+ try+]])
+  (:import buddy.exceptions.UnauthorizedAccessException))
 
 (defn wrap-authentication
   "Ring middleware that enables authentication
@@ -41,7 +42,15 @@
     (let [backend (or backend (:auth-backend request))]
       (if (nil? backend)
         (throw (IllegalAccessError. "no backend found"))
-        (try
-          (handler request)
-          (catch UnauthorizedAccessException e
-            (proto/handle-unauthorized backend request (.-metadata e))))))))
+        (try+
+         (handler request)
+         (catch Object e
+           (if (satisfies? proto/IAuthorizationdError e)
+             (let [errordata (proto/get-error-data e)]
+               (proto/handle-unauthorized backend request errordata))
+             (throw+))))))))
+
+(extend-protocol proto/IAuthorizationdError
+  buddy.exceptions.UnauthorizedAccessException
+  (get-error-data [this]
+    (.-metadata this)))

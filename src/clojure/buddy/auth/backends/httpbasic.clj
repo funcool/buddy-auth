@@ -41,7 +41,7 @@
     (parse [_ request]
       (parse-httpbasic-header request))
     (authenticate [_ request data]
-      (let [rsq (when authfn (authfn request data))]
+      (let [rsq (authfn request data)]
         (if (response? rsq) rsq
             (assoc request :identity rsq))))
 
