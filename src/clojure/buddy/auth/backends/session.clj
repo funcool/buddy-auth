@@ -23,13 +23,13 @@
   of HttpBasicBackend and return it."
   [& [{:keys [unauthorized-handler]}]]
   (reify
-    proto/Authentication
+    proto/IAuthentication
     (parse [_ request]
       (:identity (:session request)))
     (authenticate [_ request data]
       (assoc request :identity data))
 
-    proto/Authorization
+    proto/IAuthorization
     (handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)

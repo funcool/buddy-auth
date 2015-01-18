@@ -33,13 +33,13 @@
 (defn signed-token-backend
   [& [{:keys [privkey unauthorized-handler max-age]}]]
   (reify
-    proto/Authentication
+    proto/IAuthentication
     (parse [_ request]
       (parse-authorization-header request))
     (authenticate [_ request data]
       (assoc request :identity (loads data pkey {:max-age max-age})))
 
-    proto/Authorization
+    proto/IAuthorization
     (handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)
@@ -52,7 +52,7 @@
 (defn token-backend
   [& [{:keys [authfn unauthorized-handler]}]]
   (reify
-    proto/Authentication
+    proto/IAuthentication
     (parse [_ request]
       (parse-authorization-header request))
     (authenticate [_ request token]
@@ -60,7 +60,7 @@
         (if (response? rsq) rsq
             (assoc request :identity rsq))))
 
-    proto/Authorization
+    proto/IAuthorization
     (handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)

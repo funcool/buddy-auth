@@ -37,7 +37,7 @@
   of HttpBasicBackend and return it."
   [& [{:keys [realm authfn unauthorized-handler] :or {realm "Buddy Auth"}}]]
   (reify
-    proto/Authentication
+    proto/IAuthentication
     (parse [_ request]
       (parse-httpbasic-header request))
     (authenticate [_ request data]
@@ -45,7 +45,7 @@
         (if (response? rsq) rsq
             (assoc request :identity rsq))))
 
-    proto/Authorization
+    proto/IAuthorization
     (handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request (assoc metadata :realm realm))
