@@ -18,16 +18,12 @@
                       :plugins [[speclj "3.1.0"]]}
              :example {:dependencies [[compojure "1.3.1"]
                                       [ring "1.3.2"]]}
-             :sessionexample [:example
-                              {:source-paths ["examples/sessionexample/src"]
-                               :resource-paths ["examples/sessionexample/resources"]
-                               :target-path "examples/sessionexample/target/%s"
-                               :main ^:skip-aot sessionexample.core}]
-             :oauthexample [:example
-                            {:dependencies [[clj-http "0.7.9"]
-                                            [hiccup "1.0.5"]
-                                            [org.clojure/data.json "0.2.4"]]
-                             :source-paths ["examples/oauthexample/src"]
-                             :resource-paths ["example/oauthexample/resources"]
-                             :target-path "examples/oauthexample/target/%s"
-                             :main ^:skip-aot oauthexample.core}]})
+             :httpbasic-example
+             [:example {:source-paths ["examples/httpbasic/src"]
+                        :resource-paths ["examples/httpbasic/resources"]
+                        :main ^:skip-aot httpbasic.core}]
+
+             :session-example
+             [:example {:source-paths ["examples/session/src"]
+                        :resource-paths ["examples/session/resources"]
+                        :main ^:skip-aot session.core}]})
