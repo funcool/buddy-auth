@@ -36,6 +36,8 @@
   "Given some options, create a new instance
   of HttpBasicBackend and return it."
   [& [{:keys [realm authfn unauthorized-handler] :or {realm "Buddy Auth"}}]]
+  (when (nil? authfn)
+    (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
   (reify
     proto/IAuthentication
     (parse [_ request]
