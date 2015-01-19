@@ -4,9 +4,19 @@
             [clojure.walk :refer [postwalk]]
             [clout.core :as clout]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Rule Handler Protocol
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defprotocol IRuleHandlerResponse
+  "Protocol for uniform identification on
+  success value on rule handler response."
   (success? [_] "Check if a response is a success.")
   (get-value [_] "Get a hander response value."))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Rule Handler Response Type
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deftype RuleSuccess [v]
   IRuleHandlerResponse
@@ -36,7 +46,6 @@
   (toString [self]
     (with-out-str (print [v]))))
 
-
 (defn success
   "Function that return a success state
   from one access rule handler."
@@ -49,6 +58,9 @@
   ([] (RuleError. nil))
   ([v] (RuleError. v)))
 
+;; Default implementation for IRuleHandlerResponse protocol
+;; for nil and any boolean value.
+
 (extend-protocol IRuleHandlerResponse
   nil
   (success? [_] false)
@@ -58,7 +70,11 @@
   (success? [v] v)
   (get-value [_] nil))
 
-(defn compile-rule-handler
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Implementation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn- compile-rule-handler
   "Receives a rule handler and return a compiled version of it.
 
   The compiled version of rule handler consists in
@@ -124,7 +140,6 @@
                :else form))
             rule))
 
-
 (defn- compile-access-rule
   "Receives a access rule and return a compiled version of it.
 
@@ -133,7 +148,7 @@
   that will be used for match the url and `:handler` is a rule
   handler.
 
-  Little overview of aspect of one access rule:
+  Little overview of aspect of access rules:
 
     [{:uri \"/foo\"
       :handler user-access}
@@ -163,6 +178,7 @@
       :handler #<accessrules$compile_rule_handler$fn__14040$fn__14043...>
   "
   [accessrule]
+  {:pre [(map? accessrule)]}
   (let [handler (compile-rule-handler (:handler accessrule))
         matcher (cond
                  (:pattern accessrule)
@@ -195,8 +211,8 @@
   (mapv compile-access-rule accessrules))
 
 (defn- match-access-rules
-  "Iterates over all rules and try match each one
-  in order. Return a first matched rule or nil."
+  "Iterates over all access rules and try match each one
+  in order. Return a first matched access rule or nil."
   [accessrules request]
   (first (filter (fn [accessrule]
                    (let [matcher (:matcher accessrule)]
@@ -204,7 +220,17 @@
                  accessrules)))
 
 (defn- handle-error
-  [rsp request {:keys [reject-handler on-error redirect]}]
+  "Handles the error situation when access rules are
+  evaluated in `wrap-access-rules` middleware.
+
+  It receives a hanlder response (anything that rule handler may
+  return), a current request and a hashmap passwd to the access
+  rule defintion.
+
+  The received response are mandatory satisfies
+  IRuleHandlerResponse protocol."
+  [response request {:keys [reject-handler on-error redirect]}]
+  {:pre [(satisfies? IRuleHandlerResponse response)]}
   (let [val (get-value rsp)]
     (cond
      (ring/response? val)
@@ -226,8 +252,12 @@
      :else
      (throw-unauthorized))))
 
-(defn apply-match-rule
+(defn- apply-matched-access-rule
+  "Simple helper that executes the rule handler
+  of received access rule and returns the result."
   [match request]
+  {:pre [(map? match)
+         (contains? match :handler)]}
   (let [handler (:handler match)]
     (handler request)))
 
@@ -256,7 +286,7 @@
   (let [accessrules (compile-access-rules rules)]
     (fn [request]
       (if-let [match (match-access-rules accessrules request)]
-        (let [res (apply-match-rule match request)]
+        (let [res (apply-matched-access-rule match request)]
           (if (success? res)
            (handler request)
            (handle-error res request (merge opts match))))
