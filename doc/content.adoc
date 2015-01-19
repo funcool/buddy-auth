@@ -195,6 +195,40 @@ tokens.
 
 It parses a token header instead of http basic and passes it to _authfn_ for authentication.
 
+Let see an example:
+
+[source, clojure]
+----
+(require '[buddy.auth.backends.token :refer [token-backend]])
+
+;; Define a in-memory relation between tokens and users:
+(def tokens {:2f904e245c1f5 :admin
+             :45c1f5e3f05d0 :foouser})
+
+;; Define a authfn, function with the responsability
+;; to authenticate the incoming token and return a
+;; identity instance
+
+(defn my-authfn
+  [request token]
+  (let [token (keyword token)]
+    (get tokens token nil)))
+
+;; Create a instance
+(def backend (token-backend {:authfn my-authfn}))
+
+;; Wrap your ring handler.
+(def app (-> my-sample-handler
+             (wrap-authentication backend)))
+----
+
+When, "Token 2f904e245c1f5" is received on "Authorization" header, *my-authfn* will be
+executed with token as value. The responsability of *my-authfn* is return a valid user
+or nil.
+
+WARNING: this backend does not implement the `IAuthorization` protocol and is not valid
+backend for using as authorization backend.
+
 
 === Signed Token (Stateless)
 
@@ -208,6 +242,9 @@ Good resours for learning about that:
 
 - http://lucumr.pocoo.org/2013/11/17/my-favorite-database/
 - http://www.niwi.be/2014/06/07/stateless-authentication-with-api-rest/
+
+WARNING: this backend does not implement the `IAuthorization` protocol and is not valid
+backend for using as authorization backend.
 
 
 == Authorization
