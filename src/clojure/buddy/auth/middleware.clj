@@ -49,7 +49,7 @@
   [callable]
   {:pre [(fn? callable)]}
   (reify
-    proto/IAuthentication
+    proto/IAuthorization
     (handle-unauthorized [_ request errordata]
       (callable request errordata))))
 

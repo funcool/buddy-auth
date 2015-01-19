@@ -245,16 +245,16 @@
   IRuleHandlerResponse protocol."
   [response request {:keys [reject-handler on-error redirect]}]
   {:pre [(satisfies? IRuleHandlerResponse response)]}
-  (let [val (get-value rsp)]
+  (let [val (get-value response)]
     (cond
-     (ring/response? val)
-     val
-
      (string? redirect)
      (ring/redirect redirect)
 
      (fn? on-error)
      (on-error request val)
+
+     (ring/response? val)
+     val
 
      (fn? reject-handler)
      (reject-handler request val)
@@ -327,7 +327,7 @@
   [handler rule]
   (let [match (compile-access-rule rule)]
     (fn [request]
-      (let [rsp (apply-match-rule match request)]
+      (let [rsp (apply-matched-access-rule match request)]
         (if (success? rsp)
          (handler request)
          (handle-error rsp request rule))))))
