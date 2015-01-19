@@ -20,6 +20,10 @@
             [slingshot.slingshot :refer [throw+ try+]])
   (:import buddy.exceptions.UnauthorizedAccessException))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Authentication
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn wrap-authentication
   "Ring middleware that enables authentication
   for your ring handler."
@@ -34,21 +38,44 @@
             (if (response? rsq) rsq
               (handler (or rsq request)))))))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Authorization
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn- fn->authorization-backend
+  "Given a function that receives two parameters
+  return an anonymous object that implements
+  IAuthorization protocol."
+  [callable]
+  {:pre [(fn? callable)]}
+  (reify
+    proto/IAuthentication
+    (handle-unauthorized [_ request errordata]
+      (callable request errordata))))
+
 (defn wrap-authorization
   "Ring middleware that enables authorization
-  workflow for your ring handler."
-  [handler & [backend]]
-  (fn [request]
-    (let [backend (or backend (:auth-backend request))]
-      (if (nil? backend)
-        (throw (IllegalAccessError. "no backend found"))
-        (try+
-         (handler request)
-         (catch Object e
-           (if (satisfies? proto/IAuthorizationdError e)
-             (let [errordata (proto/get-error-data e)]
-               (proto/handle-unauthorized backend request errordata))
-             (throw+))))))))
+  workflow for your ring handler.
+
+  The `backend` parameter should be a plain function
+  that accepts two paramerts: request and errordata
+  hashmap, or an instance that satisfies IAuthorization
+  protocol."
+  [handler backend]
+  (let [backend (cond
+                  (fn? backend)
+                  (fn->authorization-backend backend)
+
+                  (satisfies? proto/IAuthentication backend)
+                  backend)]
+    (fn [request]
+      (try+
+       (handler request)
+       (catch Object e
+         (if (satisfies? proto/IAuthorizationdError e)
+           (let [errordata (proto/get-error-data e)]
+             (proto/handle-unauthorized backend request errordata))
+           (throw+)))))))
 
 (extend-protocol proto/IAuthorizationdError
   buddy.exceptions.UnauthorizedAccessException
