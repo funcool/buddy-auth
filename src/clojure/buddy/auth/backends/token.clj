@@ -31,41 +31,22 @@
     (get matches 1)))
 
 (defn signed-token-backend
-  [& [{:keys [privkey unauthorized-handler max-age]}]]
+  [{:keys [privkey unauthorized-handler max-age]}]
   (reify
     proto/IAuthentication
     (parse [_ request]
       (parse-authorization-header request))
     (authenticate [_ request data]
-      (assoc request :identity (loads data privkey {:max-age max-age})))
-
-    proto/IAuthorization
-    (handle-unauthorized [_ request metadata]
-      (if unauthorized-handler
-        (unauthorized-handler request metadata)
-        (if (authenticated? request)
-          (-> (response "Permission denied")
-              (status 403))
-          (-> (response "Unauthorized")
-              (status 401)))))))
+      (assoc request :identity (loads data privkey {:max-age max-age})))))
 
 (defn token-backend
-  [& [{:keys [authfn unauthorized-handler]}]]
+  [{:keys [authfn unauthorized-handler]}]
+  {:pre [(fn? authfn)]}
   (reify
     proto/IAuthentication
     (parse [_ request]
       (parse-authorization-header request))
     (authenticate [_ request token]
-      (let [rsq (when authfn (authfn request token))]
+      (let [rsq (authfn request token)]
         (if (response? rsq) rsq
-            (assoc request :identity rsq))))
-
-    proto/IAuthorization
-    (handle-unauthorized [_ request metadata]
-      (if unauthorized-handler
-        (unauthorized-handler request metadata)
-        (if (authenticated? request)
-          (-> (response "Permission denied")
-              (status 403))
-          (-> (response "Unauthorized")
-              (status 401)))))))
+            (assoc request :identity rsq))))))
