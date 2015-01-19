@@ -157,6 +157,8 @@ using the standard ring middleware way, with buddy's authentication middleware.
 Now, all incoming requests with basic auth header are properly parsed
 and `:identity` key will be asociated to the request map.
 
+You can see the complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/httpbasic[here] (also with authorization).
+
 
 === Session
 
@@ -183,7 +185,7 @@ value.
 TIP: As you can view, the authentication is completely independent of login/signin. In
 that case, the login handler is a respoibility of user define it.
 
-You can see the complete example of using this backend link:[here] (also with authorization).
+You can see the complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/session[here] (also with authorization).
 
 
 === Token
