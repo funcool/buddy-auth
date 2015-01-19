@@ -3,10 +3,8 @@
 [![Travis Badge](https://img.shields.io/travis/funcool/buddy-auth.svg?style=flat)](https://travis-ci.org/funcool/buddy-auth "Travis Badge")
 [![Dependencies Status](http://jarkeeper.com/funcool/buddy-auth/status.svg)](http://jarkeeper.com/funcool/buddy-auth)
 
-Authentication and Authorization for ring and ring-based web applications.
+*buddy-auth* module is dedicated to provide **Authentication** and **Authorization** facilities
+for ring and ring based web applications.
 
-
-## Documentation
-
-- **Stable version documentation:** https://funcool.github.io/buddy/latest/
-- **Development version documentation:** https://funcool.github.io/buddy/devel/
+See the [documentation](https://funcool.github.io/buddy-auth/latest/) for more detailed
+information.
