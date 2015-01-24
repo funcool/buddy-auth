@@ -60,4 +60,14 @@
     (authenticate [_ request token]
       (let [rsq (authfn request token)]
         (if (response? rsq) rsq
-            (assoc request :identity rsq))))))
+            (assoc request :identity rsq))))
+
+    proto/IAuthorization
+    (handle-unauthorized [_ request metadata]
+      (if unauthorized-handler
+        (unauthorized-handler request metadata)
+        (if (authenticated? request)
+          (-> (response "Permission denied")
+              (status 403))
+          (-> (response "Unauthorized")
+              (status 401)))))))
