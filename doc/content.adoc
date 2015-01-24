@@ -1,6 +1,6 @@
-= Buddy - Auth facilities for ring based web apps.
+= buddy-auth - Auth facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.be>
-0.3.0-SNAPSHOT
+0.3.0
 :toc: left
 :numbered:
 :source-highlighter: pygments
@@ -39,7 +39,7 @@ vector on your *_project.clj_* file:
 ._on project.clj_
 [source,clojure]
 ----
-[buddy/buddy-auth "0.3.0-SNAPSHOT"]
+[buddy/buddy-auth "0.3.0"]
 ----
 
 === Gradle
@@ -48,7 +48,7 @@ If you are using gradle, this is a dependency line for gradle dsl:
 
 [source,groovy]
 ----
-compile "buddy:buddy-auth:0.3.0-SNAPSHOT"
+compile "buddy:buddy-auth:0.3.0"
 ----
 
 === Get the Code
@@ -110,12 +110,13 @@ systems, but is a good first step for understand how buddy authentication works.
     (response "Hello Anonymous")))
 ----
 
-Http Basic backend in this case requires one function with parameter
-that takes a responsability to identify the incoming request.
+Http Basic requires a function with the responsability of
+identify the incoming request called *authfn*.
 
-The required function is caled in authentication of parsed data
-and it receives the current *ring request* and *parsed data* from parse
-phase of authentication.
+The *authfn* function should accept a _request_ as first parameter
+and _authdata_ as second. _authdata_ is a data parsed from request in
+the *parse* step. The *authfn* will be called only if *parse* process
+returns parsed data.
 
 .Create an instance of authentication backend.
 [source, clojure]
@@ -226,9 +227,6 @@ When, "Token 2f904e245c1f5" is received on "Authorization" header, *my-authfn* w
 executed with token as value. The responsability of *my-authfn* is return a valid user
 or nil.
 
-WARNING: this backend does not implement the `IAuthorization` protocol and is not valid
-backend for using as authorization backend.
-
 
 === Signed Token (Stateless)
 
@@ -243,13 +241,11 @@ Good resours for learning about that:
 - http://lucumr.pocoo.org/2013/11/17/my-favorite-database/
 - http://www.niwi.be/2014/06/07/stateless-authentication-with-api-rest/
 
-WARNING: this backend does not implement the `IAuthorization` protocol and is not valid
-backend for using as authorization backend.
-
 
 == Authorization
 
 An other part of auth process is the authorization.
+
 
 === Introduction
 
@@ -319,10 +315,6 @@ system for your ring compatible web application:
         (wrap-authentication backend)
         (wrap-authorization backend))))
 ----
-
-If you want to know how it really works, see xref:how-auth-works[How auth works] section or
-take a look on examples.
-
 
 [[access-rules]]
 == Access Rules
@@ -415,10 +407,8 @@ it for access control for my routes?`"
 
 Buddy exposes two ways to do it:
 
-- Using a _wrap-access-rules_ middleware and define a decoupled
-  list access rules.
-- Using a _restrict_ decorator for set specific rules handlers to concrete
-  ring handler.
+- Using a _wrap-access-rules_ middleware and define a decoupled list access rules.
+- Using a _restrict_ decorator for set specific rules handlers to concrete ring handler.
 
 Here are comple examples of how we can done it:
 
@@ -495,4 +485,67 @@ ring views/handlers, your can use `restrict` decorator.
 (defroutes app
   (GET "/" [] (restrict home-controller {:handler should-be-authenticated
                                          :on-error on-error}))
+----
+
+== How to Contribute?
+
+=== Philosophy
+
+Five most important rules:
+
+- Beautiful is better than ugly.
+- Explicit is better than implicit.
+- Simple is better than complex.
+- Complex is better than complicated.
+- Readability counts.
+
+All contributions to _buddy-auth_ should keep these important rules in mind.
+
+
+=== Procedure
+
+**buddy-auth** unlike Clojure and other Clojure contrib libs, does not have many
+restrictions for contributions. Just follow the following steps depending on the
+situation:
+
+**Bugfix**:
+
+- Fork the GitHub repo.
+- Fix a bug/typo on a new branch.
+- Make a pull-request to master.
+
+**New feature**:
+
+- Open new issue with the new feature proposal.
+- If it is accepted, follow the same steps as "bugfix".
+
+=== License
+
+_buddy-auth_ is licensed under BSD (2-Clause) license:
+
+----
+Copyright (c) 2013-2015, Andrey Antukh <niwi@niwi.be>
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----
