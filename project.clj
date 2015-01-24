@@ -1,4 +1,4 @@
-(defproject buddy/buddy-auth "0.3.0-SNAPSHOT"
+(defproject buddy/buddy-auth "0.3.0"
   :description "Security library for Clojure"
   :url "https://github.com/niwibe/buddy"
   :license {:name "BSD (2-Clause)"
