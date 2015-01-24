@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [buddy/buddy-core "0.3.0"]
                  [buddy/buddy-sign "0.3.0"]
+                 [cuerdas "0.3.0"]
                  [slingshot "0.12.1"]
                  [ring/ring-core "1.3.2" :exclusions [org.clojure/tools.reader]]
                  [clout "2.1.0"]]
