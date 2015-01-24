@@ -14,10 +14,7 @@
   :java-source-paths ["src/java"]
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
   :test-paths ["test"]
-  :profiles {:speclj {:dependencies [[speclj "3.1.0"]]
-                      :test-paths ["spec"]
-                      :plugins [[speclj "3.1.0"]]}
-             :example {:dependencies [[compojure "1.3.1"]
+  :profiles {:example {:dependencies [[compojure "1.3.1"]
                                       [ring "1.3.2"]]}
              :httpbasic-example
              [:example {:source-paths ["examples/httpbasic/src"]
