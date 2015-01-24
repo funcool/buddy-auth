@@ -60,7 +60,7 @@
                       (wrap-authentication backend))
           request (make-request "user" "pass")
           response (handler request)]
-      (is (= (:status response) 401))))
+      (is (= (:identity response) :invalid))))
 
   (testing "Authorization middleware tests 02 with httpbasic backend"
     (let [handler (-> (fn [req] (if (nil? (:identity req))
@@ -70,7 +70,7 @@
                       (wrap-authentication backend))
           request (make-request "foo" "pass")
           response (handler request)]
-      (is (= (:identity response) :foo))))
+      (is (= (:identity response) :valid))))
 
   (testing "Authorization middleware tests 03 with httpbasic backend"
     (let [handler (-> (fn [req] (throw-unauthorized {:msg "FooMsg"}))
