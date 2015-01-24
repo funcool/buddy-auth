@@ -14,6 +14,7 @@
 
 (ns buddy.auth.backends.token
   (:require [buddy.auth.protocols :as proto]
+            [buddy.auth.utils :as utils]
             [buddy.auth :refer [authenticated?]]
             [buddy.sign.generic :refer [loads]]
             [buddy.core.util :refer [maybe-let]]
@@ -24,11 +25,11 @@
   "Given a request, try extract and parse
   authorization header."
   [request]
-  (maybe-let [headers-map (:headers request)
-              auth-header (get headers-map "authorization")
-              pattern     (re-pattern "^Token (.+)$")
-              matches     (re-find pattern auth-header)]
-    (get matches 1)))
+  (let [headers (utils/lowercase-headers (:headers request))
+        pattern (re-pattern "^Token (.+)$")]
+    (some->> (get headers "authorization")
+             (re-find pattern)
+             (second))))
 
 (defn signed-token-backend
   [{:keys [privkey unauthorized-handler max-age]}]
