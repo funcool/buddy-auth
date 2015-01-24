@@ -2,8 +2,9 @@
 
 == Version 0.3.0
 
-Date: unreleased
+Date: 2015-01-24
 
 - First version splitted from monolitic buddy package.
 - Refactored auth access rules module with features from
   https://github.com/yogthos/ring-access-rules
+- Fix bugs on auth backends related to headers parsing.
