@@ -66,7 +66,7 @@
                   (fn? backend)
                   (fn->authorization-backend backend)
 
-                  (satisfies? proto/IAuthentication backend)
+                  (satisfies? proto/IAuthorization backend)
                   backend)]
     (fn [request]
       (try+
