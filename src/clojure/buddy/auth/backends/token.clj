@@ -14,29 +14,45 @@
 
 (ns buddy.auth.backends.token
   (:require [buddy.auth.protocols :as proto]
-            [buddy.auth.utils :as utils]
-            [buddy.auth :refer [authenticated?]]
             [buddy.sign.generic :refer [loads]]
-            [buddy.core.util :refer [maybe-let]]
-            [clojure.string :refer [split]]
-            [ring.util.response :refer [response response? header status]]))
+            [buddy.sign.jws :refer [unsign]]
+            [ring.util.response :refer [response?]]))
+
+
+(defn- handle-unauthorized-default [request]
+  (if (:identity request)
+    {:status 403 :headers {} :body "Permission denied"}
+    {:status 401 :headers {} :body "Unauthorized"}))
+
 
 (defn parse-authorization-header
-  "Given a request, try extract and parse
-  authorization header."
-  [request]
-  (let [headers (utils/lowercase-headers (:headers request))
-        pattern (re-pattern "^Token (.+)$")]
-    (some->> (get headers "authorization")
-             (re-find pattern)
-             (second))))
+  [request token-name]
+  (some->> (get-in request [:headers "authorization"])
+           (re-find (re-pattern (str "^" token-name " (.+)$")))
+           (second)))
 
-(defn signed-token-backend
-  [{:keys [privkey unauthorized-handler max-age]}]
+
+(defn jws-backend
+  [{:keys [privkey unauthorized-handler max-age token-name] :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
     (parse [_ request]
-      (parse-authorization-header request))
+      (parse-authorization-header request token-name))
+    (authenticate [_ request data]
+      (assoc request :identity (unsign data privkey {:max-age max-age})))
+
+    proto/IAuthorization
+    (handle-unauthorized [_ request metadata]
+      (if unauthorized-handler
+        (unauthorized-handler request metadata)
+        (handle-unauthorized-default request)))))
+
+(defn signed-token-backend
+  [{:keys [privkey unauthorized-handler max-age token-name] :or {token-name "Token"}}]
+  (reify
+    proto/IAuthentication
+    (parse [_ request]
+      (parse-authorization-header request token-name))
     (authenticate [_ request data]
       (assoc request :identity (loads data privkey {:max-age max-age})))
 
@@ -44,19 +60,15 @@
     (handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)
-        (if (authenticated? request)
-          (-> (response "Permission denied")
-              (status 403))
-          (-> (response "Unauthorized")
-              (status 401)))))))
+        (handle-unauthorized-default request)))))
 
 (defn token-backend
-  [{:keys [authfn unauthorized-handler]}]
+  [{:keys [authfn unauthorized-handler token-name] :or {token-name "Token"}}]
   {:pre [(fn? authfn)]}
   (reify
     proto/IAuthentication
     (parse [_ request]
-      (parse-authorization-header request))
+      (parse-authorization-header request token-name))
     (authenticate [_ request token]
       (let [rsq (authfn request token)]
         (if (response? rsq) rsq
@@ -66,8 +78,4 @@
     (handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)
-        (if (authenticated? request)
-          (-> (response "Permission denied")
-              (status 403))
-          (-> (response "Unauthorized")
-              (status 401)))))))
+        (handle-unauthorized-default request)))))
