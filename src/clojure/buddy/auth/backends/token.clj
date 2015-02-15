@@ -14,7 +14,6 @@
 
 (ns buddy.auth.backends.token
   (:require [buddy.auth.protocols :as proto]
-            [buddy.sign.generic :refer [loads]]
             [buddy.sign.jws :refer [unsign]]
             [ring.util.response :refer [response?]]))
 

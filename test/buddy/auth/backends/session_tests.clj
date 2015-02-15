@@ -2,7 +2,6 @@
   (:require [clojure.test :refer :all]
             [ring.util.response :refer [response? response]]
             [buddy.core.codecs :refer :all]
-            [buddy.sign.generic :as s]
             [buddy.auth :refer [throw-unauthorized]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))

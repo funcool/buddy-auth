@@ -3,7 +3,6 @@
             [ring.util.response :refer [response? response]]
             [slingshot.slingshot :refer [throw+ try+]]
             [buddy.core.codecs :refer :all]
-            [buddy.sign.generic :as s]
             [buddy.auth :refer [throw-unauthorized]]
             [buddy.auth.protocols :as proto]
             [buddy.auth.middleware :as mw]))
