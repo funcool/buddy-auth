@@ -45,7 +45,7 @@
                      (format "Token %s"))]
      {:headers {"authorization" header}})))
 
-(def jbackend (jws-backend {:privkey secret-key}))
+(def jbackend (jws-backend {:secret secret-key}))
 
 (deftest jws-backend-test
   (testing "Jws token backend authentication"
@@ -85,7 +85,7 @@
   (testing "Jws token unathorized - unauth handler called when provided"
     (let [request (make-jws-request 1 "wrong-key")
           onerror (fn [_ _] {:status 3000})
-          backend (jws-backend {:privkey secret-key
+          backend (jws-backend {:secret secret-key
                                 :unauthorized-handler onerror})
           handler (-> (fn [req] (throw-unauthorized))
                       (wrap-authorization backend)
