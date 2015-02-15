@@ -31,7 +31,6 @@
            (re-find (re-pattern (str "^" token-name " (.+)$")))
            (second)))
 
-
 (defn jws-backend
   [{:keys [privkey unauthorized-handler max-age token-name] :or {token-name "Token"}}]
   (reify
@@ -40,21 +39,6 @@
       (parse-authorization-header request token-name))
     (authenticate [_ request data]
       (assoc request :identity (unsign data privkey {:max-age max-age})))
-
-    proto/IAuthorization
-    (handle-unauthorized [_ request metadata]
-      (if unauthorized-handler
-        (unauthorized-handler request metadata)
-        (handle-unauthorized-default request)))))
-
-(defn signed-token-backend
-  [{:keys [privkey unauthorized-handler max-age token-name] :or {token-name "Token"}}]
-  (reify
-    proto/IAuthentication
-    (parse [_ request]
-      (parse-authorization-header request token-name))
-    (authenticate [_ request data]
-      (assoc request :identity (loads data privkey {:max-age max-age})))
 
     proto/IAuthorization
     (handle-unauthorized [_ request metadata]
