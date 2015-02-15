@@ -1,6 +1,6 @@
 (defproject buddy/buddy-auth "0.4.0-SNAPSHOT"
   :description "Security library for Clojure"
-  :url "https://github.com/niwibe/buddy"
+  :url "https://github.com/funcool/buddy-auth"
   :license {:name "BSD (2-Clause)"
             :url "http://opensource.org/licenses/BSD-2-Clause"}
   :dependencies [[org.clojure/clojure "1.6.0"]
