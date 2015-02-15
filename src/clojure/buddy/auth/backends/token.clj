@@ -32,13 +32,13 @@
            (second)))
 
 (defn jws-backend
-  [{:keys [privkey unauthorized-handler max-age token-name] :or {token-name "Token"}}]
+  [{:keys [secret unauthorized-handler max-age token-name] :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
     (parse [_ request]
       (parse-authorization-header request token-name))
     (authenticate [_ request data]
-      (assoc request :identity (unsign data privkey {:max-age max-age})))
+      (assoc request :identity (unsign data secret {:max-age max-age})))
 
     proto/IAuthorization
     (handle-unauthorized [_ request metadata]
