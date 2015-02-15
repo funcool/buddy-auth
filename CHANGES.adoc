@@ -8,6 +8,7 @@ Date: unreleased
 - Add jws backend, as replacement for signed token backend.
 - Update buddy-core version to 0.4.0
 - Update buddy-sign vetsion to 0.4.0
+- Update slingshot to 0.12.2
 
 
 == Version 0.3.0

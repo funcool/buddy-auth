@@ -7,7 +7,7 @@
                  [buddy/buddy-core "0.4.0-SNAPSHOT"]
                  [buddy/buddy-sign "0.4.0-SNAPSHOT"]
                  [cuerdas "0.3.0"]
-                 [slingshot "0.12.1"]
+                 [slingshot "0.12.2"]
                  [ring/ring-core "1.3.2" :exclusions [org.clojure/tools.reader]]
                  [clout "2.1.0"]]
   :source-paths ["src/clojure"]
