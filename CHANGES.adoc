@@ -1,5 +1,15 @@
 = Changelog
 
+== Version 0.4.0
+
+Date: unreleased
+
+- Removed signed token backend.
+- Add jws backend, as replacement for signed token backend.
+- Update buddy-core version to 0.4.0
+- Update buddy-sign vetsion to 0.4.0
+
+
 == Version 0.3.0
 
 Date: 2015-01-24
