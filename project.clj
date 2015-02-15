@@ -4,8 +4,8 @@
   :license {:name "BSD (2-Clause)"
             :url "http://opensource.org/licenses/BSD-2-Clause"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [buddy/buddy-core "0.3.0"]
-                 [buddy/buddy-sign "0.3.0"]
+                 [buddy/buddy-core "0.4.0-SNAPSHOT"]
+                 [buddy/buddy-sign "0.4.0-SNAPSHOT"]
                  [cuerdas "0.3.0"]
                  [slingshot "0.12.1"]
                  [ring/ring-core "1.3.2" :exclusions [org.clojure/tools.reader]]
