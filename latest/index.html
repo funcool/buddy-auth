@@ -480,7 +480,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>buddy-auth - Auth facilities for ring based apps.</h1>
 <div class="details">
 <span id="author" class="author">Andrey Antukh, &lt;niwi@niwi.be&gt;</span><br>
-<span id="revdate">0.3.0</span>
+<span id="revdate">0.4.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -500,7 +500,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_http_basic">4.1. Http Basic</a></li>
 <li><a href="#_session">4.2. Session</a></li>
 <li><a href="#_token">4.3. Token</a></li>
-<li><a href="#_signed_token_stateless">4.4. Signed Token (Stateless)</a></li>
+<li><a href="#_jws_token_stateless">4.4. Jws Token (Stateless)</a></li>
 </ul>
 </li>
 <li><a href="#_authorization">5. Authorization</a>
@@ -531,7 +531,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_introduction"><a class="link" href="#_introduction">1. Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Buddy <strong>auth</strong> module is dedicated for to provide authentication facilities for
+<p>The buddy <strong>auth</strong> module is dedicated to providing authentication facilities for
 ring and ring based web applications.</p>
 </div>
 </div>
@@ -575,18 +575,18 @@ vector on your <strong><em>project.clj</em></strong> file:</p>
 <div class="listingblock">
 <div class="title"><em>on project.clj</em></div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">buddy/buddy-auth</span> <span class="tok-s">&quot;0.3.0&quot;</span><span class="tok-p">]</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">buddy/buddy-auth</span> <span class="tok-s">&quot;0.4.0&quot;</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_gradle"><a class="link" href="#_gradle">3.3. Gradle</a></h3>
 <div class="paragraph">
-<p>If you are using gradle, this is a dependency line for gradle dsl:</p>
+<p>If you are using gradle, this is a sample dependency declaration using the gradle dsl:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="groovy"><span class="tok-n">compile</span> <span class="tok-s2">&quot;buddy:buddy-auth:0.3.0&quot;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="groovy"><span class="tok-n">compile</span> <span class="tok-s2">&quot;buddy:buddy-auth:0.4.0&quot;</span></code></pre>
 </div>
 </div>
 </div>
@@ -611,12 +611,12 @@ vector on your <strong><em>project.clj</em></strong> file:</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Buddy differs with other libraries because it takes very different approach for handling
-authentication. Firstly, it clearly split authentication and authorization in two
-separate steps. Secondly, it implements it using &#8220;backends&#8221; and protocols for easy
+authentication. Firstly, it clearly splits authentication and authorization in two
+separate steps. Secondly, it implements these concerns using &#8220;backends&#8221; and protocols for ease of
 extensibility.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 1. Here is a list of built-in authentication backends:</caption>
+<caption class="title">Table 1. Here is a list of the built-in authentication backends:</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -641,7 +641,7 @@ extensibility.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends.token</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SignedToken</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Jws Token</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends.token</code></p></td>
 </tr>
 </tbody>
@@ -659,8 +659,8 @@ buddy middlewares without any problem.</p>
 <p><strong>parse</strong>: parsing incoming request headers, parameters etc&#8230;&#8203;</p>
 </li>
 <li>
-<p><strong>authenticate</strong>: having parsed data, do the authentication process, such as call
-auth function, unsign self contained token, whatever.</p>
+<p><strong>authenticate</strong>: having parsed data, do the authentication process, such as calling
+the auth function, unsigning the self contained token, etc.</p>
 </li>
 </ol>
 </div>
@@ -668,10 +668,10 @@ auth function, unsign self contained token, whatever.</p>
 <h3 id="_http_basic"><a class="link" href="#_http_basic">4.1. Http Basic</a></h3>
 <div class="paragraph">
 <p>The HTTP Basic authentication backend is one of the simplest and most insecure authentication
-systems, but is a good first step for understand how buddy authentication works.</p>
+systems, but is a good first step for understanding how buddy authentication works.</p>
 </div>
 <div class="listingblock">
-<div class="title">Simple ring handler/view for example purpose.</div>
+<div class="title">Simple example ring handler/view</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">authenticated?</span><span class="tok-p">)])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">ring.util.response</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">response</span><span class="tok-p">)])</span>
@@ -688,21 +688,21 @@ systems, but is a good first step for understand how buddy authentication works.
 </div>
 <div class="paragraph">
 <p>Http Basic requires a function with the responsability of
-identify the incoming request called <strong>authfn</strong>.</p>
+identifying the incoming request called <strong>authfn</strong>.</p>
 </div>
 <div class="paragraph">
-<p>The <strong>authfn</strong> function should accept a <em>request</em> as first parameter
-and <em>authdata</em> as second. <em>authdata</em> is a data parsed from request in
-the <strong>parse</strong> step. The <strong>authfn</strong> will be called only if <strong>parse</strong> process
+<p>The <strong>authfn</strong> function should accept a <em>request</em> as the first parameter
+and <em>authdata</em> as the second. <em>authdata</em> is data parsed from the request in
+the <strong>parse</strong> step. The <strong>authfn</strong> will be called only if the <strong>parse</strong> process
 returns parsed data.</p>
 </div>
 <div class="listingblock">
-<div class="title">Create an instance of authentication backend.</div>
+<div class="title">Create an instance of the authentication backend.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.httpbasic</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">http-basic-backend</span><span class="tok-p">]])</span>
 
 <span class="tok-c1">;; This function should return a non-nil value that</span>
-<span class="tok-c1">;; is automatically stored on :identity key on request</span>
+<span class="tok-c1">;; is automatically stored with an :identity key on the request</span>
 <span class="tok-c1">;; If it returns nil, a request is considered unauthenticated.</span>
 
 <span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">my-authfn</span>
@@ -715,20 +715,20 @@ returns parsed data.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Now having simple view function and backend defined, you should wrap it
+<p>Now having a simple view function and the backend defined, you should wrap it
 using the standard ring middleware way, with buddy&#8217;s authentication middleware.</p>
 </div>
 <div class="listingblock">
-<div class="title">Declare auth function and create ring app with wrapped handler.</div>
+<div class="title">Declare the auth function and create a ring app with the wrapped handler.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.middleware</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">wrap-authentication</span><span class="tok-p">]])</span>
 
 <span class="tok-c1">;; Define the main handler with *app* name wrapping it</span>
-<span class="tok-c1">;; with authentication middleware using an instance of</span>
+<span class="tok-c1">;; with authentication middleware using an instance of the</span>
 <span class="tok-c1">;; just created http-basic backend.</span>
 
 <span class="tok-c1">;; Define app var with handler wrapped with buddy&#39;s authentication</span>
-<span class="tok-c1">;; middleware using just previously defined backend.</span>
+<span class="tok-c1">;; middleware using the previously defined backend.</span>
 
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">app</span> <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-nv">my-sample-handler</span>
              <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span> <span class="tok-nv">backend</span><span class="tok-p">)))</span></code></pre>
@@ -736,10 +736,10 @@ using the standard ring middleware way, with buddy&#8217;s authentication middle
 </div>
 <div class="paragraph">
 <p>Now, all incoming requests with basic auth header are properly parsed
-and <code>:identity</code> key will be asociated to the request map.</p>
+and the <code>:identity</code> key will be assoc&#8217;ed to the request map.</p>
 </div>
 <div class="paragraph">
-<p>You can see the complete example of using this backend <a href="https://github.com/funcool/buddy-auth/tree/master/examples/httpbasic">here</a> (also with authorization).</p>
+<p>You can see a complete example of using this backend <a href="https://github.com/funcool/buddy-auth/tree/master/examples/httpbasic">here</a> (also with authorization).</p>
 </div>
 </div>
 <div class="sect2">
@@ -750,11 +750,11 @@ entirely on ring session support.</p>
 </div>
 <div class="paragraph">
 <p>It checks the <code>:identity</code> key in the session to authenticate the user with its
-value. The value is identified as logged-in user if it contains any logical true
+value. The value is identified as a logged-in user if it contains any logical true
 value.</p>
 </div>
 <div class="listingblock">
-<div class="title">Simple example creating session backend instance and wrapping our handler</div>
+<div class="title">Simple example creating a session backend instance and wrapping our handler</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.session</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">session-backend</span><span class="tok-p">]])</span>
 
@@ -773,27 +773,27 @@ value.</p>
 <div class="title">Tip</div>
 </td>
 <td class="content">
-As you can view, the authentication is completely independent of login/signin. In
-that case, the login handler is a respoibility of user define it.
+As you can see, the authentication is completely independent of login/signin. It&#8217;s up to
+you to implement the login handler.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>You can see the complete example of using this backend <a href="https://github.com/funcool/buddy-auth/tree/master/examples/session">here</a> (also with authorization).</p>
+<p>You can see a complete example of using this backend <a href="https://github.com/funcool/buddy-auth/tree/master/examples/session">here</a> (also with authorization).</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_token"><a class="link" href="#_token">4.3. Token</a></h3>
 <div class="paragraph">
-<p>This backend works much like the basic auth backend with the difference that this works with
-tokens.</p>
+<p>This backend works much like the basic auth backend with the major difference being that this assumes
+the use of tokens.</p>
 </div>
 <div class="paragraph">
 <p>It parses a token header instead of http basic and passes it to <em>authfn</em> for authentication.</p>
 </div>
 <div class="paragraph">
-<p>Let see an example:</p>
+<p>Let us see an example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -804,7 +804,7 @@ tokens.</p>
              <span class="tok-ss">:45c1f5e3f05d0</span> <span class="tok-ss">:foouser</span><span class="tok-p">})</span>
 
 <span class="tok-c1">;; Define a authfn, function with the responsability</span>
-<span class="tok-c1">;; to authenticate the incoming token and return a</span>
+<span class="tok-c1">;; to authenticate the incoming token and return an</span>
 <span class="tok-c1">;; identity instance</span>
 
 <span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">my-authfn</span>
@@ -821,23 +821,28 @@ tokens.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>When, "Token 2f904e245c1f5" is received on "Authorization" header, <strong>my-authfn</strong> will be
-executed with token as value. The responsability of <strong>my-authfn</strong> is return a valid user
+<p>When, "Token 2f904e245c1f5" is received in the "Authorization" header, <strong>my-authfn</strong> will be
+executed with token as value. The responsability of <strong>my-authfn</strong> is to return a valid user
 or nil.</p>
+</div>
+<div class="paragraph">
+<p>If you are so inclined, you may use a different name for your token, using the <strong>token-name</strong> optional
+key when defining your backend.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_signed_token_stateless"><a class="link" href="#_signed_token_stateless">4.4. Signed Token (Stateless)</a></h3>
+<h3 id="_jws_token_stateless"><a class="link" href="#_jws_token_stateless">4.4. Jws Token (Stateless)</a></h3>
 <div class="paragraph">
 <p>This backend is very similar to standard token backend previously explained, but instead
 of relying on <em>authfn</em> for identify a token, it uses stateless tokens (contains all needed
-data in a token, without storing any information about token on database as ex&#8230;&#8203;).</p>
+data in a token, without storing any information about the token in a database or elsewhere).</p>
 </div>
 <div class="paragraph">
-<p>This backend relies on the security of the high level signing framework for user authentication.</p>
+<p>This backend relies on the security of the high level signing framework for user authentication,
+concretely: JWS/JWT.</p>
 </div>
 <div class="paragraph">
-<p>Good resours for learning about that:</p>
+<p>Some valuable resources for learning about stateless authentication are:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -856,7 +861,7 @@ data in a token, without storing any information about token on database as ex&#
 <h2 id="_authorization"><a class="link" href="#_authorization">5. Authorization</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>An other part of auth process is the authorization.</p>
+<p>The second part of the auth process is authorization.</p>
 </div>
 <div class="sect2">
 <h3 id="_introduction_2"><a class="link" href="#_introduction_2">5.1. Introduction</a></h3>
@@ -865,8 +870,8 @@ data in a token, without storing any information about token on database as ex&#
 (explained in other section).</p>
 </div>
 <div class="paragraph">
-<p>The generic authorization consists in raising one specific exception in a ring handler for
-indicate the unauthorized access. It is less functional, but in some circumstances can work
+<p>The generic authorization consists of raising a specific exception (using <strong>buddy.auth/throw-unauthorized</strong>) in a ring handler to
+indicate unauthorized access. This is less functional, but in some circumstances works
 very well.</p>
 </div>
 </div>
@@ -874,15 +879,15 @@ very well.</p>
 <h3 id="_how_does_it_work"><a class="link" href="#_how_does_it_work">5.2. How does it work?</a></h3>
 <div class="paragraph">
 <p>The authorization backend wraps everything in a try/catch block only
-watching for specific exception, and in case of unauthorized exception is intercepted,
-executes a specific function for handle it or reraise the exception.</p>
+handles the specific exception. When an unauthorized exception is caught, it
+executes a specific function to handle it or reraises the exception.</p>
 </div>
 <div class="paragraph">
 <p>With this approach you can define your own middlewared/decorators using custom authorization
-logic with fast skip raising not authorized exception using the <code>throw-unauthorized</code> function.</p>
+logic with fast skip raising a not authorized exception using the <code>throw-unauthorized</code> function.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example ring handler raising unauthorized exception.</div>
+<div class="title">Example ring handler raising an unauthorized exception.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">authenticated?</span> <span class="tok-nv">throw-unauthorized</span><span class="tok-p">]])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">ring.util.response</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">response</span> <span class="tok-nv">redirect</span><span class="tok-p">)])</span>
@@ -895,7 +900,7 @@ logic with fast skip raising not authorized exception using the <code>throw-unau
 </div>
 </div>
 <div class="paragraph">
-<p>Like authentication system, authorization is also implemented using protocols. Taking advantage of
+<p>Just like the authentication system, authorization is also implemented using protocols. Taking advantage of
 it, all built-in authentication backends also implement this authorization protocol (<code>IAuthorization</code>):</p>
 </div>
 <div class="admonitionblock note">
@@ -907,11 +912,11 @@ it, all built-in authentication backends also implement this authorization proto
 <td class="content">
 <div class="paragraph">
 <p>Some authentication backends require specific behavior in the authorization layer (like http-basic
-which should return <code>WWW-Authenticate</code> header when request is unauthorized). By default, all backends
-come with an specific implementation.</p>
+which should return a <code>WWW-Authenticate</code> header when the request is unauthorized). By default, all backends
+ships with a default implementation.</p>
 </div>
 <div class="paragraph">
-<p>You can overwrite the default behavior by passing your own exception handler through the
+<p>You can override the default behavior by passing your own exception handler through the
 <code>:unauthorized-handler</code> keyword parameter in the backend constructor.</p>
 </div>
 </td>
@@ -928,10 +933,9 @@ system for your ring compatible web application:</p>
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.httpbasic</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">http-basic-backend</span><span class="tok-p">]])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.middleware</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">wrap-authentication</span> <span class="tok-nv">wrap-authorization</span><span class="tok-p">]])</span>
 
-<span class="tok-c1">;; Define the final handler wrapping it on authentication and</span>
-<span class="tok-c1">;; authorization handler using the same backend and overwriting</span>
-<span class="tok-c1">;; the default unathorized request behavior with own, previously</span>
-<span class="tok-c1">;; defined function</span>
+<span class="tok-c1">;; Define the final handler wrapping it in the authentication and</span>
+<span class="tok-c1">;; authorization handlers. Use the same backend and overide</span>
+<span class="tok-c1">;; the default unathorized request behavior with your own defined function</span>
 
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">app</span>
   <span class="tok-p">(</span><span class="tok-k">let </span><span class="tok-p">[</span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">http-basic-backend</span>
@@ -952,22 +956,22 @@ system for your ring compatible web application:</p>
 <div class="sect2">
 <h3 id="_introduction_3"><a class="link" href="#_introduction_3">6.1. Introduction</a></h3>
 <div class="paragraph">
-<p>The access rules system is another part of the authorization, and it consists in match a url to
-specific access rule logic.</p>
+<p>The access rules system is another part of authorization. It consists of matching an url to
+specific access rules logic.</p>
 </div>
 <div class="paragraph">
-<p>The access rules consists in one ordered list, with mappings between urls and rule handler using
-<a href="https://github.com/weavejester/clout">clout</a> url matching syntax o regular expressions.</p>
+<p>The access rules consists of an ordered list. This contains mappings between urls and rule handlers using
+<a href="https://github.com/weavejester/clout">clout</a> url matching syntax or regular expressions.</p>
 </div>
 <div class="listingblock">
-<div class="title">This is an example of one access rule using clout syntax.</div>
+<div class="title">This is an example of an access rule using the clout syntax.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[{</span><span class="tok-ss">:uri</span> <span class="tok-s">&quot;/foo&quot;</span>
   <span class="tok-ss">:handler</span> <span class="tok-nv">user-access</span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">This is an example of one access rule with more that one url matching using clout syntax.</div>
+<div class="title">This is an example of an access rule with more than one url matching using the clout syntax.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[{</span><span class="tok-ss">:uris</span> <span class="tok-p">[</span><span class="tok-s">&quot;/foo&quot;</span> <span class="tok-s">&quot;/bar&quot;</span><span class="tok-p">]</span>
   <span class="tok-ss">:handler</span> <span class="tok-nv">user-access</span><span class="tok-p">}</span></code></pre>
@@ -985,13 +989,13 @@ specific access rule logic.</p>
 <h3 id="_rules_handlers"><a class="link" href="#_rules_handlers">6.2. Rules Handlers</a></h3>
 <div class="paragraph">
 <p>The rule handler, as unit of work is a plain function that accepts
-request as parameters and should return <code>accessrules/success</code> or <code>accessrules/error</code>.</p>
+request as parameter and should return <code>accessrules/success</code> or <code>accessrules/error</code>.</p>
 </div>
 <div class="paragraph">
 <p>The <code>success</code> is a simple mark that means that handles passes the validation
-and <code>error</code> is a mark that means the opposite, that the handler does not pases
+and <code>error</code> is a mark that means the opposite, that the handler does not pass
 the validation. Instead of returning plain boolean value, this approach allows
-to handlers return errors messages or even an ring response.</p>
+handlers to return errors messages or even an ring response.</p>
 </div>
 <div class="listingblock">
 <div class="title">This is a simple example of the aspect of one rule handler</div>
@@ -1007,12 +1011,12 @@ to handlers return errors messages or even an ring response.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This values are considered success marks: <strong>true</strong> and <strong>success</strong> instance. And that ones are
-considered error marks: <strong>nil</strong>, <strong>false</strong>, <strong>error</strong> instance. Error instances can contain
-a string as error message or ring response hash-map.</p>
+<p>This values are considered success marks: <strong>true</strong> and <strong>success</strong> instance. The ones that are
+considered error marks: <strong>nil</strong>, <strong>false</strong>, <strong>error</strong> instance. Error instances may contain
+a string as error message or a ring response hash-map.</p>
 </div>
 <div class="paragraph">
-<p>Also, a rule handler can be a composition of few ones using logical operators.</p>
+<p>Also, a rule handler can be a composition of several rule handlers using logical operators.</p>
 </div>
 <div class="listingblock">
 <div class="title">This is the aspect of composition of rule-handlers</div>
@@ -1022,7 +1026,7 @@ a string as error message or ring response hash-map.</p>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">Logical expressions can be nestest as deep as you want.</div>
+<div class="title">Logical expressions can be nested as deep as you wish.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">{</span><span class="tok-ss">:or</span> <span class="tok-p">[</span><span class="tok-nv">should-be-admin</span>
       <span class="tok-p">{</span><span class="tok-ss">:and</span> <span class="tok-p">[</span><span class="tok-nv">should-be-safe</span>
@@ -1030,7 +1034,7 @@ a string as error message or ring response hash-map.</p>
 </div>
 </div>
 <div class="listingblock">
-<div class="title">This is an example of how an composed rule handler can be used in an access rule.</div>
+<div class="title">This is an example of how a composed rule handler can be used in an access rule.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[{</span><span class="tok-ss">:pattern</span> <span class="tok-o">#</span><span class="tok-s">&quot;^/foo$&quot;</span>
   <span class="tok-ss">:handler</span> <span class="tok-p">{</span><span class="tok-ss">:and</span> <span class="tok-p">[</span><span class="tok-nv">authenticated-user</span> <span class="tok-nv">admin-user</span><span class="tok-p">]}}]</span></code></pre>
@@ -1049,21 +1053,21 @@ it for access control for my routes?&#8221;</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Using a <em>wrap-access-rules</em> middleware and define a decoupled list access rules.</p>
+<p>Using a <em>wrap-access-rules</em> middleware and defining a decoupled list of access rules.</p>
 </li>
 <li>
-<p>Using a <em>restrict</em> decorator for set specific rules handlers to concrete ring handler.</p>
+<p>Using a <em>restrict</em> decorator for assigning specific rules handlers to concrete ring handler.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>Here are comple examples of how we can done it:</p>
+<p>Here are couple of examples of how we could do it:</p>
 </div>
 <div class="listingblock">
 <div class="title">Using <em>wrap-access-rules</em> middleware.</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-c1">;; Rules handlers used on this example are omited for code clarity</span>
-<span class="tok-c1">;; and them repsents a authorization logic for its name.</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-c1">;; Rules handlers used on this example are ommited for code clarity</span>
+<span class="tok-c1">;; Each handler represent authorization logic indicated by its name.</span>
 
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">rules</span> <span class="tok-p">[{</span><span class="tok-ss">:pattern</span> <span class="tok-o">#</span><span class="tok-s">&quot;^/admin/.*&quot;</span>
              <span class="tok-ss">:handler</span> <span class="tok-p">{</span><span class="tok-ss">:or</span> <span class="tok-p">[</span><span class="tok-nv">admin-access</span> <span class="tok-nv">operator-access</span><span class="tok-p">]}}</span>
@@ -1074,8 +1078,8 @@ it for access control for my routes?&#8221;</p>
 
 <span class="tok-c1">;; Define default behavior for not authorized requests</span>
 <span class="tok-c1">;;</span>
-<span class="tok-c1">;; This functions works like default ring compatible handler</span>
-<span class="tok-c1">;; and should implement the default behavior for request</span>
+<span class="tok-c1">;; This functions works like a default ring compatible handler</span>
+<span class="tok-c1">;; and should implement the default behavior for requests</span>
 <span class="tok-c1">;; that are not authorized by any defined rule</span>
 
 <span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">on-error</span>
@@ -1093,13 +1097,13 @@ it for access control for my routes?&#8221;</p>
 </div>
 </div>
 <div class="paragraph">
-<p>If request uri does not match any regular expression then the default policy is used
-Default policy in buddy is <strong>allow</strong> but you can change the default behavior
-specify <code>:reject</code> value to <code>:policy</code> option.</p>
+<p>If a request uri does not match any regular expression then the default policy is used
+The default policy in buddy is <strong>allow</strong> but you can change the default behavior
+specifying a <code>:reject</code> value in the <code>:policy</code> option.</p>
 </div>
 <div class="paragraph">
-<p>Additionally, instead of specify the global <em>on-error</em> handler, you can set a specific
-behavior on specific access rule, o use the <em>:redirect</em> option for simply redirect
+<p>Additionally, instead of specifying the global <em>on-error</em> handler, you can set a specific
+behavior on a specific access rule, or use the <em>:redirect</em> option to simply redirect
 a user to specific url.</p>
 </div>
 <div class="listingblock">
@@ -1116,11 +1120,11 @@ a user to specific url.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The access rule options are always has more preference that global ones.</p>
+<p>The access rule options always takes precedence over the global ones.</p>
 </div>
 <div class="paragraph">
-<p>If you don&#8217;t want an external rules list and simple want apply some rules to specific
-ring views/handlers, your can use <code>restrict</code> decorator.</p>
+<p>If you don&#8217;t want an external rules list and simply want to apply some rules to specific
+ring views/handlers, you can use the <code>restrict</code> decorator.</p>
 </div>
 <div class="listingblock">
 <div class="title">Using <em>restrict</em> decorator.</div>
@@ -1199,7 +1203,7 @@ situation:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Open new issue with the new feature proposal.</p>
+<p>Open new issues with the new feature proposal.</p>
 </li>
 <li>
 <p>If it is accepted, follow the same steps as "bugfix".</p>
@@ -1246,7 +1250,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-24 19:33:31 CET
+Last updated 2015-02-22 12:01:08 CET
 </div>
 </div>
 </body>
