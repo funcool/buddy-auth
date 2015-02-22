@@ -1,6 +1,6 @@
 = buddy-auth - Auth facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.be>
-0.3.0
+0.4.0
 :toc: left
 :numbered:
 :source-highlighter: pygments
@@ -39,7 +39,7 @@ vector on your *_project.clj_* file:
 ._on project.clj_
 [source,clojure]
 ----
-[buddy/buddy-auth "0.3.0"]
+[buddy/buddy-auth "0.4.0"]
 ----
 
 === Gradle
@@ -48,7 +48,7 @@ If you are using gradle, this is a sample dependency declaration using the gradl
 
 [source,groovy]
 ----
-compile "buddy:buddy-auth:0.3.0"
+compile "buddy:buddy-auth:0.4.0"
 ----
 
 === Get the Code
@@ -76,7 +76,6 @@ extensibility.
 | Http Basic   | `buddy.auth.backends.httpbasic`
 | Session      | `buddy.auth.backends.session`
 | Token        | `buddy.auth.backends.token`
-| SignedToken  | `buddy.auth.backends.token`
 | Jws Token    | `buddy.auth.backends.token`
 |================================================
 
@@ -231,24 +230,20 @@ or nil.
 If you are so inclined, you may use a different name for your token, using the **token-name** optional
 key when defining your backend.
 
-=== Signed Token (Stateless)
+
+=== Jws Token (Stateless)
 
 This backend is very similar to standard token backend previously explained, but instead
 of relying on _authfn_ for identify a token, it uses stateless tokens (contains all needed
 data in a token, without storing any information about the token in a database or elsewhere).
 
-This backend relies on the security of the high level signing framework for user authentication.
+This backend relies on the security of the high level signing framework for user authentication,
+concretely: JWS/JWT.
 
 Some valuable resources for learning about stateless authentication are:
 
 - http://lucumr.pocoo.org/2013/11/17/my-favorite-database/
 - http://www.niwi.be/2014/06/07/stateless-authentication-with-api-rest/
-
-
-=== Jws Token (Stateless)
-
-The Jws token backend is almost identical to the signed token backend. The only difference
-is that the supplied token should be signed using **buddy.sign.jws**.
 
 
 == Authorization
