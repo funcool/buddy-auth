@@ -2,7 +2,7 @@
 
 == Version 0.4.0
 
-Date: unreleased
+Date: 2014-02-22
 
 - Removed signed token backend.
 - Add jws backend, as replacement for signed token backend.
