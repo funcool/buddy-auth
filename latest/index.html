@@ -516,11 +516,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_usage">6.3. Usage</a></li>
 </ul>
 </li>
-<li><a href="#_how_to_contribute">7. How to Contribute?</a>
+<li><a href="#_faq">7. FAQ</a></li>
+<li><a href="#_how_to_contribute">8. How to Contribute?</a>
 <ul class="sectlevel2">
-<li><a href="#_philosophy">7.1. Philosophy</a></li>
-<li><a href="#_procedure">7.2. Procedure</a></li>
-<li><a href="#_license">7.3. License</a></li>
+<li><a href="#_philosophy">8.1. Philosophy</a></li>
+<li><a href="#_procedure">8.2. Procedure</a></li>
+<li><a href="#_license">8.3. License</a></li>
 </ul>
 </li>
 </ul>
@@ -1144,10 +1145,34 @@ ring views/handlers, you can use the <code>restrict</code> decorator.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_how_to_contribute"><a class="link" href="#_how_to_contribute">7. How to Contribute?</a></h2>
+<h2 id="_faq"><a class="link" href="#_faq">7. FAQ</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>What is the difference with Friend?</strong></p>
+</div>
+<div class="paragraph">
+<p>Buddy authorization/authentication facilities are more low level and less opinionated
+that friend and allow build over them easy other high level abstractions.
+Technically, friend abstraction can be build on top of buddy.</p>
+</div>
+<div class="paragraph">
+<p><strong>How can I use <em>buddy</em> with <a href="http://clojure-liberator.github.io/liberator/">liberator</a>?</strong></p>
+</div>
+<div class="paragraph">
+<p>By design, <em>buddy</em> has authorization and authentication well
+separated. This helps a lot if you want use only one part of it (ex:
+authentication only) without including the other.</p>
+</div>
+<div class="paragraph">
+<p>In summary: yes, you can use buddy with liberator.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_how_to_contribute"><a class="link" href="#_how_to_contribute">8. How to Contribute?</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_philosophy"><a class="link" href="#_philosophy">7.1. Philosophy</a></h3>
+<h3 id="_philosophy"><a class="link" href="#_philosophy">8.1. Philosophy</a></h3>
 <div class="paragraph">
 <p>Five most important rules:</p>
 </div>
@@ -1175,7 +1200,7 @@ ring views/handlers, you can use the <code>restrict</code> decorator.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_procedure"><a class="link" href="#_procedure">7.2. Procedure</a></h3>
+<h3 id="_procedure"><a class="link" href="#_procedure">8.2. Procedure</a></h3>
 <div class="paragraph">
 <p><strong>buddy-auth</strong> unlike Clojure and other Clojure contrib libs, does not have many
 restrictions for contributions. Just follow the following steps depending on the
@@ -1212,7 +1237,7 @@ situation:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_license"><a class="link" href="#_license">7.3. License</a></h3>
+<h3 id="_license"><a class="link" href="#_license">8.3. License</a></h3>
 <div class="paragraph">
 <p><em>buddy-auth</em> is licensed under BSD (2-Clause) license:</p>
 </div>
@@ -1250,7 +1275,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-22 12:01:08 CET
+Last updated 2015-02-24 17:27:28 CET
 </div>
 </div>
 </body>
