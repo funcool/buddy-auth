@@ -490,6 +490,24 @@ ring views/handlers, you can use the `restrict` decorator.
                                          :on-error on-error}))
 ----
 
+== FAQ
+
+*What is the difference with Friend?*
+
+Buddy authorization/authentication facilities are more low level and less opinionated
+that friend and allow build over them easy other high level abstractions.
+Technically, friend abstraction can be build on top of buddy.
+
+
+*How can I use _buddy_ with link:http://clojure-liberator.github.io/liberator/[liberator]?*
+
+By design, _buddy_ has authorization and authentication well
+separated. This helps a lot if you want use only one part of it (ex:
+authentication only) without including the other.
+
+In summary: yes, you can use buddy with liberator.
+
+
 == How to Contribute?
 
 === Philosophy
