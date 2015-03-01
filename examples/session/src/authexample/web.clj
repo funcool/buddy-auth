@@ -96,7 +96,7 @@
 (defroutes app
   (GET "/" [] home)
   (GET "/login" [] login)
-  (POST "/login" [username password] login-authenticate)
+  (POST "/login" [] login-authenticate)
   (GET "/logout" [] logout))
 
 
