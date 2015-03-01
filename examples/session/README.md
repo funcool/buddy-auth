@@ -1,10 +1,10 @@
 # Buddy example auth
 
-This sample service application provides rest services for handlng user authentication.
+This example application shows how to use buddy auth. 
 
-Userds:
-* admin, password "secret"
-* test, password "secret"
+Users:
+* user: admin, password "secret"
+* user: test, password "secret"
 
 ## Running the app
 
