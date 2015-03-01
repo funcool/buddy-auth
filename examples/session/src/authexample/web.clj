@@ -1,4 +1,14 @@
-(ns session.core
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a full buddy auth example
+;
+; TODO
+; * login on homepage
+; * if wrong user/pass then show error
+; * session timeout (?)
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(ns authexample.web
   (:require [compojure.route :as route]
             [compojure.core :refer :all]
             [compojure.response :refer [render]]
@@ -10,7 +20,11 @@
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
+  (:require [taoensso.timbre :as timbre])
   (:gen-class))
+
+(timbre/refer-timbre)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Controllers                                      ;;
@@ -30,8 +44,8 @@
 ;; Global var that stores valid users with their
 ;; respective passwords.
 
-(def authdata {:admin "123123"
-               :foo "dragon"})
+(def authdata {:admin "secret"
+               :test "secret"})
 
 ;; Login page controller
 ;; It returns a login page on get requests.
@@ -47,9 +61,12 @@
 
 (defn login-authenticate
   [request]
+  (info ">> login request " request)
   (let [username (get-in request [:form-params "username"])
         password (get-in request [:form-params "password"])
         session (:session request)]
+    (info ">> username " username)
+    (info ">> password " password)
     (if-let [found-password (get authdata (keyword username))]
       (if (= found-password password)
         (let [nexturl (get-in request [:query-params :next] "/")
@@ -79,8 +96,9 @@
 (defroutes app
   (GET "/" [] home)
   (GET "/login" [] login)
-  (POST "/login" [] login-authenticate)
+  (POST "/login" [username password] login-authenticate)
   (GET "/logout" [] logout))
+
 
 ;; Self defined unauthorized handler
 ;; This function is responsible of handling unauthorized requests.
@@ -107,20 +125,8 @@
 (def auth-backend
   (session-backend {:unauthorized-handler unauthorized-handler}))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Main Entry Point
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn -main
-  [& args]
-  ;; Wrap a routers handler with some middlewares
-  ;; such as authorization, authentication, params
-  ;; and session.
-  (let [app (-> app
-                (wrap-authorization auth-backend)
-                (wrap-authentication auth-backend)
-                (wrap-params)
-                (wrap-session))]
-    ;; Use jetty adapter for run this example.
-    (println "Now listening on: http://127.0.0.1:9090/")
-    (jetty/run-jetty app {:port 9090})))
+(def app (-> app
+            (wrap-authorization auth-backend)
+            (wrap-authentication auth-backend)
+            (wrap-params)
+             (wrap-session)))
