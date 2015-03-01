@@ -110,7 +110,7 @@ systems, but is a good first step for understanding how buddy authentication wor
     (response "Hello Anonymous")))
 ----
 
-Http Basic requires a function with the responsability of
+Http Basic requires a function with the responsibility of
 identifying the incoming request called *authfn*.
 
 The *authfn* function should accept a _request_ as the first parameter
@@ -206,7 +206,7 @@ Let us see an example:
 (def tokens {:2f904e245c1f5 :admin
              :45c1f5e3f05d0 :foouser})
 
-;; Define a authfn, function with the responsability
+;; Define a authfn, function with the responsibility
 ;; to authenticate the incoming token and return an
 ;; identity instance
 
@@ -224,7 +224,7 @@ Let us see an example:
 ----
 
 When, "Token 2f904e245c1f5" is received in the "Authorization" header, *my-authfn* will be
-executed with token as value. The responsability of *my-authfn* is to return a valid user
+executed with token as value. The responsibility of *my-authfn* is to return a valid user
 or nil.
 
 If you are so inclined, you may use a different name for your token, using the **token-name** optional
@@ -306,8 +306,8 @@ system for your ring compatible web application:
 (require '[buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
 
 ;; Define the final handler wrapping it in the authentication and
-;; authorization handlers. Use the same backend and overide
-;; the default unathorized request behavior with your own defined function
+;; authorization handlers. Use the same backend and override
+;; the default unauthorized request behavior with your own defined function
 
 (def app
   (let [backend (http-basic-backend
