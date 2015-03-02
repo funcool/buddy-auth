@@ -1,10 +1,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a full buddy auth example
 ;
-; TODO
-; * login on homepage
-; * if wrong user/pass then show error
-; * session timeout (?)
+; "/login" shows a login form
+; after successful login the page redirects to a home page 
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -20,10 +18,7 @@
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
-  (:require [taoensso.timbre :as timbre])
   (:gen-class))
-
-(timbre/refer-timbre)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -61,12 +56,9 @@
 
 (defn login-authenticate
   [request]
-  (info ">> login request " request)
   (let [username (get-in request [:form-params "username"])
         password (get-in request [:form-params "password"])
         session (:session request)]
-    (info ">> username " username)
-    (info ">> password " password)
     (if-let [found-password (get authdata (keyword username))]
       (if (= found-password password)
         (let [nexturl (get-in request [:query-params :next] "/")
@@ -125,8 +117,9 @@
 (def auth-backend
   (session-backend {:unauthorized-handler unauthorized-handler}))
 
+; the Ring app definition including the authentication backend
 (def app (-> app
             (wrap-authorization auth-backend)
             (wrap-authentication auth-backend)
             (wrap-params)
-             (wrap-session)))
+            (wrap-session)))
