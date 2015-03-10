@@ -1,4 +1,12 @@
-(ns session.core
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a full buddy auth example
+;
+; "/login" shows a login form
+; after successful login the page redirects to a home page 
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(ns authexample.web
   (:require [compojure.route :as route]
             [compojure.core :refer :all]
             [compojure.response :refer [render]]
@@ -11,6 +19,7 @@
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
   (:gen-class))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Controllers                                      ;;
@@ -30,8 +39,8 @@
 ;; Global var that stores valid users with their
 ;; respective passwords.
 
-(def authdata {:admin "123123"
-               :foo "dragon"})
+(def authdata {:admin "secret"
+               :test "secret"})
 
 ;; Login page controller
 ;; It returns a login page on get requests.
@@ -82,6 +91,7 @@
   (POST "/login" [] login-authenticate)
   (GET "/logout" [] logout))
 
+
 ;; Self defined unauthorized handler
 ;; This function is responsible of handling unauthorized requests.
 ;; (When unauthorized exception is raised by some handler)
@@ -107,20 +117,9 @@
 (def auth-backend
   (session-backend {:unauthorized-handler unauthorized-handler}))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Main Entry Point
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn -main
-  [& args]
-  ;; Wrap a routers handler with some middlewares
-  ;; such as authorization, authentication, params
-  ;; and session.
-  (let [app (-> app
-                (wrap-authorization auth-backend)
-                (wrap-authentication auth-backend)
-                (wrap-params)
-                (wrap-session))]
-    ;; Use jetty adapter for run this example.
-    (println "Now listening on: http://127.0.0.1:9090/")
-    (jetty/run-jetty app {:port 9090})))
+; the Ring app definition including the authentication backend
+(def app (-> app
+            (wrap-authorization auth-backend)
+            (wrap-authentication auth-backend)
+            (wrap-params)
+            (wrap-session)))
