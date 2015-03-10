@@ -6,11 +6,9 @@
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
 
-
 (defn make-request
   ([] {:session {}})
   ([id] {:session {:identity {:userid 1}}}))
-
 
 (def backend (session-backend))
 
@@ -52,5 +50,3 @@
           request (make-request 1)
           response (handler request)]
       (is (= (:status response) 403)))))
-
-

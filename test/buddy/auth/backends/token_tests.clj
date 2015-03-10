@@ -21,7 +21,7 @@
   ([] {})
   ([token]
    (let [header (format "Token %s" token)]
-     {:headers {"authorization" header}})))
+     {:headers {"auThorIzation" header}})))
 
 (deftest token-parse-test
   (testing "Parse authorization header"
@@ -135,5 +135,3 @@
                       (wrap-authentication backend))
           response (handler request)]
         (is (= (:status response) 3000)))))
-
-

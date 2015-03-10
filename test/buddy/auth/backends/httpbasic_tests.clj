@@ -14,7 +14,7 @@
   ([] {:headers {}})
   ([username password]
    (let [auth (make-header username password)]
-     {:headers {"Authorization" auth "lala" "2"}})))
+     {:headers {"auThorIzation" auth "lala" "2"}})))
 
 (defn auth-fn
   [request {:keys [username]}]

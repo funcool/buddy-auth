@@ -15,18 +15,16 @@
 (ns buddy.auth.backends.token
   (:require [buddy.auth.protocols :as proto]
             [buddy.sign.jws :refer [unsign]]
-            [ring.util.response :refer [response?]]))
-
+            [ring.util.response :refer [get-header response?]]))
 
 (defn- handle-unauthorized-default [request]
   (if (:identity request)
     {:status 403 :headers {} :body "Permission denied"}
     {:status 401 :headers {} :body "Unauthorized"}))
 
-
 (defn parse-authorization-header
   [request token-name]
-  (some->> (get-in request [:headers "authorization"])
+  (some->> (get-header request "authorization")
            (re-find (re-pattern (str "^" token-name " (.+)$")))
            (second)))
 
