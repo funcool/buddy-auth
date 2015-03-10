@@ -14,19 +14,18 @@
 
 (ns buddy.auth.backends.httpbasic
   (:require [buddy.auth.protocols :as proto]
-            [buddy.auth.utils :as utils]
             [buddy.auth :refer [authenticated?]]
             [buddy.core.codecs :refer [base64->str]]
             [cuerdas.core :as str]
-            [ring.util.response :refer [response response? header status]]))
+            [ring.util.response :refer [response response?
+                                        get-header header status]]))
 
 (defn parse-httpbasic-header
   "Given a request, try extract and parse
   http basic header."
   [request]
-  (let [headers (utils/lowercase-headers (:headers request))
-        pattern (re-pattern "^Basic (.+)$")
-        decoded (some->> (get headers "authorization")
+  (let [pattern (re-pattern "^Basic (.+)$")
+        decoded (some->> (get-header request "authorization")
                          (re-find pattern)
                          (second)
                          (base64->str))]
