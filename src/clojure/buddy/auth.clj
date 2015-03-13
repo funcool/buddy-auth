@@ -21,7 +21,7 @@
   "Test if a current request is
   authenticated or not."
   [request]
-  (boolean (:identity request)))
+  (boolean (:identity (:session request)))
 
 (defn throw-unauthorized
   ([] (throw-unauthorized {}))
