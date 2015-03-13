@@ -198,7 +198,8 @@
                  (:pattern accessrule)
                  (fn [request]
                    (let [pattern (:pattern accessrule)
-                         uri (:uri request)]
+                         uri (or (:path-info request)
+                                 (:uri request))]
                      (boolean (seq (re-matches pattern uri)))))
 
                  (:uri accessrule)
