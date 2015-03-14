@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html><head><title>Ring: Stacktrace</title><style type="text/css">/*
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.6.0
+*/
+html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:text-top;}sub{vertical-align:text-bottom;}input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}input,textarea,select{*font-size:100%;}legend{color:#000;}del,ins{text-decoration:none;}
+
+body {
+    font-family: sans-serif;
+    background: #a00;
+    padding: 1em;
+}
+
+#exception {
+    background: #f2f2f2;
+    color: #333;
+    padding: 1em;
+}
+
+h1 {
+    color: #800;
+    font-size: 32pt;
+    text-align: center;
+    margin-bottom: 0.3em;
+}
+
+.message {
+    font-size: 16pt;
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+#causes h2 {
+    font-size: 22pt;
+    text-align: center;
+    margin-bottom: 0.3em;
+}
+
+#causes h2 .class {
+    color: #800;
+}
+
+#causes .message {
+    font-size: 14pt;
+}
+
+.trace {
+    width: 90%;
+    margin: auto;
+}
+
+.trace table {
+    width: 100%;
+    font-size: 12pt;
+    background: #dadada;
+    border: 0.8em solid #dadada;
+    margin-bottom: 1.5em;
+}
+
+.trace table tr.clojure {
+    color: #222;
+}
+
+.trace table tr.java {
+    color: #6a6a6a;
+}
+
+.trace td {
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
+}
+
+.trace td.method {
+    padding-left: 1em;
+    padding-right: 0.2em;
+    text-aligh: left;
+}
+
+.trace td.source {
+    padding-left: 0.2em;
+    text-align: right;
+}
+
+.trace .views {
+    width: 100%;
+    background: #bcbcbc;
+    padding: 0.5em 0;
+}
+
+.views .label, .views ul, .views li {
+    display: inline-block;
+}
+
+.trace .views .label {
+    padding: 0 1em;
+}
+
+.trace .views li {
+    padding: 0 2em;
+    cursor: pointer;
+}
+</style></head><body><div id="exception"><h1>java.lang.IllegalArgumentException</h1><div class="message">No implementation of method: :-&gt;byte-array of protocol: #&apos;buddy.core.codecs/ByteArray found for class: nil</div><div class="trace"><table><tbody><tr class="clojure"><td class="source">core_deftype.clj:544</td><td class="method">clojure.core/-cache-protocol-fn</td></tr><tr class="clojure"><td class="source">codecs.clj:133</td><td class="method">buddy.core.codecs/eval4954[fn]</td></tr><tr class="clojure"><td class="source">hmac.clj:37</td><td class="method">buddy.core.mac.hmac/hmac-engine</td></tr><tr class="clojure"><td class="source">hmac.clj:57</td><td class="method">buddy.core.mac.hmac/hash-plain-data</td></tr><tr class="clojure"><td class="source">hmac.clj:63</td><td class="method">buddy.core.mac.hmac/verify-plain-data</td></tr><tr class="clojure"><td class="source">hmac.clj:97</td><td class="method">buddy.core.mac.hmac/eval5322[fn]</td></tr><tr class="clojure"><td class="source">hmac.clj:47</td><td class="method">buddy.core.mac.hmac/eval5256[fn]</td></tr><tr class="clojure"><td class="source">hmac.clj:146</td><td class="method">buddy.core.mac.hmac/verify</td></tr><tr class="clojure"><td class="source">jws.clj:36</td><td class="method">buddy.sign.jws/fn</td></tr><tr class="clojure"><td class="source">jws.clj:171</td><td class="method">buddy.sign.jws/decode</td></tr><tr class="java"><td class="source">RestFn.java:142</td><td class="method">clojure.lang.RestFn.applyTo</td></tr><tr class="clojure"><td class="source">core.clj:624</td><td class="method">clojure.core/apply</td></tr><tr class="clojure"><td class="source">jws.clj:196</td><td class="method">buddy.sign.jws/unsign</td></tr><tr class="java"><td class="source">RestFn.java:436</td><td class="method">clojure.lang.RestFn.invoke</td></tr><tr class="clojure"><td class="source">token.clj:38</td><td class="method">buddy.auth.backends.token/jws-backend[fn]</td></tr><tr class="clojure"><td class="source">middleware.clj:37</td><td class="method">buddy.auth.middleware/wrap-authentication[fn]</td></tr><tr class="clojure"><td class="source">json.clj:65</td><td class="method">ring.middleware.json/wrap-json-response[fn]</td></tr><tr class="clojure"><td class="source">json.clj:33</td><td class="method">ring.middleware.json/wrap-json-body[fn]</td></tr><tr class="java"><td class="source">Var.java:379</td><td class="method">clojure.lang.Var.invoke</td></tr><tr class="clojure"><td class="source">reload.clj:22</td><td class="method">ring.middleware.reload/wrap-reload[fn]</td></tr><tr class="clojure"><td class="source">stacktrace.clj:23</td><td class="method">ring.middleware.stacktrace/wrap-stacktrace-log[fn]</td></tr><tr class="clojure"><td class="source">stacktrace.clj:86</td><td class="method">ring.middleware.stacktrace/wrap-stacktrace-web[fn]</td></tr><tr class="clojure"><td class="source">jetty.clj:20</td><td class="method">ring.adapter.jetty/proxy-handler[fn]</td></tr><tr class="java"><td class="source">(Unknown Source)</td><td class="method">ring.adapter.jetty.proxy$org.eclipse.jetty.server.handler.AbstractHandler$ff19274a.handle</td></tr><tr class="java"><td class="source">HandlerWrapper.java:116</td><td class="method">org.eclipse.jetty.server.handler.HandlerWrapper.handle</td></tr><tr class="java"><td class="source">Server.java:369</td><td class="method">org.eclipse.jetty.server.Server.handle</td></tr><tr class="java"><td class="source">AbstractHttpConnection.java:486</td><td class="method">org.eclipse.jetty.server.AbstractHttpConnection.handleRequest</td></tr><tr class="java"><td class="source">AbstractHttpConnection.java:933</td><td class="method">org.eclipse.jetty.server.AbstractHttpConnection.headerComplete</td></tr><tr class="java"><td class="source">AbstractHttpConnection.java:995</td><td class="method">org.eclipse.jetty.server.AbstractHttpConnection$RequestHandler.headerComplete</td></tr><tr class="java"><td class="source">HttpParser.java:644</td><td class="method">org.eclipse.jetty.http.HttpParser.parseNext</td></tr><tr class="java"><td class="source">HttpParser.java:235</td><td class="method">org.eclipse.jetty.http.HttpParser.parseAvailable</td></tr><tr class="java"><td class="source">AsyncHttpConnection.java:82</td><td class="method">org.eclipse.jetty.server.AsyncHttpConnection.handle</td></tr><tr class="java"><td class="source">SelectChannelEndPoint.java:668</td><td class="method">org.eclipse.jetty.io.nio.SelectChannelEndPoint.handle</td></tr><tr class="java"><td class="source">SelectChannelEndPoint.java:52</td><td class="method">org.eclipse.jetty.io.nio.SelectChannelEndPoint$1.run</td></tr><tr class="java"><td class="source">QueuedThreadPool.java:608</td><td class="method">org.eclipse.jetty.util.thread.QueuedThreadPool.runJob</td></tr><tr class="java"><td class="source">QueuedThreadPool.java:543</td><td class="method">org.eclipse.jetty.util.thread.QueuedThreadPool$3.run</td></tr><tr class="java"><td class="source">Thread.java:745</td><td class="method">java.lang.Thread.run</td></tr></tbody></table></div></div></body></html>
