@@ -1,10 +1,11 @@
-# Buddy example auth
+# buddy-auth example using session
 
-This example application shows how to use buddy auth. 
+This example application shows how to use buddy auth with session based authentication.
 
 Users:
 * user: admin, password "secret"
 * user: test, password "secret"
+
 
 ## Running the app
 
