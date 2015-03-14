@@ -1,4 +1,4 @@
-(ns httpbasic.core
+(ns authexample.web
   (:require [compojure.route :as route]
             [compojure.core :refer :all]
             [compojure.response :refer [render]]
@@ -35,11 +35,10 @@
 (defroutes app
   (GET "/" [] home))
 
-
 ;; Global var that stores valid users with their
 ;; respective passwords.
-(def authdata {:admin "123123"
-               :foo "dragon"})
+(def authdata {:admin "secret"
+               :test "secret"})
 
 ;; Define function that is responsible of authenticating requests.
 ;; In this case it receives a map with username and password and i
@@ -64,14 +63,6 @@
 ;; Main Entry Point
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn -main
-  [& args]
-  ;; Wrap a routers handler with some middlewares
-  ;; such as authorization, authentication, params
-  ;; and session.
-  (let [app (-> app
-                (wrap-authorization auth-backend)
-                (wrap-authentication auth-backend))]
-    ;; Use jetty adapter for run this example.
-    (println "Now listening on: http://127.0.0.1:9090/")
-    (jetty/run-jetty app {:port 9090})))
+(def app (-> app
+             (wrap-authorization auth-backend)
+             (wrap-authentication auth-backend)))
