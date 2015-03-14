@@ -1,11 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; a full buddy auth example
-;
-; "/login" shows a login form
-; after successful login the page redirects to a home page 
-;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (ns authexample.web
   (:require [compojure.route :as route]
             [compojure.core :refer :all]
