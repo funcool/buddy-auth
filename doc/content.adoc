@@ -196,7 +196,7 @@ the use of tokens.
 
 It parses a token header instead of http basic and passes it to _authfn_ for authentication.
 
-Let us see an example:
+Let see an example:
 
 [source, clojure]
 ----
@@ -230,6 +230,8 @@ or nil.
 If you are so inclined, you may use a different name for your token, using the **token-name** optional
 key when defining your backend.
 
+You can see a complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/token[here] (also with authorization).
+
 
 === Jws Token (Stateless)
 
@@ -244,6 +246,8 @@ Some valuable resources for learning about stateless authentication are:
 
 - http://lucumr.pocoo.org/2013/11/17/my-favorite-database/
 - http://www.niwi.be/2014/06/07/stateless-authentication-with-api-rest/
+
+You can see a complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/token-jws[here] (also with authorization).
 
 
 == Authorization
