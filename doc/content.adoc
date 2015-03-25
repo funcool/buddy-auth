@@ -9,18 +9,18 @@ Andrey Antukh, <niwi@niwi.be>
 
 == Introduction
 
-The buddy *auth* module is dedicated to providing authentication facilities for
+The _buddy-auth_ module is dedicated to providing authentication facilities for
 ring and ring based web applications.
 
 
 == Project Maturity
 
-Since _buddy-auth_ is a young project there can be some API breakage.
+Since _buddy-auth_ is a young project there may be some API breakage.
 
 
 == Install
 
-This section covers the _buddy-auth_ library installing process and its requirements.
+This section covers the installation and requirements of the _buddy-auth_ library.
 
 
 === Requirements
@@ -33,10 +33,9 @@ _buddy-auth_ is tested with these platforms:
 
 === Leiningen
 
-The simplest way to use _buddy-auth_ in a clojure project, is by including it in the dependency
-vector on your *_project.clj_* file:
+The simplest way to use _buddy-auth_ in a clojure project is by including it in  your *_project.clj_* dependency vector:
 
-._on project.clj_
+._In project.clj_
 [source,clojure]
 ----
 [buddy/buddy-auth "0.4.1"]
@@ -64,9 +63,9 @@ git clone https://github.com/funcool/buddy-auth
 
 == Authentication
 
-Buddy differs with other libraries because it takes very different approach for handling
-authentication. Firstly, it clearly splits authentication and authorization in two
-separate steps. Secondly, it implements these concepts using protocols for easy
+Buddy takes a very different approach to handling authentication.
+First, it clearly distinguishes authentication and authorization as two
+separate steps. Second, it implements these concepts using protocols for easy
 extensibility.
 
 .Here is a list of the built-in authentication backends:
@@ -79,10 +78,10 @@ extensibility.
 | Jws Token    | `buddy.auth.backends.token`
 |================================================
 
-If you are not happy with builtin backends, you can implement your own and use it with
-buddy middlewares without any problem.
+If you are not happy with built-in backends, you can implement your own and use it with
+Buddy middleware without any problem.
 
-Authentication in buddy, has two phases:
+Authentication in Buddy has two phases:
 
 1. *parse*: parsing incoming request headers, parameters etc...
 2. *authenticate*: having parsed data, do the authentication process, such as calling
@@ -92,16 +91,16 @@ Authentication in buddy, has two phases:
 === Http Basic
 
 The HTTP Basic authentication backend is one of the simplest and most insecure authentication
-systems, but is a good first step for understanding how buddy authentication works.
+systems, but is a good first step for understanding how Buddy authentication works.
 
-.Simple example ring handler/view
+.Example ring handler/view
 [source,clojure]
 ----
 (require '[buddy.auth :refer (authenticated?)])
 (require '[ring.util.response :refer (response)])
 
 ;; Simple ring handler. This can also be a compojure router handler
-;; or anything else compatible with ring middlewares.
+;; or anything else compatible with ring middleware.
 
 (defn my-sample-handler
   [request]
@@ -111,9 +110,9 @@ systems, but is a good first step for understanding how buddy authentication wor
 ----
 
 Http Basic requires a function with the responsibility of
-identifying the incoming request called *authfn*.
+identifying the incoming request which we will call *authfn*.
 
-The *authfn* function should accept a _request_ as the first parameter
+An *authfn* function should accept a _request_ as the first parameter
 and _authdata_ as the second. _authdata_ is data parsed from the request in
 the *parse* step. The *authfn* will be called only if the *parse* process
 returns parsed data.
@@ -136,8 +135,8 @@ returns parsed data.
 (def backend (http-basic-backend {:realm "MyApi" :authfn my-authfn}))
 ----
 
-Now having a simple view function and the backend defined, you should wrap it
-using the standard ring middleware way, with buddy's authentication middleware.
+Now having a simple view function and the backend defined, we will wrap it
+with Buddy's authentication middleware.
 
 .Declare the auth function and create a ring app with the wrapped handler.
 [source,clojure]
@@ -148,7 +147,7 @@ using the standard ring middleware way, with buddy's authentication middleware.
 ;; with authentication middleware using an instance of the
 ;; just created http-basic backend.
 
-;; Define app var with handler wrapped with buddy's authentication
+;; Define app var with handler wrapped with Buddy's authentication
 ;; middleware using the previously defined backend.
 
 (def app (-> my-sample-handler
@@ -170,15 +169,15 @@ It checks the `:identity` key in the session to authenticate the user with its
 value. The value is identified as a logged-in user if it contains any logical true
 value.
 
-.Simple example creating a session backend instance and wrapping our handler
+.Example creating a session backend instance and wrapping our handler
 [source, clojure]
 ----
 (require '[buddy.auth.backends.session :refer [session-backend]])
 
-;; Create a instance
+;; Create an instance
 (def backend (session-backend))
 
-;; Wrap your ring handler.
+;; Wrap the ring handler.
 (def app (-> my-sample-handler
              (wrap-authentication backend)))
 ----
@@ -196,7 +195,7 @@ the use of tokens.
 
 It parses a token header instead of http basic and passes it to _authfn_ for authentication.
 
-Let see an example:
+Let's see an example:
 
 [source, clojure]
 ----
@@ -218,16 +217,16 @@ Let see an example:
 ;; Create a instance
 (def backend (token-backend {:authfn my-authfn}))
 
-;; Wrap your ring handler.
+;; Wrap the ring handler.
 (def app (-> my-sample-handler
              (wrap-authentication backend)))
 ----
 
-When, "Token 2f904e245c1f5" is received in the "Authorization" header, *my-authfn* will be
+When "Token 2f904e245c1f5" is received in the "Authorization" header, *my-authfn* will be
 executed with token as value. The responsibility of *my-authfn* is to return a valid user
 or nil.
 
-If you are so inclined, you may use a different name for your token, using the **token-name** optional
+If you are so inclined, you may use a different name for your token using the **token-name** optional
 key when defining your backend.
 
 You can see a complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/token[here] (also with authorization).
@@ -258,7 +257,7 @@ The second part of the auth process is authorization.
 === Introduction
 
 The authorization system is split into two parts: generic authorization and access-rules
-(explained in other section).
+(explained in the next section).
 
 The generic authorization consists of raising a specific exception (using **buddy.auth/throw-unauthorized**) in a ring handler to
 indicate unauthorized access. This is less functional, but in some circumstances works
@@ -267,12 +266,12 @@ very well.
 
 === How does it work?
 
-The authorization backend wraps everything in a try/catch block only
+The authorization backend wraps everything in a try/catch block which only
 handles the specific exception. When an unauthorized exception is caught, it
 executes a specific function to handle it or reraises the exception.
 
-With this approach you can define your own middlewared/decorators using custom authorization
-logic with fast skip raising a not authorized exception using the `throw-unauthorized` function.
+With this approach we can define our own middlewared/decorators using custom authorization
+logic with fast skip, raising an unauthorized exception using the `throw-unauthorized` function.
 
 .Example ring handler raising an unauthorized exception.
 [source, clojure]
@@ -287,8 +286,7 @@ logic with fast skip raising a not authorized exception using the `throw-unautho
   (response "Hello World"))
 ----
 
-Just like the authentication system, authorization is also implemented using protocols. Taking advantage of
-it, all built-in authentication backends also implement this authorization protocol (`IAuthorization`):
+Just like the authentication system, authorization is also implemented using protocols. All built-in authentication backends implement the protocol `IAuthorization`:
 
 [NOTE]
 ====
@@ -357,13 +355,13 @@ link:https://github.com/weavejester/clout[clout] url matching syntax or regular 
 
 === Rules Handlers
 
-The rule handler, as unit of work is a plain function that accepts
-request as parameter and should return `accessrules/success` or `accessrules/error`.
+The rule handler is a plain function that accepts a
+request as a parameter and should return `accessrules/success` or `accessrules/error`.
 
 The `success` is a simple mark that means that handles passes the validation
 and `error` is a mark that means the opposite, that the handler does not pass
 the validation. Instead of returning plain boolean value, this approach allows
-handlers to return errors messages or even an ring response.
+handlers to return errors messages or even a ring response.
 
 .This is a simple example of the aspect of one rule handler
 [source, clojure]
@@ -378,9 +376,8 @@ handlers to return errors messages or even an ring response.
     (error "Only authenticated users allowed")))
 ----
 
-This values are considered success marks: *true* and *success* instance. The ones that are
-considered error marks: *nil*, *false*, *error* instance. Error instances may contain
-a string as error message or a ring response hash-map.
+These values are considered success marks: *true* and *success* instances. These are considered error marks: *nil*, *false*, and *error* instances. Error instances may contain
+a string as an error message or a ring response hash-map.
 
 Also, a rule handler can be a composition of several rule handlers using logical operators.
 
@@ -434,9 +431,9 @@ Here are couple of examples of how we could do it:
 
 ;; Define default behavior for not authorized requests
 ;;
-;; This functions works like a default ring compatible handler
+;; This function works like a default ring compatible handler
 ;; and should implement the default behavior for requests
-;; that are not authorized by any defined rule
+;; which are not authorized by any defined rule
 
 (defn on-error
   [request value]
@@ -444,7 +441,7 @@ Here are couple of examples of how we could do it:
    :headers {}
    :body "Not authorized"})
 
-;; Wrap your handler with access rules (and run with jetty as example)
+;; Wrap the handler with access rules (and run with jetty as example)
 (defn -main
   [& args]
   (let [options {:rules rules :on-error on-error}
@@ -452,15 +449,15 @@ Here are couple of examples of how we could do it:
     (run-jetty app {:port 9090}))
 ----
 
-If a request uri does not match any regular expression then the default policy is used
-The default policy in buddy is *allow* but you can change the default behavior
+If a request uri does not match any regular expression then the default policy is used.
+The default policy in Buddy is *allow* but you can change the default behavior
 specifying a `:reject` value in the `:policy` option.
 
 Additionally, instead of specifying the global _on-error_ handler, you can set a specific
 behavior on a specific access rule, or use the _:redirect_ option to simply redirect
 a user to specific url.
 
-.Let see an example.
+.Lets see an example.
 [source,clojure]
 ----
 (def rules [{:pattern #"^/admin/.*"
@@ -500,7 +497,7 @@ ring views/handlers, you can use the `restrict` decorator.
 
 Buddy authorization/authentication facilities are more low level and less opinionated
 that friend and allow build over them easy other high level abstractions.
-Technically, friend abstraction can be build on top of buddy.
+Technically, friend abstraction can be build on top of Buddy.
 
 
 *How can I use _buddy_ with link:http://clojure-liberator.github.io/liberator/[liberator]?*
@@ -509,7 +506,7 @@ By design, _buddy_ has authorization and authentication well
 separated. This helps a lot if you want use only one part of it (ex:
 authentication only) without including the other.
 
-In summary: yes, you can use buddy with liberator.
+In summary: yes, you can use Buddy with liberator.
 
 
 == How to Contribute?
