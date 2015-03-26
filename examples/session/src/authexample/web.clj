@@ -65,7 +65,7 @@
         password (get-in request [:form-params "password"])
         session (:session request)
         found-password (get authdata (keyword username))]
-    (if (= found-password password)
+    (if (and found-password (= found-password password))
       (let [next-url (get-in request [:query-params :next] "/")
             updated-session (assoc session :identity (keyword username))]
         (-> (redirect next-url)
