@@ -27,13 +27,6 @@
     (throw-unauthorized)
     (response (slurp (io/resource "index.html")))))
 
-
-;; Global var that stores valid users with their
-;; respective passwords.
-
-(def authdata {:admin "secret"
-               :test "secret"})
-
 ;; Login page controller
 ;; It returns a login page on get requests.
 
@@ -41,28 +34,8 @@
   [request]
   (render (slurp (io/resource "login.html")) request))
 
-;; Authenticate Handler
-;; Respons to post requests in same url as login and is responsible to
-;; identify the incoming credentials and set the appropiate authenticated
-;; user into session. `authdata` will be used as source of valid users.
-
-(defn login-authenticate
-  [request]
-  (let [username (get-in request [:form-params "username"])
-        password (get-in request [:form-params "password"])
-        session (:session request)]
-    (if-let [found-password (get authdata (keyword username))]
-      (if (= found-password password)
-        (let [nexturl (get-in request [:query-params :next] "/")
-              session (assoc session :identity (keyword username))]
-          (-> (redirect nexturl)
-              (assoc :session session)))
-        (render (slurp (io/resource "login.html")) request))
-      (render (slurp (io/resource "login.html")) request))))
-
-
 ;; Logout handler
-;; It is responsible of cleaing session.
+;; Responsible for clearing the session.
 
 (defn logout
   [request]
@@ -70,12 +43,42 @@
       (assoc :session {})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Authentication                                   ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def authdata
+  "Global var that stores valid users with their
+   respective passwords."
+  {:admin "secret"
+   :test "secret"})
+
+;; Authentication Handler
+;; Used to respond to POST requests to /login.
+
+(defn login-authenticate
+  "Check request username and password against authdata username and passwords.
+  On successful authentication, set appropriate user into the session and
+  redirect to the value of (:query-params (:next request)).
+  On failed authentication, renders the login page."
+  [request]
+  (let [username (get-in request [:form-params "username"])
+        password (get-in request [:form-params "password"])
+        session (:session request)
+        found-password (get authdata (keyword username))]
+    (if (= found-password password)
+      (let [next-url (get-in request [:query-params :next] "/")
+            updated-session (assoc session :identity (keyword username))]
+        (-> (redirect next-url)
+            (assoc :session updated-session)))
+      (render (slurp (io/resource "login.html")) request))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Routes and Middlewares                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; User defined application routes using compojure routing library.
-;; Note: no any middleware for authorization, all authorization system
-;; is totally decoupled from main routes.
+;; Note: We do not use middleware for authorization, all of the authorization
+;; system is decoupled from main routes.
 
 (defroutes app
   (GET "/" [] home)
@@ -83,9 +86,8 @@
   (POST "/login" [] login-authenticate)
   (GET "/logout" [] logout))
 
-
-;; Self defined unauthorized handler
-;; This function is responsible of handling unauthorized requests.
+;; User defined unauthorized handler
+;; This function is responsible for handling unauthorized requests.
 ;; (When unauthorized exception is raised by some handler)
 
 (defn unauthorized-handler
@@ -97,12 +99,10 @@
     (authenticated? request)
     (-> (render (slurp (io/resource "error.html")) request)
         (assoc :status 403))
-
     ;; In other cases, redirect it user to login.
     :else
     (let [current-url (:uri request)]
       (redirect (format "/login?next=%s" current-url)))))
-
 
 ;; Create an instance of auth backend.
 
