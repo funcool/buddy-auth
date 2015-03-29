@@ -1,5 +1,23 @@
 = Changelog
 
+== Version 0.4.2
+
+Date: 2015-03-29
+
+- Update buddy-sign to 0.4.2
+
+
+== Version 0.4.1
+
+Date: 2015-03-14
+
+- Fix bug in uri handling in accessrules.
+- Remove unnecesary headers normalization.
+- Upgrade buddy-sign to 0.4.1
+- Upgrade buddy-core to 0.4.2
+- Upgrade cuerdas to 0.3.1
+
+
 == Version 0.4.0
 
 Date: 2014-02-22
