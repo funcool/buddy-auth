@@ -60,6 +60,9 @@
   (toString [self]
     (with-out-str (print [v]))))
 
+(alter-meta! #'->RuleSuccess assoc :private true)
+(alter-meta! #'->RuleError assoc :private true)
+
 (defn success
   "Function that return a success state
   from one access rule handler."
