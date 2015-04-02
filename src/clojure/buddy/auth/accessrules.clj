@@ -165,9 +165,11 @@
     (cond
       (keyword? allowed)
       (= actual allowed)
+
       (set? allowed)
       (or (empty? allowed)
           (contains? allowed actual))
+
       :else true)))
 
 (defn- compile-access-rule
