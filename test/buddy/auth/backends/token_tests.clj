@@ -20,7 +20,7 @@
 
 (defn make-jws-request
   [data secret]
-  (let [header (->> (jws/sign {:userid 1} secret)
+  (let [header (->> (jws/sign data secret)
                     (format "Token %s"))]
     {:headers {"authorization" header}}))
 

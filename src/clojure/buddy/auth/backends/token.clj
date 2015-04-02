@@ -42,7 +42,6 @@
         (catch Object e
           request)))
 
-
     proto/IAuthorization
     (handle-unauthorized [_ request metadata]
       (if unauthorized-handler
