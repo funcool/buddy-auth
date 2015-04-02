@@ -160,3 +160,65 @@
     (is (thrown? Exception (handler3 {:uri "/path4"}))))
 )
 
+(defn method-handler [type type-param allowed]
+  (wrap-access-rules
+   test-handler
+   {:rules [{type type-param
+             :handler ok
+             :request-method allowed}]
+    :policy :reject}))
+
+(deftest wrap-access-rules-method-test
+  (let [allowed {:uri "/comments/1" :request-method :get}
+        forbidden (assoc allowed :request-method :delete)]
+
+    (testing "access rule pattern"
+      (let [method-handler (partial method-handler :pattern #"/comments/\d+")]
+
+        (testing "with keyword as allowed method"
+          (let [handler (method-handler :get)]
+            (is (= (:body (handler allowed)) allowed))
+            (is (thrown? Exception (handler forbidden)))))
+
+        (testing "with set of keywords as allowed method"
+          (let [handler (method-handler #{:get})]
+            (is (= (:body (handler allowed)) allowed))
+            (is (thrown? Exception (handler forbidden)))))
+
+        (testing "with nil as allowed request method"
+          (let [handler (method-handler nil)]
+            (is (= (:body (handler allowed)) allowed))))))
+
+    (testing "access rule uri"
+      (let [method-handler (partial method-handler :uri "/comments/:id")]
+
+        (testing "with keyword as allowed method"
+          (let [handler (method-handler :get)]
+            (is (= (:body (handler allowed)) allowed))
+            (is (thrown? Exception (handler forbidden)))))
+
+        (testing "with set of keywords as allowed method"
+          (let [handler (method-handler #{:get})]
+            (is (= (:body (handler allowed)) allowed))
+            (is (thrown? Exception (handler forbidden)))))
+
+        (testing "with nil as allowed request method"
+          (let [handler (method-handler nil)]
+            (is (= (:body (handler allowed)) allowed))))))
+
+    (testing "access rule uris"
+      (let [method-handler (partial method-handler :uris ["/comments/:id"])]
+
+        (testing "with keyword as allowed method"
+          (let [handler (method-handler :get)]
+            (is (= (:body (handler allowed)) allowed))
+            (is (thrown? Exception (handler forbidden)))))
+
+        (testing "with set of keywords as allowed method"
+          (let [handler (method-handler #{:get})]
+            (is (= (:body (handler allowed)) allowed))
+            (is (thrown? Exception (handler forbidden)))))
+
+        (testing "with nil as allowed request method"
+          (let [handler (method-handler nil)]
+            (is (= (:body (handler allowed)) allowed))))))))

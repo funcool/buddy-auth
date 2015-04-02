@@ -353,6 +353,16 @@ link:https://github.com/weavejester/clout[clout] url matching syntax or regular 
   :handler user-access}
 ----
 
+An access rule can also match against certain HTTP methods, by using the *:request-method* option. *:request-method* can be a keyword or a set of keywords.
+
+.An example of an access rule that matches only GET requests.
+[source, clojure]
+----
+[{:uri "/foo"
+  :handler user-access
+  :request-method :get}
+----
+
 === Rules Handlers
 
 The rule handler is a plain function that accepts a
