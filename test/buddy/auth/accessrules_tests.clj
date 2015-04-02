@@ -44,6 +44,11 @@
     (let [rule (#'acr/compile-rule-handler {:or [fail2 ok2]})
           result (rule 1)]
       (is (= true result))))
+
+  (testing "compile access rules 8"
+    (let [rule (#'acr/compile-rule-handler {:or [fail2 fail]})
+          result (rule 1)]
+      (is (= (error 1) result))))
 )
 
 (defn test-handler
