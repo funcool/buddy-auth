@@ -154,6 +154,19 @@
                :else form))
             rule))
 
+(defn- matches-request-method
+  "Match the :request-method of `request` against `allowed` HTTP
+  methods. `allowed` can be a keyword, a set of keywords or nil."
+  [request allowed]
+  (let [actual (:request-method request)]
+    (cond
+      (keyword? allowed)
+      (= actual allowed)
+      (set? allowed)
+      (or (empty? allowed)
+          (contains? allowed actual))
+      :else true)))
+
 (defn- compile-access-rule
   "Receives a access rule and return a compiled version of it.
 
@@ -178,6 +191,14 @@
     [{:pattern #\"^/foo$\"
       :handler user-access}
 
+  An access rule can also match against certain HTTP methods, by using
+  the `:request-method` option. `:request-method` can be a keyword or
+  a set of keywords.
+
+    [{:pattern #\"^/foo$\"
+      :handler user-access
+      :request-method :get}
+
   The compilation process consists in transform the plain version
   in one optimized of it for avoid unnecesary overhead to the
   request process time.
@@ -193,26 +214,30 @@
   "
   [accessrule]
   {:pre [(map? accessrule)]}
-  (let [handler (compile-rule-handler (:handler accessrule))
+  (let [request-method (:request-method accessrule)
+        handler (compile-rule-handler (:handler accessrule))
         matcher (cond
-                 (:pattern accessrule)
-                 (fn [request]
-                   (let [pattern (:pattern accessrule)
-                         uri (or (:path-info request)
-                                 (:uri request))]
-                     (boolean (seq (re-matches pattern uri)))))
+                  (:pattern accessrule)
+                  (fn [request]
+                    (let [pattern (:pattern accessrule)
+                          uri (or (:path-info request)
+                                  (:uri request))]
+                      (boolean (and (matches-request-method request request-method)
+                                    (seq (re-matches pattern uri))))))
 
-                 (:uri accessrule)
-                 (let [route (clout/route-compile (:uri accessrule))]
-                   (fn [request]
-                     (boolean (clout/route-matches route request))))
+                  (:uri accessrule)
+                  (let [route (clout/route-compile (:uri accessrule))]
+                    (fn [request]
+                      (boolean (and (matches-request-method request request-method)
+                                    (clout/route-matches route request)))))
 
-                 (:uris accessrule)
-                 (let [routes (mapv clout/route-compile (:uris accessrule))]
-                   (fn [request]
-                     (boolean (some #(clout/route-matches % request) routes))))
+                  (:uris accessrule)
+                  (let [routes (mapv clout/route-compile (:uris accessrule))]
+                    (fn [request]
+                      (boolean (and (matches-request-method request request-method)
+                                    (some #(clout/route-matches % request) routes)))))
 
-                 :else (fn [request] true))]
+                  :else (fn [request] true))]
     (assoc accessrule
       :matcher matcher
       :handler handler)))
