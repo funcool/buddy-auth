@@ -140,7 +140,7 @@
                        accepts (filter success? evals)]
                    (if (seq accepts)
                      (first accepts)
-                     (first evals))))
+                     (last evals))))
 
                (:and form)
                (fn [req]
