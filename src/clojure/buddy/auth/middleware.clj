@@ -25,18 +25,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn wrap-authentication
-  "Ring middleware that enables authentication
-  for your ring handler."
-  [handler backend]
+  "Ring middleware that enables authentication for your ring
+  handler. When multiple `backends` are given each of them gets a
+  chance to authenticate the request."
+  [handler & backends]
   (fn [request]
-    (let [request (assoc request :auth-backend backend)
-          rsq     (proto/parse backend request)]
-      (if (response? rsq) rsq
-        (if (nil? rsq)
-          (handler request)
-          (let [rsq (proto/authenticate backend request rsq)]
-            (if (response? rsq) rsq
-              (handler (or rsq request)))))))))
+    (if (empty? backends)
+      (handler request)
+      (loop [[current & pending] backends]
+        (let [last? (empty? pending)
+              request (assoc request :auth-backend current)
+              rsq (proto/parse current request)]
+          (if (and (response? rsq) last?)
+            rsq
+            (if (and (nil? rsq) last?)
+              (handler request)
+              (let [rsq (proto/authenticate current request rsq)]
+                (if (and (response? rsq) last?)
+                  rsq
+                  (if (or (:identity rsq) last?)
+                    (handler (or rsq request))
+                    (recur pending)))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization

@@ -11,35 +11,66 @@
 ;; Authentication middleware testing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def auth-backend
+(defn auth-backend [secret]
   (reify
     proto/IAuthentication
     (parse [_ request]
       (::authdata request))
 
     (authenticate [_ request data]
-      (if (= data ::ok)
-        (assoc request :identity :valid)
-        (assoc request :identity :invalid)))))
+      (if (= data secret)
+        (assoc request :identity :valid)))))
 
 (deftest wrap-authentication
   (testing "Using auth requests"
-    (let [handler (mw/wrap-authentication identity auth-backend)
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
           response (handler {::authdata ::ok})]
       (is (= (:identity response) :valid))
       (is (= (::authdata response) ::ok))))
 
   (testing "Using anon request"
-    (let [handler (mw/wrap-authentication identity auth-backend)
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
           response (handler {})]
       (is (= (:identity response) nil))
       (is (= (::authdata response) nil))))
 
   (testing "Using wrong request"
-    (let [handler (mw/wrap-authentication identity auth-backend)
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
           response (handler {::authdata ::fake})]
-      (is (= (:identity response) :invalid))
+      (is (nil? (:identity response)))
       (is (= (::authdata response) ::fake)))))
+
+(deftest wrap-authentication-with-multiple-backends
+  (let [backends [(auth-backend ::ok-1) (auth-backend ::ok-2)]
+        handler (apply mw/wrap-authentication identity backends)]
+
+    (testing "backend #1 succeeds"
+      (let [response (handler {::authdata ::ok-1})]
+        (is (= (:identity response) :valid))
+        (is (= (::authdata response) ::ok-1))))
+
+    (testing "backend #2 succeeds"
+      (let [response (handler {::authdata ::ok-2})]
+        (is (= (:identity response) :valid))
+        (is (= (::authdata response) ::ok-2))))
+
+    (testing "no backends succeeds"
+      (let [response (handler {::authdata ::fake})]
+        (is (nil? (:identity response)))
+        (is (= (::authdata response) ::fake))))
+
+    (testing "handler called exactly once"
+      (let [state (atom 0)
+            counter (fn [request] (swap! state inc) request)
+            handler (apply mw/wrap-authentication counter backends)
+            response (handler {::authdata ::fake})]
+        (is (nil? (:identity response)))
+        (is (= (::authdata response) ::fake))
+        (is (= @state 1))))
+
+    (testing "with zero backends"
+      (let [request {:uri "/"}]
+        (is (= ((mw/wrap-authentication identity) request) request))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization middleware testing
