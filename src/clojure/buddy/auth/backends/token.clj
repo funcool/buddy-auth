@@ -14,7 +14,8 @@
 
 (ns buddy.auth.backends.token
   (:require [buddy.auth.protocols :as proto]
-            [buddy.sign.jws :refer [unsign]]
+            [buddy.sign.jws :as jws]
+            [slingshot.slingshot :refer [try+]]
             [ring.util.response :refer [get-header response?]]))
 
 (defn- handle-unauthorized-default [request]
@@ -29,13 +30,18 @@
            (second)))
 
 (defn jws-backend
-  [{:keys [secret unauthorized-handler max-age token-name] :or {token-name "Token"}}]
+  [{:keys [secret unauthorized-handler options token-name]
+    :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
     (parse [_ request]
       (parse-authorization-header request token-name))
     (authenticate [_ request data]
-      (assoc request :identity (unsign data secret {:max-age max-age})))
+      (try+
+        (assoc request :identity (jws/unsign data secret options))
+        (catch Object e
+          request)))
+
 
     proto/IAuthorization
     (handle-unauthorized [_ request metadata]
