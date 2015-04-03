@@ -17,8 +17,7 @@
             [buddy.auth.accessrules :as accessrules]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [ring.util.response :refer [response response?]]
-            [slingshot.slingshot :refer [throw+ try+]])
-  (:import buddy.exceptions.UnauthorizedAccessException))
+            [slingshot.slingshot :refer [throw+ try+]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authentication
