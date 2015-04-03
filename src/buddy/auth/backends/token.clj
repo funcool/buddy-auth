@@ -31,7 +31,7 @@
            (second)))
 
 (defn jws-backend
-  [{:keys [secret unauthorized-handler options token-name]
+  [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
@@ -40,8 +40,10 @@
     (authenticate [_ request data]
       (try+
         (assoc request :identity (jws/unsign data secret options))
-        (catch Object e
-          request)))
+        (catch [:type :validation] e
+          (if (fn? on-error)
+            (on-error request e)
+            request))))
 
     proto/IAuthorization
     (handle-unauthorized [_ request metadata]
@@ -50,7 +52,7 @@
         (handle-unauthorized-default request)))))
 
 (defn jwe-backend
-  [{:keys [secret unauthorized-handler options token-name]
+  [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
@@ -59,8 +61,10 @@
     (authenticate [_ request data]
       (try+
         (assoc request :identity (jwe/decrypt data secret options))
-        (catch Object e
-          request)))
+        (catch [:type :validation] e
+          (if (fn? on-error)
+            (on-error request e)
+            request))))
 
     proto/IAuthorization
     (handle-unauthorized [_ request metadata]
