@@ -79,16 +79,11 @@
                   backend)]
     (fn [request]
       (try+
-       (handler request)
-       (catch [:type :buddy.auth/unauthorized] {:keys [payload]}
-         (proto/handle-unauthorized backend request errordata))
-       (catch Object e
-         (if (satisfies? proto/IAuthorizationdError e)
-           (->> (proto/get-error-data e)
-                (proto/handle-unauthorized backend request))
-           (throw+)))))))
-
-(extend-protocol proto/IAuthorizationdError
-  buddy.exceptions.UnauthorizedAccessException
-  (get-error-data [this]
-    (.-metadata this)))
+        (handler request)
+        (catch [:type :buddy.auth/unauthorized] {:keys [payload]}
+          (proto/handle-unauthorized backend request errordata))
+        (catch Object e
+          (if (satisfies? proto/IAuthorizationdError e)
+            (->> (proto/get-error-data e)
+                 (proto/handle-unauthorized backend request))
+            (throw+)))))))
