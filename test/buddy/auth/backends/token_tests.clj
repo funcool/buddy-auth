@@ -5,7 +5,7 @@
             [buddy.core.hash :as hash]
             [buddy.sign.jws :as jws]
             [buddy.sign.jwe :as jwe]
-            [buddy.auth :refer [throw-unauthorized]]
+            [buddy.auth :refer [throw-unauthorized authenticated?]]
             [buddy.auth.backends.token :as token]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
 
@@ -54,20 +54,23 @@
   (testing "Jws token backend authentication"
     (let [request (make-jws-request jws-data jws-secret)
           handler (wrap-authentication identity jws-backend)
-          response (handler request)]
-      (is (= (:identity response) jws-data))))
+          request' (handler request)]
+      (is (authenticated? request'))
+      (is (= (:identity request') jws-data))))
 
   (testing "Jws token backend authentication with wrong key yields nil"
     (let [request (make-jws-request jws-data  "wrong-key")
           handler (wrap-authentication identity jws-backend)
-          response (handler request)]
-      (is (nil? (:identity response)))))
+          request' (handler request)]
+      (is (not (authenticated? request')))
+      (is (nil? (:identity request')))))
 
-  (testing "Jws token backend authentication with no token yields nil"
+  (testing "Jws token backend authentication without token yields nil"
     (let [request {}
           handler (wrap-authentication identity jws-backend)
-          response (handler request)]
-      (is (nil? (:identity response)))))
+          request' (handler request)]
+      (is (not (authenticated? request')))
+      (is (nil? (:identity request')))))
 
   (testing "Jws token authorizaton with wrong key yields 401"
     (let [request (make-jws-request jws-data "wrong-key")
@@ -75,7 +78,8 @@
                       (wrap-authorization jws-backend)
                       (wrap-authentication jws-backend))
           response (handler request)]
-      (is (= (:status response) 401))))
+      (is (= (:status response) 401))
+      (is (= (:body response) "Unauthorized"))))
 
   (testing "Jws token authorization - authenticated but unathorized thrown yields 403"
     (let [request (make-jws-request {:userid 1} jws-secret)
@@ -83,14 +87,26 @@
                       (wrap-authorization jws-backend)
                       (wrap-authentication jws-backend))
           response (handler request)]
-      (is (= (:status response) 403))))
+      (is (= (:status response) 403))
+      (is (= (:body response) "Permission denied"))))
 
-  (testing "Jws token unathorized - unauth handler called when provided"
+  (testing "Jws token unathorized - :unauthorized-handlercalled when provided"
     (let [request (make-jws-request jws-data "wrong-key")
           onerror (fn [_ _] {:status 3000})
           backend (token/jws-backend {:secret jws-secret
                                       :unauthorized-handler onerror})
           handler (-> (fn [req] (throw-unauthorized))
+                      (wrap-authorization backend)
+                      (wrap-authentication backend))
+          response (handler request)]
+      (is (= (:status response) 3000))))
+
+  (testing "Jws token wrongdata - onerror handler called when provided"
+    (let [request (make-jws-request jws-data "wrong-key")
+          onerror (fn [_ _] {:status 3000})
+          backend (token/jws-backend {:secret jws-secret
+                                      :on-error onerror})
+          handler (-> identity
                       (wrap-authorization backend)
                       (wrap-authentication backend))
           response (handler request)]
@@ -115,20 +131,23 @@
   (testing "Jwe token backend authentication"
     (let [request (make-jwe-request jwe-data jwe-secret)
           handler (wrap-authentication identity jwe-backend)
-          response (handler request)]
-      (is (= (:identity response) jwe-data))))
+          request' (handler request)]
+      (is (authenticated? request'))
+      (is (= (:identity request') jwe-data))))
 
   (testing "Jwe token backend authentication with wrong key yields nil"
     (let [request (make-jwe-request jwe-data (hash/sha256 "wrong-key"))
           handler (wrap-authentication identity jwe-backend)
-          response (handler request)]
-      (is (nil? (:identity response)))))
+          request' (handler request)]
+      (is (not (authenticated? request')))
+      (is (nil? (:identity request')))))
 
   (testing "Jwe token backend authentication with no token yields nil"
     (let [request {}
           handler (wrap-authentication identity jwe-backend)
-          response (handler request)]
-      (is (nil? (:identity response)))))
+          request' (handler request)]
+      (is (not (authenticated? request')))
+      (is (nil? (:identity request')))))
 
   (testing "Jwe token authorizaton with wrong key yields 401"
     (let [request (make-jwe-request jwe-data (hash/sha256 "wrong-key"))
@@ -155,7 +174,19 @@
                       (wrap-authorization backend)
                       (wrap-authentication backend))
           response (handler request)]
+      (is (= (:status response) 3000))))
+
+  (testing "Jwe token wrongdata - onerror handler called when provided"
+    (let [request (make-jwe-request jws-data (hash/sha256 "foobar"))
+          onerror (fn [_ _] {:status 3000})
+          backend (token/jwe-backend {:secret jwe-secret
+                                      :on-error onerror})
+          handler (-> identity
+                      (wrap-authorization backend)
+                      (wrap-authentication backend))
+          response (handler request)]
       (is (= (:status response) 3000)))))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
