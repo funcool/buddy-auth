@@ -26,6 +26,5 @@
 (defn throw-unauthorized
   ([] (throw-unauthorized {}))
   ([errordata]
-   (throw+ (reify
-             proto/IAuthorizationdError
-             (get-error-data [_] errordata)))))
+   (throw+ {:type ::unauthorized
+            :payload errordata})))

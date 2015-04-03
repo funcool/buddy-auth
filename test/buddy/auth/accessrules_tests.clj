@@ -108,7 +108,6 @@
   (-> (ring/response val)
       (ring/status 400)))
 
-
 (def handler1
   (wrap-access-rules test-handler
                      (assoc params1 :policy :reject)))
@@ -188,6 +187,7 @@
         (testing "with set of keywords as allowed method"
           (let [handler (method-handler #{:get})]
             (is (= (:body (handler allowed)) allowed))
+            (handler forbidden)
             (is (thrown? Exception (handler forbidden)))))
 
         (testing "with nil as allowed request method"
