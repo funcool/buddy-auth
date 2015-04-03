@@ -8,6 +8,7 @@
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [ring.adapter.jetty :as jetty]
+            [clj-time.core :as time]
             [buddy.sign.jws :as jws]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.auth.backends.token :refer [jws-backend]]
@@ -57,8 +58,10 @@
                        (get (keyword username))
                        (= password))]
     (if valid?
-      (let [token (jws/encode {:user (keyword username)} secret)]
-        (ok {:token @token}))
+      (let [claims {:user (keyword username)
+                    :exp (time/plus (time/now) (time/seconds 3600))}
+            token (jws/sign claims secret {:alg :hs512})]
+        (ok {:token token}))
       (bad-request {:message "wrong auth data"}))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -74,7 +77,7 @@
   (POST "/login" [] login))
 
 ;; Create an instance of auth backend.
-(def auth-backend (jws-backend {:secret secret}))
+(def auth-backend (jws-backend {:secret secret :options {:alg :hs512}}))
 
 ; the Ring app definition including the authentication backend
 (def app (-> app
