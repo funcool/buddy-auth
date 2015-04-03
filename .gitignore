@@ -8,7 +8,8 @@ pom.xml.asc
 *.swp
 /.lein-*
 /.nrepl-port
-doc/index.html
+/doc/index.html
+/doc/api
 \#*\#
 *~
 .\#*
