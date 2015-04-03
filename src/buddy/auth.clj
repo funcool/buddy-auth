@@ -16,8 +16,7 @@
   "Authorization and Authentication primitives for
   ring based applications."
   (:require [buddy.auth.protocols :as proto]
-            [slingshot.slingshot :refer [throw+ try+]])
-  (:import buddy.exceptions.UnauthorizedAccessException))
+            [slingshot.slingshot :refer [throw+ try+]]))
 
 (defn authenticated?
   "Return `true` if the `request` is an
