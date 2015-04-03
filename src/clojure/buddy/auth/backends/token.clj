@@ -15,6 +15,7 @@
 (ns buddy.auth.backends.token
   (:require [buddy.auth.protocols :as proto]
             [buddy.sign.jws :as jws]
+            [buddy.sign.jwe :as jwe]
             [slingshot.slingshot :refer [try+]]
             [ring.util.response :refer [get-header response?]]))
 
@@ -39,6 +40,25 @@
     (authenticate [_ request data]
       (try+
         (assoc request :identity (jws/unsign data secret options))
+        (catch Object e
+          request)))
+
+    proto/IAuthorization
+    (handle-unauthorized [_ request metadata]
+      (if unauthorized-handler
+        (unauthorized-handler request metadata)
+        (handle-unauthorized-default request)))))
+
+(defn jwe-backend
+  [{:keys [secret unauthorized-handler options token-name]
+    :or {token-name "Token"}}]
+  (reify
+    proto/IAuthentication
+    (parse [_ request]
+      (parse-authorization-header request token-name))
+    (authenticate [_ request data]
+      (try+
+        (assoc request :identity (jwe/decrypt data secret options))
         (catch Object e
           request)))
 
