@@ -13,6 +13,7 @@
 ;; limitations under the License.
 
 (ns buddy.auth.accessrules
+  "Access Rules system for ring based applications."
   (:require [buddy.auth :refer [throw-unauthorized]]
             [ring.util.response :as ring]
             [clojure.walk :refer [postwalk]]
@@ -23,10 +24,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defprotocol IRuleHandlerResponse
-  "Protocol for uniform identification on
-  success value on rule handler response."
+  "Absraction for uniform handlig of rule handler return values.
+  It comes with default implementation for nil and boolean types."
   (success? [_] "Check if a response is a success.")
   (get-value [_] "Get a hander response value."))
+
+(extend-protocol IRuleHandlerResponse
+  nil
+  (success? [_] false)
+  (get-value [_] nil)
+
+  Boolean
+  (success? [v] v)
+  (get-value [_] nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rule Handler Response Type
@@ -75,23 +85,11 @@
   ([] (RuleError. nil))
   ([v] (RuleError. v)))
 
-;; Default implementation for IRuleHandlerResponse protocol
-;; for nil and any boolean value.
-
-(extend-protocol IRuleHandlerResponse
-  nil
-  (success? [_] false)
-  (get-value [_] nil)
-
-  Boolean
-  (success? [v] v)
-  (get-value [_] nil))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Implementation
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn- compile-rule-handler
+(defn compile-rule-handler
   "Receives a rule handler and return a compiled version of it.
 
   The compiled version of rule handler consists in
@@ -101,12 +99,12 @@
   The rule can be a simple function or logical expersion. Logical
   expresion is expressed using a hashmap:
 
-     {:or [f1 f2]}
-     {:and [f1 f2]}
+      {:or [f1 f2]}
+      {:and [f1 f2]}
 
   Logical expressions can be nestest as deep as you want:
 
-     {:or [f1 {:and [f2 f3]}]}
+      {:or [f1 {:and [f2 f3]}]}
 
   The rule handler as unit of work, should return a
   `success` or `error`. `success` is a simple mark that
@@ -120,14 +118,16 @@
   bad-request response with message as response body.
 
   Example of success marks:
-    true
-    (success)
+
+  - `true`
+  - `(success)`
 
   Example of error marks:
-    nil
-    false
-    (error \"Error msg\")
-    (error {:status 400 :body \"Unauthorized\"})
+
+  - `nil`
+  - `false`
+  - `(error \"Error msg\")`
+  - `(error {:status 400 :body \"Unauthorized\"})`
   "
   [rule]
   (postwalk (fn [form]
@@ -172,7 +172,7 @@
 
       :else true)))
 
-(defn- compile-access-rule
+(defn  compile-access-rule
   "Receives a access rule and return a compiled version of it.
 
   The plain version of access rule consists in one hash-map with
@@ -182,10 +182,10 @@
 
   Little overview of aspect of access rules:
 
-    [{:uri \"/foo\"
-      :handler user-access}
-     {:uris [\"/bar\" \"/baz\"]
-      :handler admin-access}]
+      [{:uri \"/foo\"
+        :handler user-access}
+       {:uris [\"/bar\" \"/baz\"]
+        :handler admin-access}]
 
   The clout library (https://github.com/weavejester/clout)
   for matching the `:uri`.
@@ -193,16 +193,16 @@
   It also has support for more advanced matching using
   plain regular expressions:
 
-    [{:pattern #\"^/foo$\"
-      :handler user-access}
+      [{:pattern #\"^/foo$\"
+        :handler user-access}
 
   An access rule can also match against certain HTTP methods, by using
   the `:request-method` option. `:request-method` can be a keyword or
   a set of keywords.
 
-    [{:pattern #\"^/foo$\"
-      :handler user-access
-      :request-method :get}
+      [{:pattern #\"^/foo$\"
+        :handler user-access
+        :request-method :get}
 
   The compilation process consists in transform the plain version
   in one optimized of it for avoid unnecesary overhead to the
@@ -214,8 +214,8 @@
 
   Little overview of aspect of compiled version of acces rule:
 
-    [{:matcher #<accessrules$compile_access_rule$fn__13092$fn__13095...>
-      :handler #<accessrules$compile_rule_handler$fn__14040$fn__14043...>
+      [{:matcher #<accessrules$compile_access_rule$fn__13092$fn__13095...>
+        :handler #<accessrules$compile_rule_handler$fn__14040$fn__14043...>
   "
   [accessrule]
   {:pre [(map? accessrule)]}
@@ -247,7 +247,7 @@
       :matcher matcher
       :handler handler)))
 
-(defn- compile-access-rules
+(defn compile-access-rules
   "Compile a list of access rules.
 
   For more information, see the docstring
@@ -344,13 +344,13 @@
   decorator. Is intended for use with compojure routing
   library or similar. Example:
 
-    (defn login-ctrl [req] ...)
-    (defn admin-ctrl [req] ...)
+      (defn login-ctrl [req] ...)
+      (defn admin-ctrl [req] ...)
 
-    (defroutes app
-      (ANY \"/login\" [] login-ctrl)
-      (GET \"/admin\" [] (restrict admin-ctrl {:handler admin-access ;; Mandatory
-                                               :on-error my-reject-handler)
+      (defroutes app
+        (ANY \"/login\" [] login-ctrl)
+        (GET \"/admin\" [] (restrict admin-ctrl {:handler admin-access ;; Mandatory
+                                                 :on-error my-reject-handler)
 
   This decorator allow use same access rules but without
   any url matching algorithm but with disadvantage of

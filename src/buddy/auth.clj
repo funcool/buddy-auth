@@ -13,17 +13,26 @@
 ;; limitations under the License.
 
 (ns buddy.auth
+  "Authorization and Authentication primitives for
+  ring based applications."
   (:require [buddy.auth.protocols :as proto]
             [slingshot.slingshot :refer [throw+ try+]])
   (:import buddy.exceptions.UnauthorizedAccessException))
 
 (defn authenticated?
-  "Test if a current request is
-  authenticated or not."
+  "Return `true` if the `request` is an
+  authenticated request.
+
+  This function checks the `:identity` key
+  in the request."
   [request]
   (boolean (:identity request)))
 
 (defn throw-unauthorized
+  "Throws a unauthorized exception.
+
+  Used as fast skip exception based
+  authorization primitive."
   ([] (throw-unauthorized {}))
   ([errordata]
    (throw+ {:type ::unauthorized

@@ -81,7 +81,7 @@
       (try+
         (handler request)
         (catch [:type :buddy.auth/unauthorized] {:keys [payload]}
-          (proto/handle-unauthorized backend request errordata))
+          (proto/handle-unauthorized backend request payload))
         (catch Object e
           (if (satisfies? proto/IAuthorizationdError e)
             (->> (proto/get-error-data e)

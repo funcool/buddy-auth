@@ -1,4 +1,4 @@
-;; Copyright 2013 Andrey Antukh <niwi@niwi.be>
+;; Copyright 2013-2015 Andrey Antukh <niwi@niwi.be>
 ;;
 ;; Licensed under the Apache License, Version 2.0 (the "License")
 ;; you may not use this file except in compliance with the License.
@@ -12,7 +12,9 @@
 ;; See the License for the specific language governing permissions and
 ;; limitations under the License.
 
-(ns buddy.auth.protocols)
+(ns buddy.auth.protocols
+  "Main authentication and authorization abstractions
+  defined as protocols.")
 
 (defprotocol IAuthentication
   "Protocol that defines unfied workflow steps for
@@ -41,9 +43,10 @@
   (handle-unauthorized [_ request metadata]
     "This function is executed when a `NotAuthorizedException`
     exception is intercepted by authorization wrapper.
+
     It should return a valid ring response."))
 
 (defprotocol IAuthorizationdError
-  "Protocol that acts like a marker for allow extend
-  authorization exception management."
+  "Abstraction that allows to user extend the exception
+  based authorization system with own types."
   (get-error-data [_] "Ger error information."))
