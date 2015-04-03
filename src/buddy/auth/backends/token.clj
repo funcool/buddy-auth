@@ -81,8 +81,9 @@
       (parse-authorization-header request token-name))
     (authenticate [_ request token]
       (let [rsq (authfn request token)]
-        (if (response? rsq) rsq
-            (assoc request :identity rsq))))
+        (if (response? rsq)
+          rsq
+          (assoc request :identity rsq))))
 
     proto/IAuthorization
     (handle-unauthorized [_ request metadata]
