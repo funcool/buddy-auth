@@ -9,7 +9,15 @@
                  [slingshot "0.12.2"]
                  [ring/ring-core "1.3.2" :exclusions [org.clojure/tools.reader]]
                  [clout "2.1.1"]]
-  :source-paths ["src/clojure"]
-  :java-source-paths ["src/java"]
+  :source-paths ["src"]
+  :test-paths ["test"]
+  :jar-exclusions [#"\.cljx|\.swp|\.swo|user.clj"]
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
-  :test-paths ["test"])
+  :profiles {:dev {:codeina {:sources ["src"]
+                             :exclude []
+                             :language :clojure
+                             :output-dir "doc/api"
+                             :src-dir-uri "http://github.com/funcool/buddy-auth/blob/master/"
+                             :src-linenum-anchor-prefix "L"}
+                   :plugins [[funcool/codeina "0.1.0-SNAPSHOT"
+                              :exclusions [org.clojure/clojure]]]}})
