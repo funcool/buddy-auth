@@ -1,5 +1,19 @@
 = Changelog
 
+== Version 0.5.0
+
+Date: 2015-04-03
+
+- Update buddy-sign to 0.5.0
+- Add JWE (Json Web Token) auth backend.
+- Improved exception based ahorization functions.
+- Add `on-error` parameter to JWS backend.
+- Add support for multiple backends. (thanks to @r0man)
+- Add support for match for http method for acces rules (thanks to @r0man)
+- Fix wrong behavior :or logic operator on access rules dsl (thanks to @r0man)
+- Removed any java source, now is 100% clojure.
+
+
 == Version 0.4.2
 
 Date: 2015-03-29
