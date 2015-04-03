@@ -22,7 +22,7 @@
     :valid
     :invalid))
 
-(def backend (http-basic-backend {:authfn auth-fn :realm "Foo"}))
+(def backend (httpbasic/http-basic-backend {:authfn auth-fn :realm "Foo"}))
 
 (deftest httpbasic-parse-test
   (testing "Parse httpbasic header from request"

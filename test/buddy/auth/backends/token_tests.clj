@@ -31,7 +31,7 @@
 (deftest token-parse-test
   (testing "Parse authorization header"
     (let [request (make-request "foo")
-          parse #'token/parse-authorization-heade
+          parse #'token/parse-authorization-header
           parsed  (parse request "Token")]
       (is (= parsed "foo"))))
 
