@@ -2,7 +2,9 @@
   (:require [clojure.test :refer :all]
             [ring.util.response :refer [response?]]
             [buddy.core.codecs :refer :all]
+            [buddy.core.hash :as hash]
             [buddy.sign.jws :as jws]
+            [buddy.sign.jwe :as jwe]
             [buddy.auth :refer [throw-unauthorized]]
             [buddy.auth.backends.token :as token]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
@@ -17,12 +19,6 @@
   [token]
   (let [header (format "Token %s" token)]
     {:headers {"auThorIzation" header}}))
-
-(defn make-jws-request
-  [data secret]
-  (let [header (->> (jws/sign data secret)
-                    (format "Token %s"))]
-    {:headers {"authorization" header}}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests: parse
@@ -47,6 +43,12 @@
 (def jws-secret "mysuperjwssecret")
 (def jws-backend (token/jws-backend {:secret jws-secret}))
 (def jws-data {:userid 1})
+
+(defn make-jws-request
+  [data secret]
+  (let [header (->> (jws/sign data secret)
+                    (format "Token %s"))]
+    {:headers {"authorization" header}}))
 
 (deftest jws-backend-test
   (testing "Jws token backend authentication"
@@ -93,6 +95,68 @@
                       (wrap-authentication backend))
           response (handler request)]
       (is (= (:status response) 3000)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Tests: JWE
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def jwe-secret (hash/sha256 "mysupersecretkey"))
+(def jwe-backend (token/jwe-backend {:secret jwe-secret}))
+(def jwe-data {:userid 1})
+
+(defn make-jwe-request
+  [data secret]
+  (let [header (->> (jwe/encrypt data secret)
+                    (format "Token %s"))]
+    {:headers {"authorization" header}}))
+
+(deftest jwe-backend-test
+  (testing "Jwe token backend authentication"
+    (let [request (make-jwe-request jwe-data jwe-secret)
+          handler (wrap-authentication identity jwe-backend)
+          response (handler request)]
+      (is (= (:identity response) jwe-data))))
+
+  (testing "Jwe token backend authentication with wrong key yields nil"
+    (let [request (make-jwe-request jwe-data (hash/sha256 "wrong-key"))
+          handler (wrap-authentication identity jwe-backend)
+          response (handler request)]
+      (is (nil? (:identity response)))))
+
+  (testing "Jwe token backend authentication with no token yields nil"
+    (let [request {}
+          handler (wrap-authentication identity jwe-backend)
+          response (handler request)]
+      (is (nil? (:identity response)))))
+
+  (testing "Jwe token authorizaton with wrong key yields 401"
+    (let [request (make-jwe-request jwe-data (hash/sha256 "wrong-key"))
+          handler (-> (fn [req] (throw-unauthorized))
+                      (wrap-authorization jwe-backend)
+                      (wrap-authentication jwe-backend))
+          response (handler request)]
+      (is (= (:status response) 401))))
+
+  (testing "Jwe token authorization - authenticated but unathorized thrown yields 403"
+    (let [request (make-jwe-request {:userid 1} jwe-secret)
+          handler (-> (fn [req] (throw-unauthorized))
+                      (wrap-authorization jwe-backend)
+                      (wrap-authentication jwe-backend))
+          response (handler request)]
+      (is (= (:status response) 403))))
+
+  (testing "Jwe token unathorized - unauth handler called when provided"
+    (let [request (make-jwe-request jwe-data (hash/sha256 "wrong-key"))
+          onerror (fn [_ _] {:status 3000})
+          backend (token/jwe-backend {:secret jwe-secret
+                                      :unauthorized-handler onerror})
+          handler (-> (fn [req] (throw-unauthorized))
+                      (wrap-authorization backend)
+                      (wrap-authentication backend))
+          response (handler request)]
+      (is (= (:status response) 3000)))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests: Token
