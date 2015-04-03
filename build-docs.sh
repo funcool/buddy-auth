@@ -1,11 +1,13 @@
 #!/bin/sh
 VERSION="latest"
 
+lein doc
 (cd doc; make)
 
 rm -rf /tmp/buddy-doc/
 mkdir -p /tmp/buddy-doc/
-mv doc/*.html /tmp/buddy-doc/
+mv doc/index.html /tmp/buddy-doc/
+mv doc/api /tmp/buddy-doc/api
 
 git checkout gh-pages;
 
