@@ -1,6 +1,6 @@
-# buddy-auth example using token
+# buddy-auth example using JWS
 
-This example application shows how to use buddy auth with token based authentication.
+This example application shows how to use buddy auth with JWS based authentication.
 
 Users:
 * user: admin, password "secret"
@@ -9,7 +9,7 @@ Users:
 
 ## Running the app ##
 
-``` lein ring server```
+``` lein ring server-headless```
 
 The app will by default start on port 9090
 
