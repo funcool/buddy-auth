@@ -3,7 +3,7 @@
             [ring.util.response :refer [response? response]]
             [buddy.core.codecs :refer :all]
             [buddy.auth :refer [throw-unauthorized]]
-            [buddy.auth.backends.httpbasic :refer [http-basic-backend parse-httpbasic-header]]
+            [buddy.auth.backends.httpbasic :as httpbasic]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
 
 (defn make-header
@@ -22,15 +22,16 @@
     :valid
     :invalid))
 
+(def backend (http-basic-backend {:authfn auth-fn :realm "Foo"}))
+
 (deftest httpbasic-parse-test
   (testing "Parse httpbasic header from request"
-    (let [request (make-request "foo" "bar")
-          parsed  (parse-httpbasic-header request)]
+    (let [parse #'httpbasic/parse-httpbasic-header
+          request (make-request "foo" "bar")
+          parsed  (parse request)]
       (is (not (nil? parsed)))
       (is (= (:password parsed) "bar"))
       (is (= (:username parsed) "foo")))))
-
-(def backend (http-basic-backend {:authfn auth-fn :realm "Foo"}))
 
 (deftest httpbasic-auth-backend
   (testing "Testing anon request"

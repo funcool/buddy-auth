@@ -13,6 +13,7 @@
 ;; limitations under the License.
 
 (ns buddy.auth.backends.token
+  "The token based authentication and authorization backends."
   (:require [buddy.auth.protocols :as proto]
             [buddy.sign.jws :as jws]
             [buddy.sign.jwe :as jwe]
@@ -24,13 +25,14 @@
     {:status 403 :headers {} :body "Permission denied"}
     {:status 401 :headers {} :body "Unauthorized"}))
 
-(defn parse-authorization-header
+(defn- parse-authorization-header
   [request token-name]
   (some->> (get-header request "authorization")
            (re-find (re-pattern (str "^" token-name " (.+)$")))
            (second)))
 
 (defn jws-backend
+  "The JWS (Json Web Signature) based backend constructor."
   [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
@@ -52,6 +54,7 @@
         (handle-unauthorized-default request)))))
 
 (defn jwe-backend
+  "The JWE (Json Web Encryption) based backend constructor."
   [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify

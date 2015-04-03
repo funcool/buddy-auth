@@ -31,11 +31,13 @@
 (deftest token-parse-test
   (testing "Parse authorization header"
     (let [request (make-request "foo")
-          parsed  (token/parse-authorization-header request "Token")]
+          parse #'token/parse-authorization-heade
+          parsed  (parse request "Token")]
       (is (= parsed "foo"))))
 
   (testing "Parse authorization header different header name yields nil"
-    (let [parsed (token/parse-authorization-header (make-request "foo") "MyToken")]
+    (let [parse #'token/parse-authorization-header
+          parsed (parse (make-request "foo") "MyToken")]
      (is (= parsed nil)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

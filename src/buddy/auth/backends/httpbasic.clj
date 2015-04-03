@@ -13,6 +13,7 @@
 ;; limitations under the License.
 
 (ns buddy.auth.backends.httpbasic
+  "The http-basic authentication and authorization backend."
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth :refer [authenticated?]]
             [buddy.core.codecs :refer [base64->str]]
@@ -20,7 +21,7 @@
             [ring.util.response :refer [response response?
                                         get-header header status]]))
 
-(defn parse-httpbasic-header
+(defn- parse-httpbasic-header
   "Given a request, try extract and parse
   http basic header."
   [request]
