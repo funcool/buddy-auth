@@ -51,10 +51,9 @@
     (handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request (assoc metadata :realm realm))
-        (do
-          (if (authenticated? request)
-            (-> (response "Permission denied")
-                (status 403))
-            (-> (response "Unauthorized")
-                (header "WWW-Authenticate" (format "Basic realm=\"%s\"" realm))
-                (status 401))))))))
+        (if (authenticated? request)
+          (-> (response "Permission denied")
+              (status 403))
+          (-> (response "Unauthorized")
+              (header "WWW-Authenticate" (format "Basic realm=\"%s\"" realm))
+              (status 401)))))))
