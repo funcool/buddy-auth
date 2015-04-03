@@ -63,7 +63,7 @@
 
   (testing "restrict handler with failure 1"
     (let [handler (restrict test-handler {:handler {:or [fail fail]}})]
-      (is (thrown? Exception (handler 1)))))
+      (is (thrown? clojure.lang.ExceptionInfo (handler 1)))))
 
   (testing "restrict handler with failure 2"
     (let [handler (restrict test-handler {:handler {:or [fail fail]}})
@@ -132,10 +132,10 @@
       (is (= {:uri "/path2"} (:body rsp)))))
 
   (testing "check access rules 3"
-    (is (thrown? Exception (handler1 {:uri "/path3"}))))
+    (is (thrown? clojure.lang.ExceptionInfo (handler1 {:uri "/path3"}))))
 
   (testing "check access rules 4"
-    (is (thrown? Exception (handler1 {:uri "/path4"}))))
+    (is (thrown? clojure.lang.ExceptionInfo (handler1 {:uri "/path4"}))))
 
   (testing "check access rules 5"
     (let [rsp (handler2 {:uri "/path3"})]
@@ -158,10 +158,10 @@
       (is (= {:uri "/path2"} (:body rsp)))))
 
   (testing "check access rules 3"
-    (is (thrown? Exception (handler3 {:uri "/path3"}))))
+    (is (thrown? clojure.lang.ExceptionInfo (handler3 {:uri "/path3"}))))
 
   (testing "check access rules 4"
-    (is (thrown? Exception (handler3 {:uri "/path4"}))))
+    (is (thrown? clojure.lang.ExceptionInfo (handler3 {:uri "/path4"}))))
 )
 
 (defn method-handler [type type-param allowed]
@@ -182,13 +182,12 @@
         (testing "with keyword as allowed method"
           (let [handler (method-handler :get)]
             (is (= (:body (handler allowed)) allowed))
-            (is (thrown? Exception (handler forbidden)))))
+            (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
         (testing "with set of keywords as allowed method"
           (let [handler (method-handler #{:get})]
             (is (= (:body (handler allowed)) allowed))
-            (handler forbidden)
-            (is (thrown? Exception (handler forbidden)))))
+            (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
         (testing "with nil as allowed request method"
           (let [handler (method-handler nil)]
@@ -200,12 +199,12 @@
         (testing "with keyword as allowed method"
           (let [handler (method-handler :get)]
             (is (= (:body (handler allowed)) allowed))
-            (is (thrown? Exception (handler forbidden)))))
+            (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
         (testing "with set of keywords as allowed method"
           (let [handler (method-handler #{:get})]
             (is (= (:body (handler allowed)) allowed))
-            (is (thrown? Exception (handler forbidden)))))
+            (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
         (testing "with nil as allowed request method"
           (let [handler (method-handler nil)]
@@ -217,12 +216,12 @@
         (testing "with keyword as allowed method"
           (let [handler (method-handler :get)]
             (is (= (:body (handler allowed)) allowed))
-            (is (thrown? Exception (handler forbidden)))))
+            (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
         (testing "with set of keywords as allowed method"
           (let [handler (method-handler #{:get})]
             (is (= (:body (handler allowed)) allowed))
-            (is (thrown? Exception (handler forbidden)))))
+            (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
         (testing "with nil as allowed request method"
           (let [handler (method-handler nil)]
