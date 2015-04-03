@@ -4,7 +4,7 @@
   :license {:name "Apache 2.0"
             :url "http://www.apache.org/licenses/LICENSE-2.0"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [buddy/buddy-sign "0.5.0-SNAPSHOT"]
+                 [buddy/buddy-sign "0.5.0"]
                  [cuerdas "0.3.2"]
                  [slingshot "0.12.2"]
                  [ring/ring-core "1.3.2" :exclusions [org.clojure/tools.reader]]
