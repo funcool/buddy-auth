@@ -428,6 +428,9 @@ This is an example of how a composed rule handler can be used in an access rules
   :handler {:and [authenticated-user admin-user]}}]
 ----
 
+Additionally, if you are using *clout* based syntax for matching access rules, the request in
+a rule handler will contain `:match-params` with clout matched uri params.
+
 
 ==== Usage
 
