@@ -227,25 +227,30 @@
                     (let [pattern (:pattern accessrule)
                           uri (or (:path-info request)
                                   (:uri request))]
-                      (boolean (and (matches-request-method request request-method)
-                                    (seq (re-matches pattern uri))))))
+                      (when (and (matches-request-method request request-method)
+                                 (seq (re-matches pattern uri)))
+                        {})))
 
                   (:uri accessrule)
                   (let [route (clout/route-compile (:uri accessrule))]
                     (fn [request]
-                      (boolean (and (matches-request-method request request-method)
-                                    (clout/route-matches route request)))))
+                      (let [match-params (clout/route-matches route request)]
+                        (when (and (matches-request-method request request-method) match-params)
+                          match-params))))
 
                   (:uris accessrule)
                   (let [routes (mapv clout/route-compile (:uris accessrule))]
                     (fn [request]
-                      (boolean (and (matches-request-method request request-method)
-                                    (some #(clout/route-matches % request) routes)))))
+                      (let [match-params (->> (map #(clout/route-matches % request) routes)
+                                              (filter identity)
+                                              (first))]
+                        (when (and (matches-request-method request request-method) match-params)
+                          match-params))))
 
-                  :else (fn [request] true))]
+                  :else (fn [request] {}))]
     (assoc accessrule
-      :matcher matcher
-      :handler handler)))
+           :matcher matcher
+           :handler handler)))
 
 (defn compile-access-rules
   "Compile a list of access rules.
@@ -259,10 +264,13 @@
   "Iterates over all access rules and try match each one
   in order. Return a first matched access rule or nil."
   [accessrules request]
-  (first (filter (fn [accessrule]
-                   (let [matcher (:matcher accessrule)]
-                     (matcher request)))
-                 accessrules)))
+  (reduce (fn [acc accessrule]
+            (let [matcher (:matcher accessrule)
+                  match-result (matcher request)]
+              (when match-result
+                (reduced (assoc accessrule :match-params match-result)))))
+          nil
+          accessrules))
 
 (defn- handle-error
   "Handles the error situation when access rules are
@@ -303,8 +311,11 @@
   [match request]
   {:pre [(map? match)
          (contains? match :handler)]}
-  (let [handler (:handler match)]
-    (handler request)))
+  (let [handler (:handler match)
+        params  (:match-params match)]
+    (-> request
+        (assoc :match-params params)
+        (handler))))
 
 (defn wrap-access-rules
   "An ring middleware that helps define access rules for

@@ -4,7 +4,8 @@
             [buddy.auth.accessrules :as acr :refer (success error restrict wrap-access-rules)]))
 
 (defn ok [v] (acr/success v))
-(defn fail [v] (acr/error v))
+(defn fail [v]
+  (acr/error (if (and (map? v) (:msg v)) (:msg v) v)))
 
 (defn ok2 [v] true)
 (defn fail2 [v] false)
@@ -58,16 +59,16 @@
 (deftest restrict-test
   (testing "restrict handler 1"
     (let [handler (restrict test-handler {:handler {:or [ok fail]}})
-          rsp     (handler "test")]
-      (is (= "test" (:body rsp)))))
+          rsp     (handler {:foo "bar"})]
+      (is (= {:foo "bar"} (:body rsp)))))
 
   (testing "restrict handler with failure 1"
     (let [handler (restrict test-handler {:handler {:or [fail fail]}})]
-      (is (thrown? clojure.lang.ExceptionInfo (handler 1)))))
+      (is (thrown? clojure.lang.ExceptionInfo (handler {:foo "bar"})))))
 
   (testing "restrict handler with failure 2"
     (let [handler (restrict test-handler {:handler {:or [fail fail]}})
-          rsp (handler "Failure message")]
+          rsp (handler {:msg "Failure message"})]
       (is (= "Failure message" (:body rsp)))
       (is (= 400 (:status rsp)))))
 
@@ -75,14 +76,14 @@
     (let [handler (restrict test-handler
                             {:handler {:or [fail fail]}
                              :on-error (fn [req val] (ring/response (str "onfail-" val)))})
-          rsp     (handler "test")]
+          rsp     (handler {:msg "test"})]
       (is (= "onfail-test" (:body rsp)))))
 
   (testing "restrict handlerw with failure and redirect"
     (let [handler (restrict test-handler
                             {:handler {:or [fail fail]}
                              :redirect "/foobar"})
-          rsp     (handler "test")]
+          rsp     (handler {:msg "test"})]
       (is (= 302 (:status rsp)))
       (is (= "/foobar" (get-in rsp [:headers "Location"])))))
 )
@@ -100,7 +101,7 @@
             :handler {:or [ok fail]}}
            {:uri "/path2"
             :handler ok}
-           {:uris ["/path3" "/path0"]
+           {:uris ["/path3" "/path0" "/path/:param"]
             :handler {:and [fail ok]}}]})
 
 (defn on-error
@@ -140,7 +141,7 @@
   (testing "check access rules 5"
     (let [rsp (handler2 {:uri "/path3"})]
       (is (= 400 (:status rsp)))
-      (is (= {:uri "/path3"} (:body rsp)))))
+      (is (= {:uri "/path3" :match-params {}} (:body rsp)))))
 
   (testing "check access rules 6"
     (let [rsp (handler2 {:uri "/path4"})]
@@ -158,9 +159,15 @@
       (is (= {:uri "/path2"} (:body rsp)))))
 
   (testing "check access rules 3"
-    (is (thrown? clojure.lang.ExceptionInfo (handler3 {:uri "/path3"}))))
+    (let [rsp (handler3 {:uri "/path/foobar" :body "Fail" :status 400 :headers {}})]
+      (is (= 400 (:status rsp)))
+      (is (= {:param "foobar"} (:match-params rsp)))
+      (is (= "Fail" (:body rsp)))))
 
   (testing "check access rules 4"
+    (is (thrown? clojure.lang.ExceptionInfo (handler3 {:uri "/path3"}))))
+
+  (testing "check access rules 5"
     (is (thrown? clojure.lang.ExceptionInfo (handler3 {:uri "/path4"}))))
 )
 
