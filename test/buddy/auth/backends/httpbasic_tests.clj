@@ -1,8 +1,8 @@
 (ns buddy.auth.backends.httpbasic-tests
   (:require [clojure.test :refer :all]
-            [ring.util.response :refer [response? response]]
             [buddy.core.codecs :refer :all]
             [buddy.auth :refer [throw-unauthorized]]
+            [buddy.auth.http :as http]
             [buddy.auth.backends.httpbasic :as httpbasic]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
 

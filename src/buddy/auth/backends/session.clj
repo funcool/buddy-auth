@@ -15,9 +15,9 @@
 (ns buddy.auth.backends.session
   "The session based authentication and authorization backend."
   (:require [buddy.auth.protocols :as proto]
+            [buddy.auth.http :as http]
             [buddy.auth :refer [authenticated?]]
-            [clojure.string :refer [split]]
-            [ring.util.response :refer [response header status]]))
+            [clojure.string :refer [split]]))
 
 (defn session-backend
   "Given some options, create a new instance
@@ -35,7 +35,5 @@
       (if unauthorized-handler
         (unauthorized-handler request metadata)
         (if (authenticated? request)
-          (-> (response "Permission denied")
-              (status 403))
-          (-> (response "Unauthorized")
-              (status 401)))))))
+          (http/response "Permission denied" 403)
+          (http/response "Unauthorized" 401))))))

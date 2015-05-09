@@ -15,17 +15,17 @@
 (ns buddy.auth.backends.httpbasic
   "The http-basic authentication and authorization backend."
   (:require [buddy.auth.protocols :as proto]
+            [buddy.auth.http :as http]
             [buddy.auth :refer [authenticated?]]
             [buddy.core.codecs :refer [base64->str]]
-            [cuerdas.core :as str]
-            [ring.util.response :refer [response header status]]))
+            [cuerdas.core :as str]))
 
 (defn- parse-httpbasic-header
   "Given a request, try extract and parse
   http basic header."
   [request]
   (let [pattern (re-pattern "^Basic (.+)$")
-        decoded (some->> (proto/get-header request "authorization")
+        decoded (some->> (http/get-header request "authorization")
                          (re-find pattern)
                          (second)
                          (base64->str))]
@@ -44,7 +44,7 @@
       (parse-httpbasic-header request))
     (authenticate [_ request data]
       (let [rsq (authfn request data)]
-        (if (proto/response? rsq) rsq
+        (if (http/response? rsq) rsq
             (assoc request :identity rsq))))
 
     proto/IAuthorization
@@ -52,8 +52,6 @@
       (if unauthorized-handler
         (unauthorized-handler request (assoc metadata :realm realm))
         (if (authenticated? request)
-          (-> (response "Permission denied")
-              (status 403))
-          (-> (response "Unauthorized")
-              (header "WWW-Authenticate" (format "Basic realm=\"%s\"" realm))
-              (status 401)))))))
+          (http/response "Permission denied" 403)
+          (http/response "Unauthorized" 401
+                         {"WWW-Authenticate" (format "Basic realm=\"%s\"" realm)}))))))

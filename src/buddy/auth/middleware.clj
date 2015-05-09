@@ -15,8 +15,8 @@
 (ns buddy.auth.middleware
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.accessrules :as accessrules]
+            [buddy.auth.http :as http]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
-            [ring.util.response :refer [response response?]]
             [slingshot.slingshot :refer [throw+ try+]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -35,12 +35,12 @@
         (let [last? (empty? pending)
               request (assoc request :auth-backend current)
               rsq (proto/parse current request)]
-          (if (and (response? rsq) last?)
+          (if (and (http/response? rsq) last?)
             rsq
             (if (and (nil? rsq) last?)
               (handler request)
               (let [rsq (proto/authenticate current request rsq)]
-                (if (and (response? rsq) last?)
+                (if (and (http/response? rsq) last?)
                   rsq
                   (if (or (:identity rsq) last?)
                     (handler (or rsq request))

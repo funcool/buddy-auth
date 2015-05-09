@@ -1,6 +1,5 @@
 (ns buddy.auth.middleware-tests
   (:require [clojure.test :refer :all]
-            [ring.util.response :refer [response? response]]
             [slingshot.slingshot :refer [throw+ try+]]
             [buddy.core.codecs :refer :all]
             [buddy.auth :refer [throw-unauthorized]]

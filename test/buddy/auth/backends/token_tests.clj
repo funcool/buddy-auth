@@ -1,6 +1,5 @@
 (ns buddy.auth.backends.token-tests
   (:require [clojure.test :refer :all]
-            [ring.util.response :refer [response?]]
             [buddy.core.codecs :refer :all]
             [buddy.core.hash :as hash]
             [buddy.sign.jws :as jws]

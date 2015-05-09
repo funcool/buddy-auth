@@ -1,6 +1,5 @@
 (ns buddy.auth.backends.session-tests
   (:require [clojure.test :refer :all]
-            [ring.util.response :refer [response? response]]
             [buddy.core.codecs :refer :all]
             [buddy.auth :refer [throw-unauthorized]]
             [buddy.auth.backends.session :refer [session-backend]]

@@ -15,6 +15,7 @@
 (ns buddy.auth.backends.token
   "The token based authentication and authorization backends."
   (:require [buddy.auth.protocols :as proto]
+            [buddy.auth.http :as http]
             [buddy.sign.jws :as jws]
             [buddy.sign.jwe :as jwe]
             [slingshot.slingshot :refer [try+]]))
@@ -26,7 +27,7 @@
 
 (defn- parse-authorization-header
   [request token-name]
-  (some->> (proto/get-header request "authorization")
+  (some->> (http/get-header request "authorization")
            (re-find (re-pattern (str "^" token-name " (.+)$")))
            (second)))
 
@@ -83,7 +84,7 @@
       (parse-authorization-header request token-name))
     (authenticate [_ request token]
       (let [rsq (authfn request token)]
-        (if (proto/response? rsq)
+        (if (http/response? rsq)
           rsq
           (assoc request :identity rsq))))
 

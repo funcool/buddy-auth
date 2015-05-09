@@ -7,7 +7,6 @@
                  [buddy/buddy-sign "0.5.1"]
                  [cuerdas "0.3.2"]
                  [slingshot "0.12.2"]
-                 [ring/ring-core "1.3.2" :exclusions [org.clojure/tools.reader]]
                  [clout "2.1.2"]]
   :source-paths ["src"]
   :test-paths ["test"]

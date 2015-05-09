@@ -16,10 +16,6 @@
   "Main authentication and authorization abstractions
   defined as protocols.")
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Protocols Definition
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defprotocol IAuthentication
   "Protocol that defines unfied workflow steps for
   all authentication backends."
@@ -50,42 +46,7 @@
 
     It should return a valid ring response."))
 
-(defprotocol IRequest
-  (get-header [req name] "Get a value of header."))
-
-(defprotocol IResponse
-  (response? [resp] "Check if `resp` is a response."))
-
 (defprotocol IAuthorizationdError
   "Abstraction that allows to user extend the exception
   based authorization system with own types."
   (get-error-data [_] "Ger error information."))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Protocols builtin implementation
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn find-header
-  "Looks up a header in a headers map case insensitively,
-  returning the header map entry, or nil if not present."
-  [headers ^String header-name]
-  (first (filter #(.equalsIgnoreCase header-name (key %)) headers)))
-
-(extend-protocol IRequest
-  clojure.lang.IPersistentMap
-  (get-header [request header-name]
-    (some-> (:headers request) (find-header header-name) val)))
-
-(extend-protocol IResponse
-  nil
-  (response? [_]
-    false)
-
-  Object
-  (response? [_] false)
-
-  clojure.lang.IPersistentMap
-  (response? [response]
-    (and (integer? (:status response))
-         (map? (:headers response)))))

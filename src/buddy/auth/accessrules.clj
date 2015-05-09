@@ -15,7 +15,7 @@
 (ns buddy.auth.accessrules
   "Access Rules system for ring based applications."
   (:require [buddy.auth :refer [throw-unauthorized]]
-            [ring.util.response :as ring]
+            [buddy.auth.http :as http]
             [clojure.walk :refer [postwalk]]
             [clout.core :as clout]))
 
@@ -287,20 +287,19 @@
   (let [val (get-value response)]
     (cond
      (string? redirect)
-     (ring/redirect redirect)
+     (http/redirect redirect)
 
      (fn? on-error)
      (on-error request val)
 
-     (ring/response? val)
+     (http/response? val)
      val
 
      (fn? reject-handler)
      (reject-handler request val)
 
      (string? val)
-     (-> (ring/response val)
-         (ring/status 400))
+     (http/response val 400)
 
      :else
      (throw-unauthorized))))
