@@ -17,7 +17,7 @@
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth :refer [authenticated?]]
             [clojure.string :refer [split]]
-            [ring.util.response :refer [response response? header status]]))
+            [ring.util.response :refer [response header status]]))
 
 (defn session-backend
   "Given some options, create a new instance

@@ -18,15 +18,14 @@
             [buddy.auth :refer [authenticated?]]
             [buddy.core.codecs :refer [base64->str]]
             [cuerdas.core :as str]
-            [ring.util.response :refer [response response?
-                                        get-header header status]]))
+            [ring.util.response :refer [response header status]]))
 
 (defn- parse-httpbasic-header
   "Given a request, try extract and parse
   http basic header."
   [request]
   (let [pattern (re-pattern "^Basic (.+)$")
-        decoded (some->> (get-header request "authorization")
+        decoded (some->> (proto/get-header request "authorization")
                          (re-find pattern)
                          (second)
                          (base64->str))]
@@ -45,7 +44,7 @@
       (parse-httpbasic-header request))
     (authenticate [_ request data]
       (let [rsq (authfn request data)]
-        (if (response? rsq) rsq
+        (if (proto/response? rsq) rsq
             (assoc request :identity rsq))))
 
     proto/IAuthorization

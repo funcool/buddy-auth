@@ -17,8 +17,7 @@
   (:require [buddy.auth.protocols :as proto]
             [buddy.sign.jws :as jws]
             [buddy.sign.jwe :as jwe]
-            [slingshot.slingshot :refer [try+]]
-            [ring.util.response :refer [get-header response?]]))
+            [slingshot.slingshot :refer [try+]]))
 
 (defn- handle-unauthorized-default [request]
   (if (:identity request)
@@ -27,7 +26,7 @@
 
 (defn- parse-authorization-header
   [request token-name]
-  (some->> (get-header request "authorization")
+  (some->> (proto/get-header request "authorization")
            (re-find (re-pattern (str "^" token-name " (.+)$")))
            (second)))
 
@@ -84,7 +83,7 @@
       (parse-authorization-header request token-name))
     (authenticate [_ request token]
       (let [rsq (authfn request token)]
-        (if (response? rsq)
+        (if (proto/response? rsq)
           rsq
           (assoc request :identity rsq))))
 
