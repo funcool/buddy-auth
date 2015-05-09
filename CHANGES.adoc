@@ -1,5 +1,13 @@
 = Changelog
 
+== Version 0.5.2
+
+Date: 2015-05-09
+
+- Update clout version to 2.1.2
+- Update buddy-sign version to 0.5.1 (that fixes unexpected exceptions on parsing wrong tokens)
+
+
 == Version 0.5.1
 
 Date: 2015-04-16
