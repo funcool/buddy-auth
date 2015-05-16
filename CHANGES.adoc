@@ -1,5 +1,14 @@
 = Changelog
 
+== Version 0.5.3
+
+Date: 2015-05-16
+
+- Remove ring dependency.
+- Implement some http related functios as protocols for easy
+  extensibility by third party. Making it more compatible with
+  `funcool/catacumba` as example.
+
 == Version 0.5.2
 
 Date: 2015-05-09
