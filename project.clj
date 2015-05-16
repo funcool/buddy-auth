@@ -1,4 +1,4 @@
-(defproject buddy/buddy-auth "0.5.3-SNAPSHOT"
+(defproject buddy/buddy-auth "0.5.3"
   :description "Authentication and Authorization facilities for ring based web applications."
   :url "https://github.com/funcool/buddy-auth"
   :license {:name "Apache 2.0"
@@ -18,5 +18,5 @@
                              :output-dir "doc/api"
                              :src-dir-uri "http://github.com/funcool/buddy-auth/blob/master/"
                              :src-linenum-anchor-prefix "L"}
-                   :plugins [[funcool/codeina "0.1.0-SNAPSHOT"
+                   :plugins [[funcool/codeina "0.1.0"
                               :exclusions [org.clojure/clojure]]]}})

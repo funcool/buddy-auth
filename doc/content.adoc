@@ -37,7 +37,7 @@ The simplest way to use _buddy-auth_ in a clojure project is by including it in 
 ._In project.clj_
 [source,clojure]
 ----
-[buddy/buddy-auth "0.5.2"]
+[buddy/buddy-auth "0.5.3"]
 ----
 
 
@@ -47,7 +47,7 @@ If you are using gradle, this is a sample dependency declaration using the gradl
 
 [source,groovy]
 ----
-compile "buddy:buddy-auth:0.5.2"
+compile "buddy:buddy-auth:0.5.3"
 ----
 
 
