@@ -272,7 +272,7 @@
           nil
           accessrules))
 
-(defn- handle-error
+(defn handle-error
   "Handles the error situation when access rules are
   evaluated in `wrap-access-rules` middleware.
 
@@ -282,6 +282,7 @@
 
   The received response are mandatory satisfies
   IRuleHandlerResponse protocol."
+  {:no-doc true}
   [response request {:keys [reject-handler on-error redirect]}]
   {:pre [(satisfies? IRuleHandlerResponse response)]}
   (let [val (get-value response)]
