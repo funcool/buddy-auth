@@ -1,10 +1,14 @@
 = buddy-auth - Auth facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.be>
 :toc: left
-:numbered:
+:!numbered:
 :source-highlighter: pygments
 :pygments-style: friendly
 :sectlinks:
+:idseparator: -
+:idprefix:
+:toclevels: 2
+
 
 == Introduction
 

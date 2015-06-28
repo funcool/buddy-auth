@@ -15,7 +15,7 @@
   :profiles {:dev {:codeina {:sources ["src"]
                              :exclude []
                              :language :clojure
-                             :output-dir "doc/api"
+                             :output-dir "doc/dist/latest/api"
                              :src-dir-uri "http://github.com/funcool/buddy-auth/blob/master/"
                              :src-linenum-anchor-prefix "L"}
                    :plugins [[funcool/codeina "0.1.0"

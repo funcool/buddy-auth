@@ -1,7 +1,13 @@
-all: auth
+all: doc
 
-auth:
-	asciidoctor -o index.html content.adoc
+api:
+	cd ..
+	lein doc
 
-clean:
-	rm -f index.html
+doc:
+	mkdir -p dist/latest/
+	asciidoctor -a docinfo -a stylesheet! -o dist/latest/index.html content.adoc
+
+github: doc api
+	ghp-import -m "Generate documentation" -b gh-pages dist/
+	git push origin gh-pages
