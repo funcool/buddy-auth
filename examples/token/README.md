@@ -9,9 +9,10 @@ Users:
 
 ## Running the app ##
 
-``` lein ring server```
+```lein ring server-headless```
 
 The app will by default start on port 9090
+
 
 ## Example api requests ##
 

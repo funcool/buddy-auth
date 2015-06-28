@@ -8,7 +8,7 @@
                  [ring "1.3.2"]
                  [ring/ring-jetty-adapter "1.3.2"]
                  [ring/ring-json "0.3.1" :exclusions [ring/ring-core]]
-                 [buddy/buddy-auth "0.5.0"]]
+                 [buddy/buddy-auth "0.6.0"]]
   :ring {:handler authexample.web/app
          :port 9090}
   :profiles {:dev {:plugins [[lein-ring "0.9.3"]]

@@ -9,6 +9,8 @@ Users:
 
 ## Running the app
 
-``` lein ring server```
+```bash
+lein ring server
+```
 
 The app will by default start on port 9090
