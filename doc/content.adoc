@@ -590,6 +590,58 @@ ring views/handlers, you can use the `restrict` decorator. Let see it in action:
                                          :on-error on-error}))
 ----
 
+[[examples]]
+== Examples
+
+[[example-httpbasic]]
+=== Http Basic Auth Example
+
+This example tries to show the way to setup http basic auth in a simple ring based
+application.
+
+You can see the example code here:
+https://github.com/funcool/buddy-auth/tree/master/examples/httpbasic
+
+
+[[example-session]]
+=== Session Auth Example
+
+This example tries to show the way to setup session based auth in a simple ring based
+application.
+
+You can see the example code here:
+https://github.com/funcool/buddy-auth/tree/master/examples/session
+
+
+[[example-token]]
+=== Token Auth Example
+
+This example tries to show the way to setup token based auth in a simple ring based
+application.
+
+You can see the example code here:
+https://github.com/funcool/buddy-auth/tree/master/examples/token
+
+
+[[example-jwe]]
+=== JWE Token Auth Example
+
+This example tries to show the way to setup jwe stateless token based auth in a
+simple ring based application.
+
+You can see the example code here:
+https://github.com/funcool/buddy-auth/tree/master/examples/token-jwe
+
+
+[[example-jws]]
+=== JWE Token Auth Example
+
+This example tries to show the way to setup jws stateless token based auth in a
+simple ring based application.
+
+You can see the example code here:
+https://github.com/funcool/buddy-auth/tree/master/examples/token-jws
+
 
 == FAQ
 
