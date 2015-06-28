@@ -54,19 +54,6 @@ If you are using gradle, this is a sample dependency declaration using the gradl
 compile "buddy:buddy-auth:0.5.3"
 ----
 
-
-=== Get the Code
-
-_buddy-auth_ is open source and can be found on link:https://github.com/funcool/buddy-auth[github].
-
-You can clone the public repository with this command:
-
-[source,text]
-----
-git clone https://github.com/funcool/buddy-auth
-----
-
-
 == Authentication
 
 Buddy takes a very different approach to handling authentication. First, it clearly distinguishes
@@ -540,7 +527,13 @@ authentication only) without including the other.
 In summary: yes, you can use _buddy-auth_ with liberator.
 
 
-== How to Contribute?
+== Developers Guide
+
+=== Contributing
+
+Unlike Clojure and other Clojure contributed libraries _buddy-auth_ does not have many
+restrictions for contributions. Just open an issue or pull request.
+
 
 === Philosophy
 
@@ -555,22 +548,26 @@ Five most important rules:
 All contributions to _buddy-auth_ should keep these important rules in mind.
 
 
-=== Procedure
+=== Get the Code
 
-**buddy-auth** unlike Clojure and other Clojure contrib libs, does not have many
-restrictions for contributions. Just follow the following steps depending on the
-situation:
+_buddy-auth_ is open source and can be found on link:https://github.com/funcool/buddy-auth[github].
 
-**Bugfix**:
+You can clone the public repository with this command:
 
-- Fork the GitHub repo.
-- Fix a bug/typo on a new branch.
-- Make a pull-request to master.
+[source,text]
+----
+git clone https://github.com/funcool/buddy-auth
+----
 
-**New feature**:
 
-- Open new issues with the new feature proposal.
-- If it is accepted, follow the same steps as "bugfix".
+=== Run tests
+
+For running tests just execute this:
+
+[source,bash]
+----
+lein test
+----
 
 
 === License
