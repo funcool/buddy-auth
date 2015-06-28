@@ -151,7 +151,7 @@ All requests that reach the `my-sample-handler` will be properly processed and a
 of authentication the `:identity` keyword will be attached to the request if a authentication is
 successful.
 
-You can see a complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/httpbasic[here] (also with authorization).
+You can see a complete example of using this backend <<example-httpbasic,here>>.
 
 
 === Session
@@ -178,7 +178,7 @@ request.
 TIP: As you can see, the authentication is completely independent of login/signin. It's up to
 you to implement the login handler.
 
-You can see a complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/session[here] (also with authorization).
+You can see a complete example of using this backend <<example-session, here>>.
 
 
 === Token
@@ -230,7 +230,7 @@ Is the responsability of the library user to build tokens, handle its storage an
 process. _buddy-auth_ only offers a lightweight layer over http for parsing and mark requests
 as authenticated.
 
-You can see a complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/token[here] (also with authorization).
+You can see a complete example of using this backend <<example-token,here>>.
 
 
 === JWS Token (Stateless)
@@ -284,10 +284,7 @@ Some valuable resources for learning about stateless authentication are:
 - http://lucumr.pocoo.org/2013/11/17/my-favorite-database/
 - http://www.niwi.nz/2014/06/07/stateless-authentication-with-api-rest/
 
-
-You can see a complete example of using this backend
-link:https://github.com/funcool/buddy-auth/tree/master/examples/token-jws[here] (also with
-authorization).
+You can see a complete example of using this backend <<example-jws,here>>.
 
 
 === JWE Token (Stateless)
@@ -346,9 +343,7 @@ In order to use any asymetric encryption algorithm, you should have private/publ
 key pair. If you don't have one, don't worry, it is very easy to generate it using *openssl*, see
 this link:https://funcool.github.io/buddy-sign/latest/#generate-keypairs[faq entry].
 
-You can see a complete example of using this backend
-link:https://github.com/funcool/buddy-auth/tree/master/examples/token-jwe[here] (not related to
-code of this section).
+You can see a complete example of using this backend <<example-jwe, here>>.
 
 
 == Authorization
@@ -634,7 +629,7 @@ https://github.com/funcool/buddy-auth/tree/master/examples/token-jwe
 
 
 [[example-jws]]
-=== JWE Token Auth Example
+=== JWS Token Auth Example
 
 This example tries to show the way to setup jws stateless token based auth in a
 simple ring based application.
