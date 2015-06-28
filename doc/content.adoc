@@ -224,9 +224,6 @@ with extracted token.
 Authorization: Token 45c1f5e3f05d0
 ----
 
-If you are so inclined, you may use a different name for your token using the **token-name** optional
-key when defining your backend.
-
 The `authfn` should return something that will be associated to the `:identity` key in the request.
 
 Is the responsability of the library user to build tokens, handle its storage and verification
@@ -245,28 +242,113 @@ additional user defined logic for validate tokens, because as we said previously
 This type of tokens enables a complete stateless authentication because the server does not need any
 more store the token and related information, the token will contain that information.
 
-You can see a complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/token-jws[here] (also with authorization).
+Let see an demostrative example:
 
-NOTE: The security and the implementation of cryptographic primitives for that token is relied to the
-*buddy-sign* library (an other module of buddy) that implements the JWS specification. That library
-should be used for generate JWS tokens.
+[source, clojure]
+----
+(def secret "mysecret")
+(def backend
+  (auth/jws-backend {:secret secret}))
+
+;; and wrap your ring application with
+;; the authentication middleware
+
+(def app (-> your-ring-app
+             (wrap-authentication backend)))
+----
+
+Now you should have a login endpoint in your ring application that will have the
+responsability of generating valid tokens. This function may will be able to have
+similar aspect to:
+
+[source, clojure]
+----
+(require '[buddy.sign.jws :as jws])
+(require '[cheshire.core :as json])
+
+(defn login-handler
+  [request]
+  (let [data (:form-params request)
+        user (find-user (:username data)   ;; (implementation ommited)
+                        (:password data))]
+    {:status 200
+     :body (json/encode {:token (jws/sign {:user (:id user)} secret)})
+     :headers {:content-type "application/json"})))
+----
+
+For more details about jws, see the link:https://funcool.github.io/buddy-sign/latest/#jws[buddy-sign]
+documentation.
 
 Some valuable resources for learning about stateless authentication are:
 
 - http://lucumr.pocoo.org/2013/11/17/my-favorite-database/
-- http://www.niwi.be/2014/06/07/stateless-authentication-with-api-rest/
+- http://www.niwi.nz/2014/06/07/stateless-authentication-with-api-rest/
+
+
+You can see a complete example of using this backend
+link:https://github.com/funcool/buddy-auth/tree/master/examples/token-jws[here] (also with
+authorization).
 
 
 === JWE Token (Stateless)
 
-This backend is almost identical to the previous one (JWS), the main difference is that the backend
-uses JWE (Json Web Encryption) instead of JWS (Json Web Signature) and it has the advangage that
-the content of token is encrypted instead of simply signed.
+This backend is almost identical to the previous one (JWS).
 
-This is maybe useful when token should contain some additional user information that can not be
-public.
+The main difference is that the backend uses JWE (Json Web Encryption) instead of JWS (Json Web Signature)
+and it has the advangage that the content of token is encrypted instead of simply signed. This is useful
+when token may contain some additional user information that can not be public.
 
-You can see a complete example of using this backend link:https://github.com/funcool/buddy-auth/tree/master/examples/token-jwe[here] (also with authorization).
+This is how will look the previous (jws) example but using jwe with asymetric key encryption
+algorithm:
+
+[source, clojure]
+----
+(require '[buddy.sign.jwe :as jwe])
+(require '[buddy.core.keys :as keys])
+
+(def pubkey (keys/public-key "pubkey.pem"))
+(def privkey (keys/private-key "privkey.pem"))
+
+(def backend
+  (auth/jwe-backend {:secret privkey
+                     :options {:alg :rsa-oaep :enc :a128-hs256}}))
+
+;; and wrap your ring application with
+;; the authentication middleware
+
+(def app (-> your-ring-app
+             (wrap-authentication backend)))
+----
+
+
+The corresponding login endpoint should have similar aspect to this:
+
+[source, clojure]
+----
+(require '[buddy.sign.jwe :as jwe])
+(require '[cheshire.core :as json])
+
+(defn login-handler
+  [request]
+  (let [data (:form-params request)
+        user (find-user (:username data)   ;; (implementation ommited)
+                        (:password data))
+        token (jwe/encrypt {:user (:id user)} pubkey {:alg :rsa-oaep :enc :a128-hs256})]
+    {:status 200
+     :body (json/encode {:token token})
+     :headers {:content-type "application/json"})))
+----
+
+For more details about jwe, see the link:https://funcool.github.io/buddy-sign/latest/#jwe[buddy-sign]
+documentation.
+
+In order to use any asymetric encryption algorithm, you should have private/public
+key pair. If you don't have one, don't worry, it is very easy to generate it using *openssl*, see
+this link:https://funcool.github.io/buddy-sign/latest/#generate-keypairs[faq entry].
+
+You can see a complete example of using this backend
+link:https://github.com/funcool/buddy-auth/tree/master/examples/token-jwe[here] (not related to
+code of this section).
 
 
 == Authorization
