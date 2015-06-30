@@ -3,7 +3,7 @@
   :url "https://github.com/funcool/buddy-auth"
   :license {:name "Apache 2.0"
             :url "http://www.apache.org/licenses/LICENSE-2.0"}
-  :dependencies [[org.clojure/clojure "1.6.0" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
                  [buddy/buddy-sign "0.6.0"]
                  [funcool/cuerdas "0.5.0"]
                  [clout "2.1.2"]]
