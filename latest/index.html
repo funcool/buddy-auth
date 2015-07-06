@@ -614,8 +614,8 @@ logic with fast skip, raising an unauthorized exception using the <code>throw-un
 <p>Just like the authentication system, authorization is also implemented using protocols.</p>
 </div>
 <div class="paragraph">
-<p>All built-in backends are already implements the autorization protocol with default behavior. The
-default behavior can be overwritted passing the <code>:unauthorized-handler</code> option to the backend
+<p>All built-in backends already implement the autorization protocol with default behavior. The
+default behavior can be overridden passing the <code>:unauthorized-handler</code> option to the backend
 constructor:</p>
 </div>
 <div class="listingblock">
@@ -623,7 +623,7 @@ constructor:</p>
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.httpbasic</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">http-basic-backend</span><span class="tok-p">]])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.middleware</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">wrap-authentication</span> <span class="tok-nv">wrap-authorization</span><span class="tok-p">]])</span>
 
-<span class="tok-c1">;; Simple self difined handler for unauthorized requests.</span>
+<span class="tok-c1">;; Simple self defined handler for unauthorized requests.</span>
 <span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">my-unauthorized-handler</span>
   <span class="tok-p">[</span><span class="tok-nv">request</span> <span class="tok-nv">metadata</span><span class="tok-p">]</span>
   <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-p">(</span><span class="tok-nf">response</span> <span class="tok-s">&quot;Unauthorized request&quot;</span><span class="tok-p">)</span>
@@ -767,7 +767,7 @@ it in our ring applications.</p>
 <div class="title">Using <em>wrap-access-rules</em> middleware.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-c1">;; Rules handlers used on this example are ommited for code clarity</span>
-<span class="tok-c1">;; Each handler represent authorization logic indicated by its name.</span>
+<span class="tok-c1">;; Each handler represents authorization logic indicated by its name.</span>
 
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">rules</span> <span class="tok-p">[{</span><span class="tok-ss">:pattern</span> <span class="tok-o">#</span><span class="tok-s">&quot;^/admin/.*&quot;</span>
              <span class="tok-ss">:handler</span> <span class="tok-p">{</span><span class="tok-ss">:or</span> <span class="tok-p">[</span><span class="tok-nv">admin-access</span> <span class="tok-nv">operator-access</span><span class="tok-p">]}}</span>
@@ -911,7 +911,7 @@ simple ring based application.</p>
 </div>
 <div class="paragraph">
 <p><em>buddy-auth</em> authorization/authentication facilities are more low level and less opinionated
-that friend and allow build over them easy other high level abstractions.
+than friend, and allows you to easily build over them other high level abstractions.
 Technically, friend abstraction can be build on top of <em>buddy-auth</em>.</p>
 </div>
 <div class="paragraph">
@@ -1002,7 +1002,7 @@ of the license on the root of the repository on <code>LICENSE</code> file.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-06-28 16:31:09 EEST
+Last updated 2015-07-06 09:38:54 EEST
 </div>
 </div>
 </body>
