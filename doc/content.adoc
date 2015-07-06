@@ -383,8 +383,8 @@ logic with fast skip, raising an unauthorized exception using the `throw-unautho
 
 Just like the authentication system, authorization is also implemented using protocols.
 
-All built-in backends are already implements the autorization protocol with default behavior. The
-default behavior can be overwritted passing the `:unauthorized-handler` option to the backend
+All built-in backends already implement the autorization protocol with default behavior. The
+default behavior can be overridden passing the `:unauthorized-handler` option to the backend
 constructor:
 
 [source,clojure]
@@ -392,7 +392,7 @@ constructor:
 (require '[buddy.auth.backends.httpbasic :refer [http-basic-backend]])
 (require '[buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
 
-;; Simple self difined handler for unauthorized requests.
+;; Simple self defined handler for unauthorized requests.
 (defn my-unauthorized-handler
   [request metadata]
   (-> (response "Unauthorized request")
@@ -518,7 +518,7 @@ Here are couple of examples of how we could do it:
 [source,clojure]
 ----
 ;; Rules handlers used on this example are ommited for code clarity
-;; Each handler represent authorization logic indicated by its name.
+;; Each handler represents authorization logic indicated by its name.
 
 (def rules [{:pattern #"^/admin/.*"
              :handler {:or [admin-access operator-access]}}
@@ -644,7 +644,7 @@ https://github.com/funcool/buddy-auth/tree/master/examples/token-jws
 *What is the difference with Friend?*
 
 _buddy-auth_ authorization/authentication facilities are more low level and less opinionated
-that friend and allow build over them easy other high level abstractions.
+than friend, and allows you to easily build over them other high level abstractions.
 Technically, friend abstraction can be build on top of _buddy-auth_.
 
 
