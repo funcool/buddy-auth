@@ -190,8 +190,9 @@
   The clout library (https://github.com/weavejester/clout)
   for matching the `:uri`.
 
-  It also has support for more advanced matching using
-  plain regular expressions:
+  It also has support for more advanced matching using plain
+  regular expressions, which are matched against the full
+  request uri:
 
       [{:pattern #\"^/foo$\"
         :handler user-access}
@@ -225,8 +226,7 @@
                   (:pattern accessrule)
                   (fn [request]
                     (let [pattern (:pattern accessrule)
-                          uri (or (:path-info request)
-                                  (:uri request))]
+                          uri (:uri request)]
                       (when (and (matches-request-method request request-method)
                                  (seq (re-matches pattern uri)))
                         {})))
