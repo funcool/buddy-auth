@@ -1,5 +1,12 @@
 = Changelog
 
+== Version 0.6.2
+
+Date: 2015-08-26
+
+- The regext access rule matcher now only uses the request `:uri` property.
+
+
 == Version 0.6.1
 
 Date: 2015-08-02
