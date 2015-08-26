@@ -1,6 +1,6 @@
 = buddy-auth - Auth facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.nz>
-0.6.1
+0.6.2
 :toc: left
 :!numbered:
 :source-highlighter: pygments
@@ -17,43 +17,22 @@ The _buddy-auth_ module is dedicated to providing authentication facilities for
 ring and ring based web applications.
 
 
-== Project Maturity
+=== Project Maturity
 
 Since _buddy-auth_ is a young project there may be some API breakage.
 
 
-== Install
-
-This section covers the installation and requirements of the _buddy-auth_ library.
-
-
-=== Requirements
-
-_buddy-auth_ is tested with these platforms:
-
-- JDK7
-- JDK8
-
-
-=== Leiningen
+=== Install
 
 The simplest way to use _buddy-auth_ in a clojure project is by including it in  your *_project.clj_* dependency vector:
 
-._In project.clj_
 [source,clojure]
 ----
-[buddy/buddy-auth "0.6.1"]
+[buddy/buddy-auth "0.6.2"]
 ----
 
+This package is intended to be used with jdk7 and jdk8.
 
-=== Gradle
-
-If you are using gradle, this is a sample dependency declaration using the gradle dsl:
-
-[source,groovy]
-----
-compile "buddy:buddy-auth:0.6.1"
-----
 
 == Authentication
 
