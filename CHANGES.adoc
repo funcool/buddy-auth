@@ -1,5 +1,12 @@
 = Changelog
 
+== Version 0.7.0
+
+Date: unreleased
+
+- Response return value is now not supported in `parse` step of the authentication.
+
+
 == Version 0.6.2
 
 Date: 2015-08-26
