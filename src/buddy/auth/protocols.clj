@@ -20,19 +20,16 @@
   "Protocol that defines unfied workflow steps for
   all authentication backends."
   (parse [_ request]
-    "Parse token (from cookie, session or any other
-    http header) and return it.
-
-    If this function returns a valid ring response,
-    your handler are never called and response is returned
-    inmediatelly.")
+    "Parse token from the request. If it returns `nil`
+    the `authenticate` phase will be skipped and the
+    handler will called directly.")
   (authenticate [_ request data]
     "Given a request and parsed data (from previous step)
     and try authenticate this data and return a new request
     object with `:identity` key attached.
 
     This method is only called if `parse` function,
-    previouslly are returned not nil and not response data.
+    previouslly are returned not nil data.
 
     Some backends can be extended with user defined function
     for as ex, lookup user information in a database, etc..."))

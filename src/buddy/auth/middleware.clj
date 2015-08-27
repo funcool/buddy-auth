@@ -35,16 +35,14 @@
         (let [last? (empty? pending)
               request (assoc request :auth-backend current)
               rsq (proto/parse current request)]
-          (if (and (http/response? rsq) last?)
-            rsq
-            (if (and (nil? rsq) last?)
-              (handler request)
-              (let [rsq (proto/authenticate current request rsq)]
-                (if (and (http/response? rsq) last?)
-                  rsq
-                  (if (or (:identity rsq) last?)
-                    (handler (or rsq request))
-                    (recur pending)))))))))))
+          (if (and (nil? rsq) last?)
+            (handler request)
+            (let [rsq (proto/authenticate current request rsq)]
+              (if (and (http/response? rsq) last?)
+                rsq
+                (if (or (:identity rsq) last?)
+                  (handler (or rsq request))
+                  (recur pending))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization
