@@ -31,14 +31,11 @@
   (fn [request]
     (let [authentication (loop [[backend & backends] backends]
                            (when backend
-                             (let [request (assoc request :auth-backend backend)
-                                   authentication (some->> request
-                                                           (proto/parse backend)
-                                                           (proto/authenticate backend request))]
-                               (if (or (empty? backends)
-                                       (:identity authentication))
-                                 authentication
-                                 (recur backends)))))]
+                             (let [request (assoc request :auth-backend backend)]
+                               (or (some->> request
+                                            (proto/parse backend)
+                                            (proto/authenticate backend request))
+                                   (recur backends)))))]
       (if (http/response? authentication)
         authentication
         (handler (or authentication request))))))
