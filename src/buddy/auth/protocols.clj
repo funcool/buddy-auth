@@ -19,25 +19,22 @@
 (defprotocol IAuthentication
   "Protocol that defines unfied workflow steps for
   all authentication backends."
-  (parse [_ request]
+  (-parse [_ request]
     "Parse token from the request. If it returns `nil`
     the `authenticate` phase will be skipped and the
     handler will called directly.")
-  (authenticate [_ request data]
+  (-authenticate [_ request data]
     "Given a request and parsed data (from previous step)
-    and try authenticate this data and return a new request
-    object with `:identity` key attached.
+    and try authenticate this data.
 
-    This method is only called if `parse` function,
-    previouslly are returned not nil data.
-
-    Some backends can be extended with user defined function
-    for as ex, lookup user information in a database, etc..."))
+    If this method returns not nil value, the request
+    will be considered authenticated and the value will
+    be attached to request under `:identity` attribute."))
 
 (defprotocol IAuthorization
   "Protocol that defines unfied workflow steps for
   authorization exceptions."
-  (handle-unauthorized [_ request metadata]
+  (-handle-unauthorized [_ request metadata]
     "This function is executed when a `NotAuthorizedException`
     exception is intercepted by authorization wrapper.
 
@@ -46,4 +43,4 @@
 (defprotocol IAuthorizationdError
   "Abstraction that allows to user extend the exception
   based authorization system with own types."
-  (get-error-data [_] "Ger error information."))
+  (-get-error-data [_] "Ger error information."))
