@@ -37,6 +37,12 @@
   ([body status headers]
    {:status status :body body :headers headers}))
 
+(defn response?
+  [resp]
+  (and (map? resp)
+       (integer? (:status resp))
+       (map? (:headers resp))))
+
 (defn redirect
   "Returns a Ring compatible response for an HTTP 302 redirect."
   ([url] (redirect url 302))
@@ -53,16 +59,3 @@
   clojure.lang.IPersistentMap
   (-get-header [request header-name]
     (some-> (:headers request) (find-header header-name) val)))
-
-(extend-protocol IResponse
-  nil
-  (response? [_]
-    false)
-
-  Object
-  (response? [_] false)
-
-  clojure.lang.IPersistentMap
-  (response? [response]
-    (and (integer? (:status response))
-         (map? (:headers response)))))
