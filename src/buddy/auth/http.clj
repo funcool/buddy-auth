@@ -51,7 +51,7 @@
 
 (extend-protocol IRequest
   clojure.lang.IPersistentMap
-  (get-header [request header-name]
+  (-get-header [request header-name]
     (some-> (:headers request) (find-header header-name) val)))
 
 (extend-protocol IResponse

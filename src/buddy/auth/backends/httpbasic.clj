@@ -25,7 +25,7 @@
   http basic header."
   [request]
   (let [pattern (re-pattern "^Basic (.+)$")
-        decoded (some->> (http/get-header request "authorization")
+        decoded (some->> (http/-get-header request "authorization")
                          (re-find pattern)
                          (second)
                          (base64->str))]
