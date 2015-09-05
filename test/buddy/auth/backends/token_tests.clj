@@ -102,14 +102,17 @@
 
   (testing "Jws token wrongdata with onerror handler called when provided"
     (let [request (make-jws-request jws-data "wrong-key")
-          onerror (fn [_ _] {:status 3000})
+          p (promise)
+          onerror (fn [_ _] (deliver p true))
           backend (token/jws-backend {:secret jws-secret
                                       :on-error onerror})
           handler (-> identity
                       (wrap-authorization backend)
                       (wrap-authentication backend))
           response (handler request)]
-      (is (= (:status response) 3000))))
+      (is (deref p 1000 false))
+      (is (= response
+             (assoc request :identity nil)))))
 
   (testing "Jws token with wrong token"
     (let [request (assoc (make-request "xyz")
@@ -188,16 +191,17 @@
 
   (testing "Jwe token wrongdata with onerror handler called when provided"
     (let [request (make-jwe-request jws-data (hash/sha256 "foobar"))
-          onerror (fn [_ _] {:status 3000})
+          p (promise)
+          onerror (fn [_ _] (deliver p true))
           backend (token/jwe-backend {:secret jwe-secret
                                       :on-error onerror})
           handler (-> identity
                       (wrap-authorization backend)
                       (wrap-authentication backend))
           response (handler request)]
-      (is (= (:status response) 3000)))))
-
-
+      (is (deref p 1000 false))
+      (is (= response
+             (assoc request :identity nil))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests: Token

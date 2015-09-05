@@ -10,16 +10,17 @@
 ;; Authentication middleware testing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn auth-backend [secret token-name]
+(defn auth-backend
+  [secret token-name]
   (reify
     proto/IAuthentication
-    (parse [_ request]
+    (-parse [_ request]
       (get request token-name))
 
-    (authenticate [_ request data]
+    (-authenticate [_ request data]
       (assert data)
-      (if (= data secret)
-        (assoc request :identity :valid)))))
+      (when (= data secret)
+        :valid))))
 
 (deftest wrap-authentication
   (testing "Using auth requests"
@@ -41,7 +42,8 @@
       (is (= (::authdata response) ::fake)))))
 
 (deftest wrap-authentication-with-multiple-backends
-  (let [backends [(auth-backend ::ok-1 ::authdata) (auth-backend ::ok-2 ::authdata2)]
+  (let [backends [(auth-backend ::ok-1 ::authdata)
+                  (auth-backend ::ok-2 ::authdata2)]
         handler (apply mw/wrap-authentication identity backends)]
 
     (testing "backend #1 succeeds"
@@ -70,7 +72,8 @@
 
     (testing "with zero backends"
       (let [request {:uri "/"}]
-        (is (= ((mw/wrap-authentication identity) request) request))))))
+        (is (= ((mw/wrap-authentication identity) request)
+               (assoc request :identity nil)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization middleware testing
@@ -79,7 +82,7 @@
 (def autz-backend
   (reify
     proto/IAuthorization
-    (handle-unauthorized [_ request data]
+    (-handle-unauthorized [_ request data]
       {:body "error" :status 401 :data data})))
 
 (deftest wrap-authorization
@@ -101,7 +104,7 @@
     (let [handler (fn [req]
                     (throw+ (reify
                               proto/IAuthorizationdError
-                              (get-error-data [_]
+                              (-get-error-data [_]
                                 {:foo :bar}))))
           handler (mw/wrap-authorization handler autz-backend)
           response (handler {})]
