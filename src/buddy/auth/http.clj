@@ -21,10 +21,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defprotocol IRequest
-  (get-header [req name] "Get a value of header."))
-
-(defprotocol IResponse
-  (response? [resp] "Check if `resp` is a response."))
+  (-get-header [req name] "Get a value of header."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Implementation
