@@ -10,37 +10,40 @@
 ;; Authentication middleware testing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn auth-backend [secret]
+(defn auth-backend
+  [secret token-name]
   (reify
     proto/IAuthentication
-    (parse [_ request]
-      (::authdata request))
+    (-parse [_ request]
+      (get request token-name))
 
-    (authenticate [_ request data]
-      (if (= data secret)
-        (assoc request :identity :valid)))))
+    (-authenticate [_ request data]
+      (assert data)
+      (when (= data secret)
+        :valid))))
 
 (deftest wrap-authentication
   (testing "Using auth requests"
-    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok ::authdata))
           response (handler {::authdata ::ok})]
       (is (= (:identity response) :valid))
       (is (= (::authdata response) ::ok))))
 
   (testing "Using anon request"
-    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok ::authdata))
           response (handler {})]
       (is (= (:identity response) nil))
       (is (= (::authdata response) nil))))
 
   (testing "Using wrong request"
-    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok ::authdata))
           response (handler {::authdata ::fake})]
       (is (nil? (:identity response)))
       (is (= (::authdata response) ::fake)))))
 
 (deftest wrap-authentication-with-multiple-backends
-  (let [backends [(auth-backend ::ok-1) (auth-backend ::ok-2)]
+  (let [backends [(auth-backend ::ok-1 ::authdata)
+                  (auth-backend ::ok-2 ::authdata2)]
         handler (apply mw/wrap-authentication identity backends)]
 
     (testing "backend #1 succeeds"
@@ -49,9 +52,9 @@
         (is (= (::authdata response) ::ok-1))))
 
     (testing "backend #2 succeeds"
-      (let [response (handler {::authdata ::ok-2})]
+      (let [response (handler {::authdata2 ::ok-2})]
         (is (= (:identity response) :valid))
-        (is (= (::authdata response) ::ok-2))))
+        (is (= (::authdata2 response) ::ok-2))))
 
     (testing "no backends succeeds"
       (let [response (handler {::authdata ::fake})]
@@ -69,7 +72,8 @@
 
     (testing "with zero backends"
       (let [request {:uri "/"}]
-        (is (= ((mw/wrap-authentication identity) request) request))))))
+        (is (= ((mw/wrap-authentication identity) request)
+               (assoc request :identity nil)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization middleware testing
@@ -78,7 +82,7 @@
 (def autz-backend
   (reify
     proto/IAuthorization
-    (handle-unauthorized [_ request data]
+    (-handle-unauthorized [_ request data]
       {:body "error" :status 401 :data data})))
 
 (deftest wrap-authorization
@@ -100,7 +104,7 @@
     (let [handler (fn [req]
                     (throw+ (reify
                               proto/IAuthorizationdError
-                              (get-error-data [_]
+                              (-get-error-data [_]
                                 {:foo :bar}))))
           handler (mw/wrap-authorization handler autz-backend)
           response (handler {})]

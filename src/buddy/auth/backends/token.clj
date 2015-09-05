@@ -16,80 +16,100 @@
   "The token based authentication and authorization backends."
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.http :as http]
+            [buddy.auth :refer [authenticated?]]
             [buddy.sign.jws :as jws]
             [buddy.sign.jwe :as jwe]
             [slingshot.slingshot :refer [try+]]))
 
-(defn- handle-unauthorized-default [request]
-  (if (:identity request)
+(defn- handle-unauthorized-default
+  "A default response constructor for an unathorized request."
+  [request]
+  (if (authenticated? request)
     {:status 403 :headers {} :body "Permission denied"}
     {:status 401 :headers {} :body "Unauthorized"}))
 
 (defn- parse-authorization-header
   [request token-name]
-  (some->> (http/get-header request "authorization")
+  (some->> (http/-get-header request "authorization")
            (re-find (re-pattern (str "^" token-name " (.+)$")))
            (second)))
 
 (defn jws-backend
-  "The JWS (Json Web Signature) based backend constructor."
+  "Create an instance of the jws (json web signature)
+  based authentication backend.
+
+  This backends also implements authorization workflow
+  with some defaults. This means that you can provide
+  own unauthorized-handler hook if the default not
+  satisfies you."
   [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
-    (parse [_ request]
+    (-parse [_ request]
       (parse-authorization-header request token-name))
-    (authenticate [_ request data]
+    (-authenticate [_ request data]
       (try+
-        (assoc request :identity (jws/unsign data secret options))
+        (jws/unsign data secret options)
         (catch [:type :validation] e
-          (if (fn? on-error)
-            (on-error request e)
-            request))))
+          (when (fn? on-error)
+            (on-error request e))
+          nil)))
 
     proto/IAuthorization
-    (handle-unauthorized [_ request metadata]
+    (-handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)
         (handle-unauthorized-default request)))))
 
 (defn jwe-backend
-  "The JWE (Json Web Encryption) based backend constructor."
+  "Create an instance of the jwe (json web encryption)
+  based authentication backend.
+
+  This backends also implements authorization workflow
+  with some defaults. This means that you can provide
+  own unauthorized-handler hook if the default not
+  satisfies you."
   [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
-    (parse [_ request]
+    (-parse [_ request]
       (parse-authorization-header request token-name))
-    (authenticate [_ request data]
+    (-authenticate [_ request data]
       (try+
-        (assoc request :identity (jwe/decrypt data secret options))
+        (jwe/decrypt data secret options)
         (catch [:type :validation] e
-          (if (fn? on-error)
-            (on-error request e)
-            request))))
+          (when (fn? on-error)
+            (on-error request e))
+          nil)))
 
     proto/IAuthorization
-    (handle-unauthorized [_ request metadata]
+    (-handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)
         (handle-unauthorized-default request)))))
 
 (defn token-backend
+  "Create an instance of the generic token based
+  authentication backend.
+
+  This backends also implements authorization workflow
+  with some defaults. This means that you can provide
+  own unauthorized-handler hook if the default not
+  satisfies you."
   [{:keys [authfn unauthorized-handler token-name] :or {token-name "Token"}}]
-  {:pre [(fn? authfn)]}
+  (when (nil? authfn)
+    (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
   (reify
     proto/IAuthentication
-    (parse [_ request]
+    (-parse [_ request]
       (parse-authorization-header request token-name))
-    (authenticate [_ request token]
-      (let [rsq (authfn request token)]
-        (if (http/response? rsq)
-          rsq
-          (assoc request :identity rsq))))
+    (-authenticate [_ request token]
+      (authfn request token))
 
     proto/IAuthorization
-    (handle-unauthorized [_ request metadata]
+    (-handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)
         (handle-unauthorized-default request)))))

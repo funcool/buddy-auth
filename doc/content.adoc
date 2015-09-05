@@ -1,6 +1,6 @@
-= buddy-auth - Auth facilities for ring based apps.
+= buddy-auth - Auth/Authz facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.nz>
-0.6.2
+0.7.0
 :toc: left
 :!numbered:
 :source-highlighter: pygments
@@ -13,8 +13,9 @@ Andrey Antukh, <niwi@niwi.nz>
 
 == Introduction
 
-The _buddy-auth_ module is dedicated to providing authentication facilities for
-ring and ring based web applications.
+_buddy-auth_ is a module that provides authentication and authorization facilites
+for ring and ring based web applications. It is part of the
+link:https://github.com/funcool/buddy[buddy] meta package.
 
 
 === Project Maturity
@@ -24,21 +25,22 @@ Since _buddy-auth_ is a young project there may be some API breakage.
 
 === Install
 
-The simplest way to use _buddy-auth_ in a clojure project is by including it in  your *_project.clj_* dependency vector:
+The simplest way to use _buddy-auth_ in a clojure project is by including it in  your
+*_project.clj_* dependency vector:
 
 [source,clojure]
 ----
-[buddy/buddy-auth "0.6.2"]
+[buddy/buddy-auth "0.7.0"]
 ----
 
-This package is intended to be used with jdk7 and jdk8.
+This package is intended to be used with *jdk7* and *jdk8*.
 
 
 == Authentication
 
-Buddy takes a very different approach to handling authentication. First, it clearly distinguishes
-authentication and authorization as two separate steps. Second, it implements these concepts using
-protocols for easy extensibility.
+Buddy takes a very different approach to handling authentication. First, it clearly
+distinguishes authentication and authorization as two separate steps. Second, it
+implements these concepts using protocols for easy extensibility.
 
 .Here is a list of the built-in authentication backends:
 [options="header"]
@@ -63,8 +65,9 @@ Authentication in _buddy-auth_ has two phases:
 
 === Http Basic
 
-The HTTP Basic authentication backend is one of the simplest and most insecure authentication
-systems, but is a good first step for understanding how _buddy-auth_ authentication works.
+The HTTP Basic authentication backend is one of the simplest and most insecure
+authentication systems, but is a good first step for understanding how _buddy-auth_
+authentication works.
 
 .Example ring handler/view
 [source,clojure]
@@ -82,11 +85,11 @@ systems, but is a good first step for understanding how _buddy-auth_ authenticat
     (response "Hello Anonymous")))
 ----
 
-The `authenticated?` function is a polymorphic function that receives a request and returns `true`
-in case is already authenticated by one of _buddy-auth_ backends or `false` in case contrary.
+The `authenticated?` is a predicate function that receives a request and returns `true` in
+case is already authenticated by one of _buddy-auth_ backends or `false` in case contrary.
 
-Later, http-basic authentication backend requires a function with the responsibility of identify the
-incoming request. Let see how we can do it:
+Later, http-basic authentication backend requires a function with the responsibility of
+authenticate the incoming request. Let see how we can do it:
 
 [source, clojure]
 ----
@@ -105,12 +108,13 @@ incoming request. Let see how we can do it:
 (def backend (http-basic-backend {:realm "MyApi" :authfn my-authfn}))
 ----
 
-The *authfn* function should accept a _request_ as the first parameter and _authdata_ as the second.
-_authdata_ is data parsed from the request in the *parse* step.
+The *authfn* function should accept a _request_ as the first parameter and _authdata_ as
+the second. _authdata_ is data parsed from the request in the *parse* step.
 
 The *authfn* will be called only if the *parse* process returns parsed data.
 
-The next step for get it working, you should wrap your ring handler with authentication middleware:
+The next step for get it working, you should wrap your ring handler with authentication
+middleware:
 
 [source,clojure]
 ----
@@ -127,20 +131,21 @@ The next step for get it working, you should wrap your ring handler with authent
              (wrap-authentication backend)))
 ----
 
-All requests that reach the `my-sample-handler` will be properly processed and authenticated. In process
-of authentication the `:identity` keyword will be attached to the request if a authentication is
-successful.
+All requests that reach the `my-sample-handler` will be properly processed and
+authenticated. In process of authentication the `:identity` keyword will be attached to
+the request with not nil value if the user is successfully authenticated.
 
 You can see a complete example of using this backend <<example-httpbasic,here>>.
 
 
 === Session
 
-The session backend has the simplest implementation because it relies entirely on ring session support.
+The session backend has the simplest implementation because it relies entirely on ring
+session support.
 
-The authentication process of this backend consists in checking the `:identity` keyword in session. If
-it exists and is a logical true, it is automatically forwarded as is to `:identity` keyword in the
-request.
+The authentication process of this backend consists in checking the `:identity` keyword
+in session. If it exists and is a logical true, it is automatically forwarded as is to
+`:identity` keyword in the request.
 
 .Example creating a session backend instance and wrapping our handler
 [source, clojure]
@@ -155,17 +160,17 @@ request.
              (wrap-authentication backend)))
 ----
 
-TIP: As you can see, the authentication is completely independent of login/signin. It's up to
-you to implement the login handler.
+TIP: As you can see, the authentication is completely independent of login/signin. It's
+up to you to implement the login handler.
 
 You can see a complete example of using this backend <<example-session, here>>.
 
 
 === Token
 
-Is a backend that uses tokens for authenticate the user. It behaves very similar to the basic-auth
-backend with difference that instead of authenticating with credentials it authenticate with a simple
-token.
+Is a backend that uses tokens for authenticate the user. It behaves very similar to the
+basic-auth backend with difference that instead of authenticating with credentials it
+authenticate with a simple token.
 
 Let's see an example:
 
@@ -195,8 +200,8 @@ Let's see an example:
 ----
 
 The process of authentication of this backend consists in parse the "Authorization" header
-extract the token for it, and in case of the token is extracted successful, call the `authfn`
-with extracted token.
+extract the token for it, and in case of the token is extracted successful, call the
+`authfn` with extracted token.
 
 .This is a possible aspect of the authorization header
 [source, text]
@@ -204,23 +209,26 @@ with extracted token.
 Authorization: Token 45c1f5e3f05d0
 ----
 
-The `authfn` should return something that will be associated to the `:identity` key in the request.
+The `authfn` should return something that will be associated to the `:identity` key in
+the request.
 
-Is the responsability of the library user to build tokens, handle its storage and verification
-process. _buddy-auth_ only offers a lightweight layer over http for parsing and mark requests
-as authenticated.
+Is the responsability of the library user to build tokens, handle its storage and
+verification process. _buddy-auth_ only offers a lightweight layer over http for parsing
+and mark requests as authenticated.
 
 You can see a complete example of using this backend <<example-token,here>>.
 
 
-=== JWS Token (Stateless)
+=== JWS Token
 
-Is a backend that uses signed and self contained tokens for authenticate the user. It behaves very
-similar to the _Token_ backend (previously explained) with difference that this one does not need
-additional user defined logic for validate tokens, because as we said previously, are self contained.
+Is a backend that uses signed and self contained tokens for authenticate the user. It
+behaves very similar to the _Token_ backend (previously explained) with difference that
+this one does not need additional user defined logic for validate tokens, because as we
+said previously, are self contained.
 
-This type of tokens enables a complete stateless authentication because the server does not need any
-more store the token and related information, the token will contain that information.
+This type of tokens enables a complete stateless authentication because the server does
+not need any more store the token and related information, the token will contain that
+information.
 
 Let see an demostrative example:
 
@@ -267,16 +275,17 @@ Some valuable resources for learning about stateless authentication are:
 You can see a complete example of using this backend <<example-jws,here>>.
 
 
-=== JWE Token (Stateless)
+=== JWE Token
 
 This backend is almost identical to the previous one (JWS).
 
-The main difference is that the backend uses JWE (Json Web Encryption) instead of JWS (Json Web Signature)
-and it has the advangage that the content of token is encrypted instead of simply signed. This is useful
-when token may contain some additional user information that can not be public.
+The main difference is that the backend uses JWE (Json Web Encryption) instead of JWS
+(Json Web Signature) and it has the advangage that the content of token is encrypted
+instead of simply signed. This is useful when token may contain some additional user
+information that can not be public.
 
-This is how will look the previous (jws) example but using jwe with asymetric key encryption
-algorithm:
+This is how will look the previous (jws) example but using jwe with asymetric key
+encryption algorithm:
 
 [source, clojure]
 ----
@@ -320,8 +329,8 @@ For more details about jwe, see the link:https://funcool.github.io/buddy-sign/la
 documentation.
 
 In order to use any asymetric encryption algorithm, you should have private/public
-key pair. If you don't have one, don't worry, it is very easy to generate it using *openssl*, see
-this link:https://funcool.github.io/buddy-sign/latest/#generate-keypairs[faq entry].
+key pair. If you don't have one, don't worry, it is very easy to generate it using
+*openssl*, see this link:https://funcool.github.io/buddy-sign/latest/#generate-keypairs[faq entry].
 
 You can see a complete example of using this backend <<example-jwe, here>>.
 
@@ -333,19 +342,21 @@ The second part of the auth process is authorization.
 The authorization system is split into two parts: generic authorization and access-rules
 (explained in the next section).
 
-The generic one is based on exceptions, and consists in raising a unauthorized exception in case
-of the request is considered unauthorized. And the access rules system is based in some kind of
-rules attached to handler or a _URI_ and that rules are determine if a request is autorized or not.
+The generic one is based on exceptions, and consists in raising a unauthorized exception
+in case of the request is considered unauthorized. And the access rules system is based
+in some kind of rules attached to handler or a _URI_ and that rules are determine if a
+request is autorized or not.
 
 
-=== Generic
+=== Exception-Based
 
-The authorization backend wraps everything in a try/catch block which only handles the specific
-exception. When an unauthorized exception is caught, it executes a specific function to handle it or
-reraises the exception.
+This authorization approach is based in wrap everything in a try/catch block witch only
+handles specific exceptions. When an unauthorized exception is caught, it executes a
+specific function to handle it or reraises the exception.
 
-With this approach we can define our own middlewared/decorators using custom authorization
-logic with fast skip, raising an unauthorized exception using the `throw-unauthorized` function.
+With this approach you can define our own middlewared/decorators using custom
+authorization logic with fast skip, raising an unauthorized exception using the
+`throw-unauthorized` function.
 
 .Example ring handler raising an unauthorized exception.
 [source, clojure]
@@ -362,9 +373,9 @@ logic with fast skip, raising an unauthorized exception using the `throw-unautho
 
 Just like the authentication system, authorization is also implemented using protocols.
 
-All built-in backends already implement the autorization protocol with default behavior. The
-default behavior can be overridden passing the `:unauthorized-handler` option to the backend
-constructor:
+All built-in backends already implement the autorization protocol with default behavior.
+The default behavior can be overridden passing the `:unauthorized-handler` option to the
+backend constructor:
 
 [source,clojure]
 ----
@@ -387,14 +398,16 @@ constructor:
              (wrap-authorization backend)))
 ----
 
+
 [[access-rules]]
 === Access Rules
 
-The access rules system is another part of authorization. It consists of matching an url to
-specific access rules logic.
+The access rules system is another part of authorization. It consists of matching an url
+to specific access rules logic.
 
-The access rules consists of an ordered list. This contains mappings between urls and rule handlers using
-link:https://github.com/weavejester/clout[clout] url matching syntax or regular expressions.
+The access rules consists of an ordered list. This contains mappings between urls and
+rule handlers using link:https://github.com/weavejester/clout[clout] url matching syntax
+or regular expressions.
 
 .This is an example of an access rule using the clout syntax.
 [source, clojure]
@@ -417,7 +430,8 @@ link:https://github.com/weavejester/clout[clout] url matching syntax or regular 
   :handler user-access}
 ----
 
-An access rule can also match against certain HTTP methods, by using the *:request-method* option. *:request-method* can be a keyword or a set of keywords.
+An access rule can also match against certain HTTP methods, by using the *:request-method*
+option. *:request-method* can be a keyword or a set of keywords.
 
 .An example of an access rule that matches only GET requests.
 [source, clojure]
@@ -430,12 +444,13 @@ An access rule can also match against certain HTTP methods, by using the *:reque
 
 ==== Rules Handlers
 
-The rule handler is a plain function that accepts a request as a parameter and should return
-`accessrules/success` or `accessrules/error`.
+The rule handler is a plain function that accepts a request as a parameter and should
+return `accessrules/success` or `accessrules/error`.
 
-The `success` is a simple mark that means that handles passes the validation and `error` is a mark
-that means the opposite, that the handler does not pass the validation. Instead of returning plain
-boolean value, this approach allows handlers to return errors messages or even a ring response.
+The `success` is a simple mark that means that handles passes the validation and `error`
+is a mark that means the opposite, that the handler does not pass the validation. Instead
+of returning plain boolean value, this approach allows handlers to return errors messages
+or even a ring response.
 
 .This is a simple example of the aspect of one rule handler
 [source, clojure]
@@ -450,11 +465,12 @@ boolean value, this approach allows handlers to return errors messages or even a
     (error "Only authenticated users allowed")))
 ----
 
-These values are considered success marks: *true* and *success* instances. These are considered error 
-marks: *nil*, *false*, and *error* instances. Error instances may contain a string as an error message
-or a ring response hash-map.
+These values are considered success marks: *true* and *success* instances. These are
+considered error  marks: *nil*, *false*, and *error* instances. Error instances may
+contain a string as an error message or a ring response hash-map.
 
-Also, a rule handler can be a composition of several rule handlers using logical operators.
+Also, a rule handler can be a composition of several rule handlers using logical
+operators.
 
 .This is the aspect of composition of rule-handlers
 [source, clojure]
@@ -477,19 +493,20 @@ This is an example of how a composed rule handler can be used in an access rules
   :handler {:and [authenticated-user admin-user]}}]
 ----
 
-Additionally, if you are using *clout* based syntax for matching access rules, the request in
-a rule handler will contain `:match-params` with clout matched uri params.
+Additionally, if you are using *clout* based syntax for matching access rules, the
+request in a rule handler will contain `:match-params` with clout matched uri params.
 
 
 ==== Usage
 
-Now, knowing how access rules and rule handlers can be defined, it is time to see how we can use
-it in our ring applications.
+Now, knowing how access rules and rule handlers can be defined, it is time to see how we
+can use it in our ring applications.
 
 _buddy-auth_ exposes two ways to do it:
 
 * Using a _wrap-access-rules_ middleware.
-* Using a _restrict_ decorator for assigning specific rules handlers to concrete ring handler.
+* Using a _restrict_ decorator for assigning specific rules handlers to concrete ring
+  handler.
 
 Here are couple of examples of how we could do it:
 
@@ -549,8 +566,8 @@ a user to specific url.
 
 The access rule options always takes precedence over the global ones.
 
-Then, if you don't want an external rules list and simply want to apply some rules to specific
-ring views/handlers, you can use the `restrict` decorator. Let see it in action:
+Then, if you don't want an external rules list and simply want to apply some rules to
+specific ring views/handlers, you can use the `restrict` decorator. Let see it in action:
 
 [source, clojure]
 ----
@@ -564,6 +581,7 @@ ring views/handlers, you can use the `restrict` decorator. Let see it in action:
   (GET "/" [] (restrict home-controller {:handler should-be-authenticated
                                          :on-error on-error}))
 ----
+
 
 [[examples]]
 == Examples

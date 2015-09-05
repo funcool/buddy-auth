@@ -34,5 +34,5 @@
   authorization primitive."
   ([] (throw-unauthorized {}))
   ([errordata]
-   (throw+ {:type ::unauthorized
-            :payload errordata})))
+   (throw+ {::type ::unauthorized
+            ::payload errordata})))

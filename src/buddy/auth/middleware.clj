@@ -29,20 +29,14 @@
   chance to authenticate the request."
   [handler & backends]
   (fn [request]
-    (if (empty? backends)
-      (handler request)
-      (loop [[current & pending] backends]
-        (let [last? (empty? pending)
-              request (assoc request :auth-backend current)
-              rsq (proto/parse current request)]
-          (if (and (nil? rsq) last?)
-            (handler request)
-            (let [rsq (proto/authenticate current request rsq)]
-              (if (and (http/response? rsq) last?)
-                rsq
-                (if (or (:identity rsq) last?)
-                  (handler (or rsq request))
-                  (recur pending))))))))))
+    (let [authdata (loop [[backend & backends] backends]
+                     (when backend
+                       (let [request (assoc request :auth-backend backend)]
+                         (or (some->> request
+                                      (proto/-parse backend)
+                                      (proto/-authenticate backend request))
+                             (recur backends)))))]
+      (handler (assoc request :identity authdata)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization
@@ -56,7 +50,7 @@
   {:pre [(fn? callable)]}
   (reify
     proto/IAuthorization
-    (handle-unauthorized [_ request errordata]
+    (-handle-unauthorized [_ request errordata]
       (callable request errordata))))
 
 (defn wrap-authorization
@@ -77,10 +71,11 @@
     (fn [request]
       (try+
         (handler request)
-        (catch [:type :buddy.auth/unauthorized] {:keys [payload]}
-          (proto/handle-unauthorized backend request payload))
+        (catch [:buddy.auth/type :buddy.auth/unauthorized] e
+          (->> (:buddy.auth/payload e)
+               (proto/-handle-unauthorized backend request)))
         (catch Object e
           (if (satisfies? proto/IAuthorizationdError e)
-            (->> (proto/get-error-data e)
-                 (proto/handle-unauthorized backend request))
+            (->> (proto/-get-error-data e)
+                 (proto/-handle-unauthorized backend request))
             (throw+)))))))
