@@ -20,18 +20,23 @@
             [clojure.string :refer [split]]))
 
 (defn session-backend
-  "Given some options, create a new instance
-  of HttpBasicBackend and return it."
+  "Create an instance of the http session based
+  authentication backend.
+
+  This backends also implements authorization
+  workflow with some defaults. This means that
+  you can provide own unauthorized-handler hook
+  if the default not satisfies you."
   [& [{:keys [unauthorized-handler]}]]
   (reify
     proto/IAuthentication
-    (parse [_ request]
+    (-parse [_ request]
       (:identity (:session request)))
-    (authenticate [_ request data]
-      (assoc request :identity data))
+    (-authenticate [_ request data]
+      data)
 
     proto/IAuthorization
-    (handle-unauthorized [_ request metadata]
+    (-handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request metadata)
         (if (authenticated? request)

@@ -33,22 +33,25 @@
       {:username username :password password})))
 
 (defn http-basic-backend
-  "Given some options, create a new instance
-  of HttpBasicBackend and return it."
+  "Create an instance of the http-basic based
+  authentication backend.
+
+  This backends also implements authorization
+  workflow with some defaults. This means that
+  you can provide own unauthorized-handler hook
+  if the default not satisfies you."
   [& [{:keys [realm authfn unauthorized-handler] :or {realm "Buddy Auth"}}]]
   (when (nil? authfn)
     (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
   (reify
     proto/IAuthentication
-    (parse [_ request]
+    (-parse [_ request]
       (parse-httpbasic-header request))
-    (authenticate [_ request data]
-      (let [rsq (authfn request data)]
-        (if (http/response? rsq) rsq
-            (assoc request :identity rsq))))
+    (-authenticate [_ request data]
+      (authfn request data))
 
     proto/IAuthorization
-    (handle-unauthorized [_ request metadata]
+    (-handle-unauthorized [_ request metadata]
       (if unauthorized-handler
         (unauthorized-handler request (assoc metadata :realm realm))
         (if (authenticated? request)
