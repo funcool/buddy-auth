@@ -29,20 +29,16 @@
   chance to authenticate the request."
   [handler & backends]
   (fn [request]
-    (if (empty? backends)
-      (handler request)
-      (loop [[current & pending] backends]
-        (let [last? (empty? pending)
-              request (assoc request :auth-backend current)
-              rsq (proto/parse current request)]
-          (if (and (nil? rsq) last?)
-            (handler request)
-            (let [rsq (proto/authenticate current request rsq)]
-              (if (and (http/response? rsq) last?)
-                rsq
-                (if (or (:identity rsq) last?)
-                  (handler (or rsq request))
-                  (recur pending))))))))))
+    (let [authentication (loop [[backend & backends] backends]
+                           (when backend
+                             (let [request (assoc request :auth-backend backend)]
+                               (or (some->> request
+                                            (proto/parse backend)
+                                            (proto/authenticate backend request))
+                                   (recur backends)))))]
+      (if (http/response? authentication)
+        authentication
+        (handler (or authentication request))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization

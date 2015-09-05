@@ -10,37 +10,38 @@
 ;; Authentication middleware testing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn auth-backend [secret]
+(defn auth-backend [secret token-name]
   (reify
     proto/IAuthentication
     (parse [_ request]
-      (::authdata request))
+      (get request token-name))
 
     (authenticate [_ request data]
+      (assert data)
       (if (= data secret)
         (assoc request :identity :valid)))))
 
 (deftest wrap-authentication
   (testing "Using auth requests"
-    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok ::authdata))
           response (handler {::authdata ::ok})]
       (is (= (:identity response) :valid))
       (is (= (::authdata response) ::ok))))
 
   (testing "Using anon request"
-    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok ::authdata))
           response (handler {})]
       (is (= (:identity response) nil))
       (is (= (::authdata response) nil))))
 
   (testing "Using wrong request"
-    (let [handler (mw/wrap-authentication identity (auth-backend ::ok))
+    (let [handler (mw/wrap-authentication identity (auth-backend ::ok ::authdata))
           response (handler {::authdata ::fake})]
       (is (nil? (:identity response)))
       (is (= (::authdata response) ::fake)))))
 
 (deftest wrap-authentication-with-multiple-backends
-  (let [backends [(auth-backend ::ok-1) (auth-backend ::ok-2)]
+  (let [backends [(auth-backend ::ok-1 ::authdata) (auth-backend ::ok-2 ::authdata2)]
         handler (apply mw/wrap-authentication identity backends)]
 
     (testing "backend #1 succeeds"
@@ -49,9 +50,9 @@
         (is (= (::authdata response) ::ok-1))))
 
     (testing "backend #2 succeeds"
-      (let [response (handler {::authdata ::ok-2})]
+      (let [response (handler {::authdata2 ::ok-2})]
         (is (= (:identity response) :valid))
-        (is (= (::authdata response) ::ok-2))))
+        (is (= (::authdata2 response) ::ok-2))))
 
     (testing "no backends succeeds"
       (let [response (handler {::authdata ::fake})]
