@@ -2,7 +2,7 @@
 
 == Version 0.7.0
 
-Date: unreleased
+Date: 2015-09-19
 
 - Response return value is now not supported in `parse` step of the authentication.
 - The `on-error` handler now receives plain exception info instance instead
