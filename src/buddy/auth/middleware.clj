@@ -16,8 +16,7 @@
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.accessrules :as accessrules]
             [buddy.auth.http :as http]
-            [buddy.auth :refer [authenticated? throw-unauthorized]]
-            [slingshot.slingshot :refer [throw+ try+]]))
+            [buddy.auth :refer [authenticated? throw-unauthorized]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authentication
@@ -69,13 +68,16 @@
                   (satisfies? proto/IAuthorization backend)
                   backend)]
     (fn [request]
-      (try+
+      (try
         (handler request)
-        (catch [:buddy.auth/type :buddy.auth/unauthorized] e
-          (->> (:buddy.auth/payload e)
-               (proto/-handle-unauthorized backend request)))
-        (catch Object e
+        (catch clojure.lang.ExceptionInfo e
+          (let [data (ex-data e)]
+            (if (= (:buddy.auth/type data) :buddy.auth/unauthorized)
+              (->> (:buddy.auth/payload data)
+                   (proto/-handle-unauthorized backend request))
+              (throw e))))
+        (catch Exception e
           (if (satisfies? proto/IAuthorizationdError e)
             (->> (proto/-get-error-data e)
                  (proto/-handle-unauthorized backend request))
-            (throw+)))))))
+            (throw)))))))

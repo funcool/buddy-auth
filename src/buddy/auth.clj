@@ -15,8 +15,7 @@
 (ns buddy.auth
   "Authorization and Authentication primitives for
   ring based applications."
-  (:require [buddy.auth.protocols :as proto]
-            [slingshot.slingshot :refer [throw+ try+]]))
+  (:require [buddy.auth.protocols :as proto]))
 
 (defn authenticated?
   "Return `true` if the `request` is an
@@ -34,5 +33,5 @@
   authorization primitive."
   ([] (throw-unauthorized {}))
   ([errordata]
-   (throw+ {::type ::unauthorized
-            ::payload errordata})))
+   (throw (ex-info "Unauthorized." {::type ::unauthorized
+                                    ::payload errordata}))))

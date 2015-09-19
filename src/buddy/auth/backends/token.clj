@@ -18,8 +18,7 @@
             [buddy.auth.http :as http]
             [buddy.auth :refer [authenticated?]]
             [buddy.sign.jws :as jws]
-            [buddy.sign.jwe :as jwe]
-            [slingshot.slingshot :refer [try+]]))
+            [buddy.sign.jwe :as jwe]))
 
 (defn- handle-unauthorized-default
   "A default response constructor for an unathorized request."
@@ -48,13 +47,15 @@
     proto/IAuthentication
     (-parse [_ request]
       (parse-authorization-header request token-name))
+
     (-authenticate [_ request data]
-      (try+
+      (try
         (jws/unsign data secret options)
-        (catch [:type :validation] e
-          (when (fn? on-error)
-            (on-error request e))
-          nil)))
+        (catch clojure.lang.ExceptionInfo e
+          (let [data (ex-data e)]
+            (when (fn? on-error)
+              (on-error request e))
+            nil))))
 
     proto/IAuthorization
     (-handle-unauthorized [_ request metadata]
@@ -77,9 +78,9 @@
     (-parse [_ request]
       (parse-authorization-header request token-name))
     (-authenticate [_ request data]
-      (try+
+      (try
         (jwe/decrypt data secret options)
-        (catch [:type :validation] e
+        (catch clojure.lang.ExceptionInfo e
           (when (fn? on-error)
             (on-error request e))
           nil)))
