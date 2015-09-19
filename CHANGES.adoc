@@ -5,6 +5,9 @@
 Date: unreleased
 
 - Response return value is now not supported in `parse` step of the authentication.
+- The `on-error` handler now receives plain exception info instance instead
+  the error data. This maybe a little breaking change caused by exception handling
+  changes on buddy-core and buddy-sign.
 
 
 == Version 0.6.2
