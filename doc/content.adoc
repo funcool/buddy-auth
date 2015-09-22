@@ -280,7 +280,7 @@ You can see a complete example of using this backend <<example-jws,here>>.
 This backend is almost identical to the previous one (JWS).
 
 The main difference is that the backend uses JWE (Json Web Encryption) instead of JWS
-(Json Web Signature) and it has the advangage that the content of token is encrypted
+(Json Web Signature) and it has the advantage that the content of token is encrypted
 instead of simply signed. This is useful when token may contain some additional user
 information that can not be public.
 
