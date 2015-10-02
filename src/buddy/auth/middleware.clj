@@ -80,4 +80,4 @@
           (if (satisfies? proto/IAuthorizationdError e)
             (->> (proto/-get-error-data e)
                  (proto/-handle-unauthorized backend request))
-            (throw)))))))
+            (throw e)))))))
