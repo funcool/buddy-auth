@@ -1,5 +1,13 @@
 = Changelog
 
+== Version 0.7.1
+
+Date: 2015-10-03
+
+- Fix wrong call to `throw` on `wrap-authorization` middleware.
+- Update buddy-sign version to 0.7.1
+
+
 == Version 0.7.0
 
 Date: 2015-09-19

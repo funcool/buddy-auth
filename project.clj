@@ -1,4 +1,4 @@
-(defproject buddy/buddy-auth "0.7.0"
+(defproject buddy/buddy-auth "0.7.1"
   :description "Authentication and Authorization facilities for ring based web applications."
   :url "https://github.com/funcool/buddy-auth"
   :license {:name "Apache 2.0"
