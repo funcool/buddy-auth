@@ -10,11 +10,4 @@
   :source-paths ["src"]
   :test-paths ["test"]
   :jar-exclusions [#"\.cljx|\.swp|\.swo|user.clj"]
-  :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
-  :profiles {:dev {:codeina {:sources ["src"]
-                             :reader :clojure
-                             :target "doc/dist/latest/api"
-                             :src-uri "http://github.com/funcool/buddy-auth/blob/master/"
-                             :src-uri-prefix "#L"}
-                   :plugins [[funcool/codeina "0.3.0"]
-                             [lein-ancient "0.6.7"]]}})
+  :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"])
