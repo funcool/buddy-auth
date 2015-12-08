@@ -31,6 +31,13 @@
           parsed  (parse request)]
       (is (not (nil? parsed)))
       (is (= (:password parsed) "bar"))
+      (is (= (:username parsed) "foo"))))
+  (testing "Parse httpbasic header from request with colon in password"
+    (let [parse #'httpbasic/parse-httpbasic-header
+          request (make-request "foo" "bar:baz")
+          parsed  (parse request)]
+      (is (not (nil? parsed)))
+      (is (= (:password parsed) "bar:baz"))
       (is (= (:username parsed) "foo")))))
 
 (deftest httpbasic-auth-backend
