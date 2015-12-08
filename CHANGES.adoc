@@ -1,5 +1,12 @@
 = Changelog
 
+== Version 0.8.2
+
+Date: 2015-12-08
+
+- Fixed wrong handling passwords with colons (thanks @mitch-kile).
+
+
 == Version 0.8.1
 
 Date: 2015-11-17
