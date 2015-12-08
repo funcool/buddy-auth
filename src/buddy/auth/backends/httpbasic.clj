@@ -29,7 +29,7 @@
                          (re-find pattern)
                          (second)
                          (base64->str))]
-    (when-let [[username password] (str/split decoded #":")]
+    (when-let [[username password] (str/split decoded #":" 2)]
       {:username username :password password})))
 
 (defn http-basic-backend
