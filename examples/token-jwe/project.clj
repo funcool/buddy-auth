@@ -1,5 +1,5 @@
-(defproject authexample "0.1.0-SNAPSHOT"
-  :description "Buddy auth example"
+(defproject authexample-token-jwe "0.1.0-SNAPSHOT"
+  :description "Buddy auth example - token (JWE)"
   :min-lein-version "2.0.0"
   :license {:name "BSD (2-Clause)"
             :url "http://opensource.org/licenses/BSD-2-Clause"}
