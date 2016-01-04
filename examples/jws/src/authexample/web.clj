@@ -9,14 +9,13 @@
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [ring.adapter.jetty :as jetty]
             [clj-time.core :as time]
-            [buddy.sign.jwe :as jwe]
-            [buddy.core.nonce :as nonce]
+            [buddy.sign.jws :as jws]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
-            [buddy.auth.backends.token :refer [jwe-backend]]
+            [buddy.auth.backends.token :refer [jws-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
   (:gen-class))
 
-(def secret (nonce/random-bytes 32))
+(def secret "mysupersecret")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Semantic response helpers
@@ -61,7 +60,7 @@
     (if valid?
       (let [claims {:user (keyword username)
                     :exp (time/plus (time/now) (time/seconds 3600))}
-            token (jwe/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
+            token (jws/sign claims secret {:alg :hs512})]
         (ok {:token token}))
       (bad-request {:message "wrong auth data"}))))
 
@@ -78,11 +77,17 @@
   (POST "/login" [] login))
 
 ;; Create an instance of auth backend.
-(def auth-backend (jwe-backend {:secret secret :options {:alg :a256kw :enc :a128gcm}}))
+(def auth-backend (jws-backend {:secret secret :options {:alg :hs512}}))
 
-; the Ring app definition including the authentication backend
-(def app (-> app
-            (wrap-authorization auth-backend)
-            (wrap-authentication auth-backend)
-            (wrap-json-response {:pretty false})
-            (wrap-json-body {:keywords? true :bigdecimals? true})))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Entry Point
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn -main
+  [& args]
+  (as-> app $
+    (wrap-authorization $ auth-backend)
+    (wrap-authentication $ auth-backend)
+    (wrap-json-response $ {:pretty false})
+    (wrap-json-body $ {:keywords? true :bigdecimals? true})
+    (jetty/run-jetty $ {:port 3000})))

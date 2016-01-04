@@ -8,6 +8,7 @@
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [ring.adapter.jetty :as jetty]
+
             [buddy.core.nonce :as nonce]
             [buddy.core.codecs :as codecs]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
@@ -96,9 +97,15 @@
 (def auth-backend
   (token-backend {:authfn my-authfn}))
 
-; the Ring app definition including the authentication backend
-(def app (-> app
-            (wrap-authorization auth-backend)
-            (wrap-authentication auth-backend)
-            (wrap-json-response {:pretty false})
-            (wrap-json-body {:keywords? true :bigdecimals? true})))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Entry Point
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn -main
+  [& args]
+  (as-> app $
+    (wrap-authorization $ auth-backend)
+    (wrap-authentication $ auth-backend)
+    (wrap-json-response $ {:pretty false})
+    (wrap-json-body $ {:keywords? true :bigdecimals? true})
+    (jetty/run-jetty $ {:port 3000})))

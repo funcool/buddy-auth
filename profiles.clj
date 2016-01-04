@@ -9,4 +9,41 @@
             [lein-ancient "0.6.7"]]}
  :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
  :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
- :1.8 {:dependencies [[org.clojure/clojure "1.8.0-RC1"]]}}
+ :1.8 {:dependencies [[org.clojure/clojure "1.8.0-RC3"]]}
+
+ :examples
+ {:dependencies [[ring "1.4.0"]
+                 [ring/ring-json "0.4.0"]
+                 [compojure "1.4.0"]]}
+
+ :session-example
+ [:examples
+  {:source-paths ["examples/session/src"]
+   :resource-paths ["examples/session/resources"]
+   :main ^:skip-aot authexample.web}]
+
+ :httpbasic-example
+ [:examples
+  {:source-paths ["examples/httpbasic/src"]
+   :resource-paths ["examples/httpbasic/resources"]
+   :main ^:skip-aot authexample.web}]
+
+ :token-example
+ [:examples
+  {:source-paths ["examples/token/src"]
+   :resource-paths ["examples/token/resources"]
+   :main ^:skip-aot authexample.web}]
+
+ :jws-example
+ [:examples
+  {:source-paths ["examples/jws/src"]
+   :resource-paths ["examples/jws/resources"]
+   :main ^:skip-aot authexample.web}]
+
+ :jwe-example
+ [:examples
+  {:source-paths ["examples/jwe/src"]
+   :resource-paths ["examples/jwe/resources"]
+   :main ^:skip-aot authexample.web}]
+ }
+

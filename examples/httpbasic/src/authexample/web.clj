@@ -5,6 +5,7 @@
             [clojure.java.io :as io]
             [ring.util.response :refer [response redirect content-type]]
             [ring.adapter.jetty :as jetty]
+
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.auth.backends.httpbasic :refer [http-basic-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
@@ -37,8 +38,9 @@
 
 ;; Global var that stores valid users with their
 ;; respective passwords.
-(def authdata {:admin "secret"
-               :test "secret"})
+(def authdata
+  {:admin "secret"
+   :test "secret"})
 
 ;; Define function that is responsible of authenticating requests.
 ;; In this case it receives a map with username and password and i
@@ -60,9 +62,12 @@
                        :authfn my-authfn}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Main Entry Point
+;; Entry Point
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def app (-> app
-             (wrap-authorization auth-backend)
-             (wrap-authentication auth-backend)))
+(defn -main
+  [& args]
+  (as-> app $
+    (wrap-authorization $ auth-backend)
+    (wrap-authentication $ auth-backend)
+    (jetty/run-jetty $ {:port 3000})))

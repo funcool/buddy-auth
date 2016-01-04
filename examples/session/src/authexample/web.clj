@@ -2,37 +2,41 @@
   (:require [compojure.route :as route]
             [compojure.core :refer :all]
             [compojure.response :refer [render]]
+
             [clojure.java.io :as io]
             [ring.util.response :refer [response redirect content-type]]
             [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.adapter.jetty :as jetty]
+
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
   (:gen-class))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Controllers                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Home page controller (ring handler)
-;; If incoming user is not authenticated it raises a not authenticated
-;; exception, else simple shows a hello world message.
+;; If incoming user is not authenticated it raises a
+;; not authenticated exception, else simple shows a
+;; hello world message.
 
 (defn home
   [request]
   (if-not (authenticated? request)
     (throw-unauthorized)
-    (response (slurp (io/resource "index.html")))))
+    (let [content (slurp (io/resource "index.html"))]
+      (response content))))
 
 ;; Login page controller
 ;; It returns a login page on get requests.
 
 (defn login
   [request]
-  (render (slurp (io/resource "login.html")) request))
+  (let [content (slurp (io/resource "login.html"))]
+    (render content request)))
 
 ;; Logout handler
 ;; Responsible for clearing the session.
@@ -56,10 +60,13 @@
 ;; Used to respond to POST requests to /login.
 
 (defn login-authenticate
-  "Check request username and password against authdata username and passwords.
-  On successful authentication, set appropriate user into the session and
-  redirect to the value of (:query-params (:next request)).
-  On failed authentication, renders the login page."
+  "Check request username and password against authdata
+  username and passwords.
+
+  On successful authentication, set appropriate user
+  into the session and redirect to the value of
+  (:query-params (:next request)). On failed
+  authentication, renders the login page."
   [request]
   (let [username (get-in request [:form-params "username"])
         password (get-in request [:form-params "password"])
@@ -70,15 +77,19 @@
             updated-session (assoc session :identity (keyword username))]
         (-> (redirect next-url)
             (assoc :session updated-session)))
-      (render (slurp (io/resource "login.html")) request))))
+      (let [content (slurp (io/resource "login.html"))]
+        (render content request)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Routes and Middlewares                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; User defined application routes using compojure routing library.
-;; Note: We do not use middleware for authorization, all of the authorization
-;; system is decoupled from main routes.
+;; User defined application routes using compojure
+;; routing library.
+;;
+;; Note: We do not use middleware for authorization,
+;; all of the authorization system is decoupled from
+;; main routes.
 
 (defroutes app
   (GET "/" [] home)
@@ -87,8 +98,10 @@
   (GET "/logout" [] logout))
 
 ;; User defined unauthorized handler
-;; This function is responsible for handling unauthorized requests.
-;; (When unauthorized exception is raised by some handler)
+;;
+;; This function is responsible for handling
+;; unauthorized requests (when unauthorized exception
+;; is raised by some handler)
 
 (defn unauthorized-handler
   [request metadata]
@@ -109,9 +122,11 @@
 (def auth-backend
   (session-backend {:unauthorized-handler unauthorized-handler}))
 
-; the Ring app definition including the authentication backend
-(def app (-> app
-            (wrap-authorization auth-backend)
-            (wrap-authentication auth-backend)
-            (wrap-params)
-            (wrap-session)))
+(defn -main
+  [& args]
+  (as-> app $
+    (wrap-authorization $ auth-backend)
+    (wrap-authentication $ auth-backend)
+    (wrap-params $)
+    (wrap-session $)
+    (jetty/run-jetty $ {:port 3000})))
