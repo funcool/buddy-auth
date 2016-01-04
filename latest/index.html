@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.2">
+<meta name="generator" content="Asciidoctor 1.5.3">
 <meta name="author" content="Andrey Antukh, &lt;niwi@niwi.nz&gt;">
 <title>buddy-auth - Auth/Authz facilities for ring based apps.</title>
 <style>
@@ -80,7 +80,7 @@
 <h1>buddy-auth - Auth/Authz facilities for ring based apps.</h1>
 <div class="details">
 <span id="author" class="author">Andrey Antukh, &lt;niwi@niwi.nz&gt;</span><br>
-<span id="revdate">0.8.1</span>
+<span id="revdate">0.8.2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -151,7 +151,7 @@ for ring and ring based web applications. It is part of the
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">buddy/buddy-auth</span> <span class="tok-s">&quot;0.8.1&quot;</span><span class="tok-p">]</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">buddy/buddy-auth</span> <span class="tok-s">&quot;0.8.2&quot;</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -204,8 +204,8 @@ implements these concepts using protocols for easy extensibility.</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>If you are not happy with built-in backends, you can implement your own and use it with
-<em>buddy-auth</em> middleware without any problem.</p>
+<p>If you are not happy with built-in backends, you can implement your own and use it
+with <em>buddy-auth</em> middleware without any problem.</p>
 </div>
 <div class="paragraph">
 <p>Authentication in <em>buddy-auth</em> has two phases:</p>
@@ -245,12 +245,13 @@ authentication works.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>authenticated?</code> is a predicate function that receives a request and returns <code>true</code> in
-case is already authenticated by one of <em>buddy-auth</em> backends or <code>false</code> in case contrary.</p>
+<p>The <code>authenticated?</code> is a predicate function that receives a request and returns
+<code>true</code> in case is already authenticated by one of <em>buddy-auth</em> backends or <code>false</code>
+in case contrary.</p>
 </div>
 <div class="paragraph">
-<p>Later, http-basic authentication backend requires a function with the responsibility of
-authenticate the incoming request. Let see how we can do it:</p>
+<p>Later, http-basic authentication backend requires a function with the
+responsibility of authenticate the incoming request. Let see how we can do it:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -270,15 +271,16 @@ authenticate the incoming request. Let see how we can do it:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The <strong>authfn</strong> function should accept a <em>request</em> as the first parameter and <em>authdata</em> as
-the second. <em>authdata</em> is data parsed from the request in the <strong>parse</strong> step.</p>
+<p>The <strong>authfn</strong> function should accept a <em>request</em> as the first parameter and
+<em>authdata</em> as the second. <em>authdata</em> is data parsed from the request in the
+<strong>parse</strong> step.</p>
 </div>
 <div class="paragraph">
-<p>The <strong>authfn</strong> will be called only if the <strong>parse</strong> process returns parsed data.</p>
+<p>The <strong>authfn</strong> will be called only if the <strong>parse</strong> process returns not <code>nil</code>.</p>
 </div>
 <div class="paragraph">
-<p>The next step for get it working, you should wrap your ring handler with authentication
-middleware:</p>
+<p>The next step for get it working, you should wrap your ring handler with
+authentication middleware:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -297,8 +299,8 @@ middleware:</p>
 </div>
 <div class="paragraph">
 <p>All requests that reach the <code>my-sample-handler</code> will be properly processed and
-authenticated. In process of authentication the <code>:identity</code> keyword will be attached to
-the request with not nil value if the user is successfully authenticated.</p>
+authenticated. In process of authentication the <code>:identity</code> keyword will be attached
+to the request with not nil value if the user is successfully authenticated.</p>
 </div>
 <div class="paragraph">
 <p>You can see a complete example of using this backend <a href="#example-httpbasic">here</a>.</p>
@@ -307,13 +309,13 @@ the request with not nil value if the user is successfully authenticated.</p>
 <div class="sect2">
 <h3 id="session"><a class="link" href="#session">Session</a></h3>
 <div class="paragraph">
-<p>The session backend has the simplest implementation because it relies entirely on ring
-session support.</p>
+<p>The session backend has the simplest implementation because it relies entirely on
+ring session support.</p>
 </div>
 <div class="paragraph">
-<p>The authentication process of this backend consists in checking the <code>:identity</code> keyword
-in session. If it exists and is a logical true, it is automatically forwarded as is to
-<code>:identity</code> keyword in the request.</p>
+<p>The authentication process of this backend consists in checking the <code>:identity</code>
+keyword in session. If it exists and is a logical true, it is automatically
+forwarded to the request under the <code>:identity</code> property.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example creating a session backend instance and wrapping our handler</div>
@@ -335,8 +337,8 @@ in session. If it exists and is a logical true, it is automatically forwarded as
 <div class="title">Tip</div>
 </td>
 <td class="content">
-As you can see, the authentication is completely independent of login/signin. It&#8217;s
-up to you to implement the login handler.
+As you can see, the authentication is completely independent of login/signin.
+It&#8217;s up to you to implement the login handler.
 </td>
 </tr>
 </table>
@@ -348,9 +350,9 @@ up to you to implement the login handler.
 <div class="sect2">
 <h3 id="token"><a class="link" href="#token">Token</a></h3>
 <div class="paragraph">
-<p>Is a backend that uses tokens for authenticate the user. It behaves very similar to the
-basic-auth backend with difference that instead of authenticating with credentials it
-authenticate with a simple token.</p>
+<p>Is a backend that uses tokens for authenticate the user. It behaves very similar to
+the basic-auth backend with difference that instead of authenticating with
+credentials it authenticate with a simple token.</p>
 </div>
 <div class="paragraph">
 <p>Let&#8217;s see an example:</p>
@@ -381,9 +383,9 @@ authenticate with a simple token.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The process of authentication of this backend consists in parse the "Authorization" header
-extract the token for it, and in case of the token is extracted successful, call the
-<code>authfn</code> with extracted token.</p>
+<p>The process of authentication of this backend consists in parse the "Authorization"
+header, extract the token and in case of the token is extracted successfuly, call
+the <code>authfn</code> with extracted token.</p>
 </div>
 <div class="listingblock">
 <div class="title">This is a possible aspect of the authorization header</div>
@@ -392,13 +394,13 @@ extract the token for it, and in case of the token is extracted successful, call
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>authfn</code> should return something that will be associated to the <code>:identity</code> key in
-the request.</p>
+<p>The <code>authfn</code> should return something that will be associated to the <code>:identity</code>
+key in the request.</p>
 </div>
 <div class="paragraph">
 <p>Is the responsability of the library user to build tokens, handle its storage and
-verification process. <em>buddy-auth</em> only offers a lightweight layer over http for parsing
-and mark requests as authenticated.</p>
+verification process. <em>buddy-auth</em> only offers a lightweight layer over http for
+parsing and mark requests as authenticated.</p>
 </div>
 <div class="paragraph">
 <p>You can see a complete example of using this backend <a href="#example-token">here</a>.</p>
@@ -407,24 +409,28 @@ and mark requests as authenticated.</p>
 <div class="sect2">
 <h3 id="jws-token"><a class="link" href="#jws-token">JWS Token</a></h3>
 <div class="paragraph">
-<p>Is a backend that uses signed and self contained tokens for authenticate the user. It
-behaves very similar to the <em>Token</em> backend (previously explained) with difference that
-this one does not need additional user defined logic for validate tokens, because as we
-said previously, are self contained.</p>
+<p>Is a backend that uses signed and self contained tokens for authenticate the user.</p>
 </div>
 <div class="paragraph">
-<p>This type of tokens enables a complete stateless authentication because the server does
-not need any more store the token and related information, the token will contain that
-information.</p>
+<p>It behaves very similar to the <em>Token</em> backend (previously explained) with the
+difference that this does not need additional user defined logic for validate tokens,
+because as we said previously, are self contained.</p>
 </div>
 <div class="paragraph">
-<p>Let see an demostrative example:</p>
+<p>This type of tokens enables a complete stateless authentication because the server
+does not need any more store the token and related information, the token will
+contain that information.</p>
+</div>
+<div class="paragraph">
+<p>Let see a demostrative example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">secret</span> <span class="tok-s">&quot;mysecret&quot;</span><span class="tok-p">)</span>
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span>
-  <span class="tok-p">(</span><span class="tok-nf">auth/jws-backend</span> <span class="tok-p">{</span><span class="tok-ss">:secret</span> <span class="tok-nv">secret</span><span class="tok-p">}))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.token</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">jws-backend</span><span class="tok-p">)])</span>
+<span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.middleware</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span><span class="tok-p">)])</span>
+
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">secret</span> <span class="tok-s">&quot;mysecret&quot;</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">jws-backend</span> <span class="tok-p">{</span><span class="tok-ss">:secret</span> <span class="tok-nv">secret</span><span class="tok-p">}))</span>
 
 <span class="tok-c1">;; and wrap your ring application with</span>
 <span class="tok-c1">;; the authentication middleware</span>
@@ -435,8 +441,7 @@ information.</p>
 </div>
 <div class="paragraph">
 <p>Now you should have a login endpoint in your ring application that will have the
-responsability of generating valid tokens. This function may will be able to have
-similar aspect to:</p>
+responsability of generating valid tokens:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -447,15 +452,16 @@ similar aspect to:</p>
   <span class="tok-p">[</span><span class="tok-nv">request</span><span class="tok-p">]</span>
   <span class="tok-p">(</span><span class="tok-k">let </span><span class="tok-p">[</span><span class="tok-nv">data</span> <span class="tok-p">(</span><span class="tok-ss">:form-params</span> <span class="tok-nv">request</span><span class="tok-p">)</span>
         <span class="tok-nv">user</span> <span class="tok-p">(</span><span class="tok-nf">find-user</span> <span class="tok-p">(</span><span class="tok-ss">:username</span> <span class="tok-nv">data</span><span class="tok-p">)</span>   <span class="tok-c1">;; (implementation ommited)</span>
-                        <span class="tok-p">(</span><span class="tok-ss">:password</span> <span class="tok-nv">data</span><span class="tok-p">))]</span>
+                        <span class="tok-p">(</span><span class="tok-ss">:password</span> <span class="tok-nv">data</span><span class="tok-p">))</span>
+        <span class="tok-nv">token</span> <span class="tok-p">(</span><span class="tok-nf">jws/sign</span> <span class="tok-p">{</span><span class="tok-ss">:user</span> <span class="tok-p">(</span><span class="tok-ss">:id</span> <span class="tok-nv">user</span><span class="tok-p">)}</span> <span class="tok-nv">secret</span><span class="tok-p">)]</span>
     <span class="tok-p">{</span><span class="tok-ss">:status</span> <span class="tok-mi">200</span>
-     <span class="tok-ss">:body</span> <span class="tok-p">(</span><span class="tok-nf">json/encode</span> <span class="tok-p">{</span><span class="tok-ss">:token</span> <span class="tok-p">(</span><span class="tok-nf">jws/sign</span> <span class="tok-p">{</span><span class="tok-ss">:user</span> <span class="tok-p">(</span><span class="tok-ss">:id</span> <span class="tok-nv">user</span><span class="tok-p">)}</span> <span class="tok-nv">secret</span><span class="tok-p">)})</span>
+     <span class="tok-ss">:body</span> <span class="tok-p">(</span><span class="tok-nf">json/encode</span> <span class="tok-p">{</span><span class="tok-ss">:token</span> <span class="tok-nv">token</span><span class="tok-p">})</span>
      <span class="tok-ss">:headers</span> <span class="tok-p">{</span><span class="tok-ss">:content-type</span> <span class="tok-s">&quot;application/json&quot;</span><span class="tok-p">})))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>For more details about jws, see the <a href="https://funcool.github.io/buddy-sign/latest/#jws">buddy-sign</a>
-documentation.</p>
+<p>For more details about jws, see the
+<a href="https://funcool.github.io/buddy-sign/latest/#jws">buddy-sign</a> documentation.</p>
 </div>
 <div class="paragraph">
 <p>Some valuable resources for learning about stateless authentication are:</p>
@@ -491,15 +497,17 @@ encryption algorithm:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.sign.jwe</span> <span class="tok-ss">:as</span> <span class="tok-nv">jwe</span><span class="tok-p">])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.token</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">jws-backend</span><span class="tok-p">)])</span>
+<span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.middleware</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span><span class="tok-p">)])</span>
+<span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.sign.jwe</span> <span class="tok-ss">:as</span> <span class="tok-nv">jwe</span><span class="tok-p">])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.core.keys</span> <span class="tok-ss">:as</span> <span class="tok-nv">keys</span><span class="tok-p">])</span>
 
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">pubkey</span> <span class="tok-p">(</span><span class="tok-nf">keys/public-key</span> <span class="tok-s">&quot;pubkey.pem&quot;</span><span class="tok-p">))</span>
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">privkey</span> <span class="tok-p">(</span><span class="tok-nf">keys/private-key</span> <span class="tok-s">&quot;privkey.pem&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span>
-  <span class="tok-p">(</span><span class="tok-nf">auth/jwe-backend</span> <span class="tok-p">{</span><span class="tok-ss">:secret</span> <span class="tok-nv">privkey</span>
-                     <span class="tok-ss">:options</span> <span class="tok-p">{</span><span class="tok-ss">:alg</span> <span class="tok-ss">:rsa-oaep</span> <span class="tok-ss">:enc</span> <span class="tok-ss">:a128-hs256</span><span class="tok-p">}}))</span>
+  <span class="tok-p">(</span><span class="tok-nf">jwe-backend</span> <span class="tok-p">{</span><span class="tok-ss">:secret</span> <span class="tok-nv">privkey</span>
+                <span class="tok-ss">:options</span> <span class="tok-p">{</span><span class="tok-ss">:alg</span> <span class="tok-ss">:rsa-oaep</span> <span class="tok-ss">:enc</span> <span class="tok-ss">:a128-hs256</span><span class="tok-p">}}))</span>
 
 <span class="tok-c1">;; and wrap your ring application with</span>
 <span class="tok-c1">;; the authentication middleware</span>
@@ -521,15 +529,16 @@ encryption algorithm:</p>
   <span class="tok-p">(</span><span class="tok-k">let </span><span class="tok-p">[</span><span class="tok-nv">data</span> <span class="tok-p">(</span><span class="tok-ss">:form-params</span> <span class="tok-nv">request</span><span class="tok-p">)</span>
         <span class="tok-nv">user</span> <span class="tok-p">(</span><span class="tok-nf">find-user</span> <span class="tok-p">(</span><span class="tok-ss">:username</span> <span class="tok-nv">data</span><span class="tok-p">)</span>   <span class="tok-c1">;; (implementation ommited)</span>
                         <span class="tok-p">(</span><span class="tok-ss">:password</span> <span class="tok-nv">data</span><span class="tok-p">))</span>
-        <span class="tok-nv">token</span> <span class="tok-p">(</span><span class="tok-nf">jwe/encrypt</span> <span class="tok-p">{</span><span class="tok-ss">:user</span> <span class="tok-p">(</span><span class="tok-ss">:id</span> <span class="tok-nv">user</span><span class="tok-p">)}</span> <span class="tok-nv">pubkey</span> <span class="tok-p">{</span><span class="tok-ss">:alg</span> <span class="tok-ss">:rsa-oaep</span> <span class="tok-ss">:enc</span> <span class="tok-ss">:a128-hs256</span><span class="tok-p">})]</span>
+        <span class="tok-nv">token</span> <span class="tok-p">(</span><span class="tok-nf">jwe/encrypt</span> <span class="tok-p">{</span><span class="tok-ss">:user</span> <span class="tok-p">(</span><span class="tok-ss">:id</span> <span class="tok-nv">user</span><span class="tok-p">)}</span> <span class="tok-nv">pubkey</span>
+                           <span class="tok-p">{</span><span class="tok-ss">:alg</span> <span class="tok-ss">:rsa-oaep</span> <span class="tok-ss">:enc</span> <span class="tok-ss">:a128-hs256</span><span class="tok-p">})]</span>
     <span class="tok-p">{</span><span class="tok-ss">:status</span> <span class="tok-mi">200</span>
      <span class="tok-ss">:body</span> <span class="tok-p">(</span><span class="tok-nf">json/encode</span> <span class="tok-p">{</span><span class="tok-ss">:token</span> <span class="tok-nv">token</span><span class="tok-p">})</span>
      <span class="tok-ss">:headers</span> <span class="tok-p">{</span><span class="tok-ss">:content-type</span> <span class="tok-s">&quot;application/json&quot;</span><span class="tok-p">})))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>For more details about jwe, see the <a href="https://funcool.github.io/buddy-sign/latest/#jwe">buddy-sign</a>
-documentation.</p>
+<p>For more details about jwe, see the
+<a href="https://funcool.github.io/buddy-sign/latest/#jwe">buddy-sign</a> documentation.</p>
 </div>
 <div class="paragraph">
 <p>In order to use any asymetric encryption algorithm, you should have private/public
@@ -549,21 +558,21 @@ key pair. If you don&#8217;t have one, don&#8217;t worry, it is very easy to gen
 <p>The second part of the auth process is authorization.</p>
 </div>
 <div class="paragraph">
-<p>The authorization system is split into two parts: generic authorization and access-rules
-(explained in the next section).</p>
+<p>The authorization system is split into two parts: generic authorization and
+access-rules (explained in the next section).</p>
 </div>
 <div class="paragraph">
-<p>The generic one is based on exceptions, and consists in raising a unauthorized exception
-in case of the request is considered unauthorized. And the access rules system is based
-in some kind of rules attached to handler or a <em>URI</em> and that rules are determine if a
-request is autorized or not.</p>
+<p>The generic one is based on exceptions, and consists in raising a unauthorized
+exception in case of the request is considered unauthorized. And the access rules
+system is based in some kind of rules attached to handler or a <em>URI</em> and that rules
+are determine if a request is autorized or not.</p>
 </div>
 <div class="sect2">
 <h3 id="exception-based"><a class="link" href="#exception-based">Exception-Based</a></h3>
 <div class="paragraph">
-<p>This authorization approach is based in wrap everything in a try/catch block witch only
-handles specific exceptions. When an unauthorized exception is caught, it executes a
-specific function to handle it or reraises the exception.</p>
+<p>This authorization approach is based in wrap everything in a try/catch block
+witch only handles specific exceptions. When an unauthorized exception is caught,
+it executes a specific function to handle it or reraises the exception.</p>
 </div>
 <div class="paragraph">
 <p>With this approach you can define our own middlewared/decorators using custom
@@ -584,12 +593,13 @@ authorization logic with fast skip, raising an unauthorized exception using the
 </div>
 </div>
 <div class="paragraph">
-<p>Just like the authentication system, authorization is also implemented using protocols.</p>
+<p>Just like the authentication system, authorization is also implemented using
+protocols.</p>
 </div>
 <div class="paragraph">
-<p>All built-in backends already implement the autorization protocol with default behavior.
-The default behavior can be overridden passing the <code>:unauthorized-handler</code> option to the
-backend constructor:</p>
+<p>All built-in backends already implement the autorization protocol with default
+behavior. The default behavior can be overridden passing the <code>:unauthorized-handler</code>
+option to the backend constructor:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -616,13 +626,13 @@ backend constructor:</p>
 <div class="sect2">
 <h3 id="access-rules"><a class="link" href="#access-rules">Access Rules</a></h3>
 <div class="paragraph">
-<p>The access rules system is another part of authorization. It consists of matching an url
-to specific access rules logic.</p>
+<p>The access rules system is another part of authorization. It consists of matching
+an url to specific access rules logic.</p>
 </div>
 <div class="paragraph">
-<p>The access rules consists of an ordered list. This contains mappings between urls and
-rule handlers using <a href="https://github.com/weavejester/clout">clout</a> url matching syntax
-or regular expressions.</p>
+<p>The access rules consists of an ordered list. This contains mappings between urls
+and rule handlers using <a href="https://github.com/weavejester/clout">clout</a> url
+matching syntax or regular expressions.</p>
 </div>
 <div class="listingblock">
 <div class="title">This is an example of an access rule using the clout syntax.</div>
@@ -646,8 +656,8 @@ or regular expressions.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>An access rule can also match against certain HTTP methods, by using the <strong>:request-method</strong>
-option. <strong>:request-method</strong> can be a keyword or a set of keywords.</p>
+<p>An access rule can also match against certain HTTP methods, by using the
+<strong>:request-method</strong> option. <strong>:request-method</strong> can be a keyword or a set of keywords.</p>
 </div>
 <div class="listingblock">
 <div class="title">An example of an access rule that matches only GET requests.</div>
@@ -660,17 +670,17 @@ option. <strong>:request-method</strong> can be a keyword or a set of keywords.<
 <div class="sect3">
 <h4 id="rules-handlers"><a class="link" href="#rules-handlers">Rules Handlers</a></h4>
 <div class="paragraph">
-<p>The rule handler is a plain function that accepts a request as a parameter and should
-return <code>accessrules/success</code> or <code>accessrules/error</code>.</p>
+<p>The rule handler is a plain function that accepts a request as a parameter and
+should return <code>accessrules/success</code> or <code>accessrules/error</code>.</p>
 </div>
 <div class="paragraph">
-<p>The <code>success</code> is a simple mark that means that handles passes the validation and <code>error</code>
-is a mark that means the opposite, that the handler does not pass the validation. Instead
-of returning plain boolean value, this approach allows handlers to return errors messages
-or even a ring response.</p>
+<p>The <code>success</code> is a simple mark that means that handles passes the validation and
+<code>error</code> is a mark that means the opposite, that the handler does not pass the
+validation. Instead of returning plain boolean value, this approach allows handlers
+to return errors messages or even a ring response.</p>
 </div>
 <div class="listingblock">
-<div class="title">This is a simple example of the aspect of one rule handler</div>
+<div class="title">This is a simple example of the aspect of one rule handler.</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">authenticated?</span><span class="tok-p">)])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.accessrules</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">success</span> <span class="tok-nv">error</span><span class="tok-p">)])</span>
@@ -705,7 +715,8 @@ operators.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This is an example of how a composed rule handler can be used in an access rules list:</p>
+<p>This is an example of how a composed rule handler can be used in an access rules
+list:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -721,8 +732,8 @@ request in a rule handler will contain <code>:match-params</code> with clout mat
 <div class="sect3">
 <h4 id="usage"><a class="link" href="#usage">Usage</a></h4>
 <div class="paragraph">
-<p>Now, knowing how access rules and rule handlers can be defined, it is time to see how we
-can use it in our ring applications.</p>
+<p>Now, knowing how access rules and rule handlers can be defined, it is time to see
+how we can use it in our ring applications.</p>
 </div>
 <div class="paragraph">
 <p><em>buddy-auth</em> exposes two ways to do it:</p>
@@ -733,8 +744,8 @@ can use it in our ring applications.</p>
 <p>Using a <em>wrap-access-rules</em> middleware.</p>
 </li>
 <li>
-<p>Using a <em>restrict</em> decorator for assigning specific rules handlers to concrete ring
-handler.</p>
+<p>Using a <em>restrict</em> decorator for assigning specific rules handlers to concrete
+ring handler.</p>
 </li>
 </ul>
 </div>
@@ -771,18 +782,18 @@ handler.</p>
   <span class="tok-p">[</span><span class="tok-o">&amp;</span> <span class="tok-nv">args</span><span class="tok-p">]</span>
   <span class="tok-p">(</span><span class="tok-k">let </span><span class="tok-p">[</span><span class="tok-nv">options</span> <span class="tok-p">{</span><span class="tok-ss">:rules</span> <span class="tok-nv">rules</span> <span class="tok-ss">:on-error</span> <span class="tok-nv">on-error</span><span class="tok-p">}</span>
         <span class="tok-nv">app</span>     <span class="tok-p">(</span><span class="tok-nf">wrap-access-rules</span> <span class="tok-nv">your-app-handler</span> <span class="tok-nv">options</span><span class="tok-p">)]</span>
-    <span class="tok-p">(</span><span class="tok-nf">run-jetty</span> <span class="tok-nv">app</span> <span class="tok-p">{</span><span class="tok-ss">:port</span> <span class="tok-mi">9090</span><span class="tok-p">})))</span></code></pre>
+    <span class="tok-p">(</span><span class="tok-nf">run-jetty</span> <span class="tok-nv">app</span> <span class="tok-p">{</span><span class="tok-ss">:port</span> <span class="tok-mi">3000</span><span class="tok-p">})))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If a request uri does not match any regular expression then the default policy is used.
-The default policy in <em>buddy-auth</em> is <strong>allow</strong> but you can change the default behavior
-specifying a <code>:reject</code> value in the <code>:policy</code> option.</p>
+<p>If a request uri does not match any regular expression then the default policy is
+used. The default policy in <em>buddy-auth</em> is <strong>allow</strong> but you can change the default
+behavior specifying a <code>:reject</code> value in the <code>:policy</code> option.</p>
 </div>
 <div class="paragraph">
-<p>Additionally, instead of specifying the global <em>on-error</em> handler, you can set a specific
-behavior on a specific access rule, or use the <em>:redirect</em> option to simply redirect
-a user to specific url.</p>
+<p>Additionally, instead of specifying the global <em>on-error</em> handler, you can set a
+specific behavior on a specific access rule, or use the <em>:redirect</em> option to
+simply redirect a user to specific url.</p>
 </div>
 <div class="listingblock">
 <div class="title">Lets see an example.</div>
@@ -801,8 +812,9 @@ a user to specific url.</p>
 <p>The access rule options always takes precedence over the global ones.</p>
 </div>
 <div class="paragraph">
-<p>Then, if you don&#8217;t want an external rules list and simply want to apply some rules to
-specific ring views/handlers, you can use the <code>restrict</code> decorator. Let see it in action:</p>
+<p>Then, if you don&#8217;t want an external rules list and simply want to apply some rules
+to specific ring views/handlers, you can use the <code>restrict</code> decorator. Let see it
+in action:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -831,6 +843,22 @@ specific ring views/handlers, you can use the <code>restrict</code> decorator. L
 application.</p>
 </div>
 <div class="paragraph">
+<p>Just run the following commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">git clone https://github.com/funcool/buddy-auth.git
+cd ./buddy-auth/
+lein with-profile +httpbasic-example run</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And redirect your browser to <a href="http://localhost:3000/" class="bare">http://localhost:3000/</a>.</p>
+</div>
+<div class="paragraph">
+<p>The credentias are: <code>admin</code> / <code>secret</code> and <code>test</code> / <code>secret</code>.</p>
+</div>
+<div class="paragraph">
 <p>You can see the example code here:
 <a href="https://github.com/funcool/buddy-auth/tree/master/examples/httpbasic" class="bare">https://github.com/funcool/buddy-auth/tree/master/examples/httpbasic</a></p>
 </div>
@@ -838,8 +866,24 @@ application.</p>
 <div class="sect2">
 <h3 id="example-session"><a class="link" href="#example-session">Session Auth Example</a></h3>
 <div class="paragraph">
-<p>This example tries to show the way to setup session based auth in a simple ring based
-application.</p>
+<p>This example tries to show the way to setup session based auth in a simple ring
+based application.</p>
+</div>
+<div class="paragraph">
+<p>Just run the following commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">git clone https://github.com/funcool/buddy-auth.git
+cd ./buddy-auth/
+lein with-profile +session-example run</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And redirect your browser to <a href="http://localhost:3000/" class="bare">http://localhost:3000/</a>.</p>
+</div>
+<div class="paragraph">
+<p>The credentias are: <code>admin</code> / <code>secret</code> and <code>test</code> / <code>secret</code>.</p>
 </div>
 <div class="paragraph">
 <p>You can see the example code here:
@@ -853,6 +897,64 @@ application.</p>
 application.</p>
 </div>
 <div class="paragraph">
+<p>Just run the following commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">git clone https://github.com/funcool/buddy-auth.git
+cd ./buddy-auth/
+lein with-profile +token-example run</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can use <strong>curl</strong> for play with the authentication example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Obtain the token performing a login request.</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">$ curl -v -X POST -H &quot;Content-Type: application/json&quot; -d &#39;{&quot;username&quot;: &quot;admin&quot;, &quot;password&quot;: &quot;secret&quot;}&#39; http://localhost:3000/login
+* Connected to localhost (::1) port 3000 (#0)
+&gt; POST /login HTTP/1.1
+&gt; Host: localhost:3000
+&gt; User-Agent: curl/7.46.0
+&gt; Accept: */*
+&gt; Content-Type: application/json
+&gt; Content-Length: 43
+&gt;
+* upload completely sent off: 43 out of 43 bytes
+&lt; HTTP/1.1 200 OK
+&lt; Date: Mon, 04 Jan 2016 13:54:02 GMT
+&lt; Content-Type: application/json; charset=utf-8
+&lt; Content-Length: 44
+&lt; Server: Jetty(9.2.10.v20150310)
+&lt;
+* Connection #0 to host localhost left intact
+{&quot;token&quot;:&quot;fe562338bf1604bd175722e32a4d7115&quot;}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Perform an autenticated request (using previously obtained token).</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">$ curl -v -X GET -H &quot;Content-Type: application/json&quot; -H &quot;Authorization: Token fe562338bf1604bd175722e32a4d7115&quot; http://localhost:3000/
+* Connected to localhost (::1) port 3000 (#0)
+&gt; GET / HTTP/1.1
+&gt; Host: localhost:3000
+&gt; User-Agent: curl/7.46.0
+&gt; Accept: */*
+&gt; Content-Type: application/json
+&gt; Authorization: Token fe562338bf1604bd175722e32a4d7115
+&gt;
+&lt; HTTP/1.1 200 OK
+&lt; Date: Mon, 04 Jan 2016 13:54:40 GMT
+&lt; Content-Type: application/json; charset=utf-8
+&lt; Content-Length: 55
+&lt; Server: Jetty(9.2.10.v20150310)
+&lt;
+* Connection #0 to host localhost left intact
+{&quot;status&quot;:&quot;Logged&quot;,&quot;message&quot;:&quot;hello logged user:admin&quot;}</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>You can see the example code here:
 <a href="https://github.com/funcool/buddy-auth/tree/master/examples/token" class="bare">https://github.com/funcool/buddy-auth/tree/master/examples/token</a></p>
 </div>
@@ -864,8 +966,66 @@ application.</p>
 simple ring based application.</p>
 </div>
 <div class="paragraph">
+<p>Just run the following commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">git clone https://github.com/funcool/buddy-auth.git
+cd ./buddy-auth/
+lein with-profile +token-example run</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can use <strong>curl</strong> for play with the authentication example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Obtain the token performing a login request.</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">$ curl -v -X POST -H &quot;Content-Type: application/json&quot; -d &#39;{&quot;username&quot;: &quot;admin&quot;, &quot;password&quot;: &quot;secret&quot;}&#39; http://localhost:3000/login
+* Connected to localhost (::1) port 3000 (#0)
+&gt; POST /login HTTP/1.1
+&gt; Host: localhost:3000
+&gt; User-Agent: curl/7.46.0
+&gt; Accept: */*
+&gt; Content-Type: application/json
+&gt; Content-Length: 43
+&gt;
+* upload completely sent off: 43 out of 43 bytes
+&lt; HTTP/1.1 200 OK
+&lt; Date: Mon, 04 Jan 2016 13:52:11 GMT
+&lt; Content-Type: application/json; charset=utf-8
+&lt; Content-Length: 189
+&lt; Server: Jetty(9.2.10.v20150310)
+&lt;
+* Connection #0 to host localhost left intact
+{&quot;token&quot;:&quot;eyJhbGciOiJBMjU2S1ciLCJ0eXAiOiJKV1MiLCJlbmMiOiJBMTI4R0NNIn0.Q672y_lD3bOU_qm5U0RDKS-YszRHfkFu.vDZaAJPz8uL5q1A4.LonJtHZMA_Ty53YBmr1zpE7-SIbTJgVgme--Tjj25dHN.goYEyM3JZgYlbARo8CDk0g&quot;}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Perform an autenticated request (using previously obtained token).</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">$ curl -v -X GET -H &quot;Content-Type: application/json&quot; -H &quot;Authorization: Token eyJhbGciOiJBMjU2S1ciLCJ0eXAiOiJKV1MiLCJlbmMiOiJBMTI4R0NNIn0.Q672y_lD3bOU_qm5U0RDKS-YszRHfkFu.vDZaAJPz8uL5q1A4.LonJtHZMA_Ty53YBmr1zpE7-SIbTJgVgme--Tjj25dHN.goYEyM3JZgYlbARo8CDk0g&quot; http://localhost:3000/
+* Connected to localhost (::1) port 3000 (#0)
+&gt; GET / HTTP/1.1
+&gt; Host: localhost:3000
+&gt; User-Agent: curl/7.46.0
+&gt; Accept: */*
+&gt; Content-Type: application/json
+&gt; Authorization: Token eyJhbGciOiJBMjU2S1ciLCJ0eXAiOiJKV1MiLCJlbmMiOiJBMTI4R0NNIn0.Q672y_lD3bOU_qm5U0RDKS-YszRHfkFu.vDZaAJPz8uL5q1A4.LonJtHZMA_Ty53YBmr1zpE7-SIbTJgVgme--Tjj25dHN.goYEyM3JZgYlbARo8CDk0g
+&gt;
+&lt; HTTP/1.1 200 OK
+&lt; Date: Mon, 04 Jan 2016 13:52:59 GMT
+&lt; Content-Type: application/json; charset=utf-8
+&lt; Content-Length: 84
+&lt; Server: Jetty(9.2.10.v20150310)
+&lt;
+* Connection #0 to host localhost left intact
+{&quot;status&quot;:&quot;Logged&quot;,&quot;message&quot;:&quot;hello logged user {:user \&quot;admin\&quot;, :exp 1451919131}&quot;}</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>You can see the example code here:
-<a href="https://github.com/funcool/buddy-auth/tree/master/examples/token-jwe" class="bare">https://github.com/funcool/buddy-auth/tree/master/examples/token-jwe</a></p>
+<a href="https://github.com/funcool/buddy-auth/tree/master/examples/jwe" class="bare">https://github.com/funcool/buddy-auth/tree/master/examples/jwe</a></p>
 </div>
 </div>
 <div class="sect2">
@@ -875,8 +1035,65 @@ simple ring based application.</p>
 simple ring based application.</p>
 </div>
 <div class="paragraph">
+<p>Just run the following commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">git clone https://github.com/funcool/buddy-auth.git
+cd ./buddy-auth/
+lein with-profile +jws-example run</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can use <strong>curl</strong> for play with the authentication example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Obtain the token performing a login request.</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">$ curl -v -X POST -H &quot;Content-Type: application/json&quot; -d &#39;{&quot;username&quot;: &quot;admin&quot;, &quot;password&quot;: &quot;secret&quot;}&#39; http://localhost:3000/login
+&gt; POST /login HTTP/1.1
+&gt; Host: localhost:3000
+&gt; User-Agent: curl/7.46.0
+&gt; Accept: */*
+&gt; Content-Type: application/json
+&gt; Content-Length: 43
+&gt;
+* upload completely sent off: 43 out of 43 bytes
+&lt; HTTP/1.1 200 OK
+&lt; Date: Mon, 04 Jan 2016 13:49:30 GMT
+&lt; Content-Type: application/json; charset=utf-8
+&lt; Content-Length: 180
+&lt; Server: Jetty(9.2.10.v20150310)
+&lt;
+* Connection #0 to host localhost left intact
+{&quot;token&quot;:&quot;eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXUyJ9.eyJ1c2VyIjoiYWRtaW4iLCJleHAiOjE0NTE5MTg5NzB9.Kvpr1jW7JBCZYUlFjAf7xnqMZSTpSVggAgiZ6_RGZuTi1wUuP_-E8MJff23GuCwpT9bbbHNTk84uV2cdg7rKTw&quot;}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Perform an autenticated request (using previously obtained token).</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">$ curl -v -X GET -H &quot;Content-Type: application/json&quot; -H &quot;Authorization: Token eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXUyJ9.eyJ1c2VyIjoiYWRtaW4iLCJleHAiOjE0NTE5MTg5NzB9.Kvpr1jW7JBCZYUlFjAf7xnqMZSTpSVggAgiZ6_RGZuTi1wUuP_-E8MJff23GuCwpT9bbbHNTk84uV2cdg7rKTw&quot; http://localhost:3000/
+* Connected to localhost (::1) port 3000 (#0)
+&gt; GET / HTTP/1.1
+&gt; Host: localhost:3000
+&gt; User-Agent: curl/7.46.0
+&gt; Accept: */*
+&gt; Content-Type: application/json
+&gt; Authorization: Token eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXUyJ9.eyJ1c2VyIjoiYWRtaW4iLCJleHAiOjE0NTE5MTg5NzB9.Kvpr1jW7JBCZYUlFjAf7xnqMZSTpSVggAgiZ6_RGZuTi1wUuP_-E8MJff23GuCwpT9bbbHNTk84uV2cdg7rKTw
+&gt;
+&lt; HTTP/1.1 200 OK
+&lt; Date: Mon, 04 Jan 2016 13:50:15 GMT
+&lt; Content-Type: application/json; charset=utf-8
+&lt; Content-Length: 84
+&lt; Server: Jetty(9.2.10.v20150310)
+&lt;
+* Connection #0 to host localhost left intact
+{&quot;status&quot;:&quot;Logged&quot;,&quot;message&quot;:&quot;hello logged user {:user \&quot;admin\&quot;, :exp 1451918970}&quot;}</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>You can see the example code here:
-<a href="https://github.com/funcool/buddy-auth/tree/master/examples/token-jws" class="bare">https://github.com/funcool/buddy-auth/tree/master/examples/token-jws</a></p>
+<a href="https://github.com/funcool/buddy-auth/tree/master/examples/jws" class="bare">https://github.com/funcool/buddy-auth/tree/master/examples/jws</a></p>
 </div>
 </div>
 </div>
@@ -980,7 +1197,7 @@ of the license on the root of the repository on <code>LICENSE</code> file.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-11-17 19:19:46 EET
+Last updated 2016-01-04 16:14:37 EET
 </div>
 </div>
 </body>
