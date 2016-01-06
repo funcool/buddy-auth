@@ -1,4 +1,4 @@
-;; Copyright (c) 2013-2014 Andrey Antukh <niwi@niwi.be>
+;; Copyright (c) 2013-2016 Andrey Antukh <niwi@niwi.nz>
 ;;
 ;; Licensed under the Apache License, Version 2.0 (the "License")
 ;; you may not use this file except in compliance with the License.
