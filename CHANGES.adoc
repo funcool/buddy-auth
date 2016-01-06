@@ -1,5 +1,12 @@
 = Changelog
 
+== Version 0.9.0
+
+Date: 2016-01-06
+
+- Update buddy-sign dependency to 0.9.0.
+
+
 == Version 0.8.2
 
 Date: 2015-12-08
