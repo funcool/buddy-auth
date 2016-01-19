@@ -294,7 +294,7 @@ encryption algorithm:
 
 [source, clojure]
 ----
-(require '[buddy.auth.backends.token :refer (jws-backend)])
+(require '[buddy.auth.backends.token :refer (jwe-backend)])
 (require '[buddy.auth.middleware :refer (wrap-authentication)])
 (require '[buddy.sign.jwe :as jwe])
 (require '[buddy.core.keys :as keys])
