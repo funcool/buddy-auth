@@ -223,17 +223,17 @@ You can see a complete example of using this backend <<example-token,here>>.
 
 === JWS Token
 
-Is a backend that uses signed and self contained tokens for authenticate the user.
+Is a backend that uses signed and self contained tokens to authenticate the user.
 
 It behaves very similar to the _Token_ backend (previously explained) with the
-difference that this does not need additional user defined logic for validate tokens,
-because as we said previously, are self contained.
+difference that this does not need additional user defined logic to validate tokens,
+because as we said previously, everything is self contained.
 
-This type of tokens enables a complete stateless authentication because the server
-does not need any more store the token and related information, the token will
-contain that information.
+This type of token mechanism enables a complete stateless authentication because the
+server does not need to store the token and related information, the token will
+contain all the needed information for authentication.
 
-Let see a demostrative example:
+Let's see a demostrative example:
 
 [source, clojure]
 ----
@@ -289,8 +289,8 @@ The main difference is that the backend uses JWE (Json Web Encryption) instead o
 instead of simply signed. This is useful when token may contain some additional user
 information that can not be public.
 
-This is how will look the previous (jws) example but using jwe with asymetric key
-encryption algorithm:
+It will look similar to the previous (jws) example but instead using jwe with asymetric
+key encryption algorithm:
 
 [source, clojure]
 ----
