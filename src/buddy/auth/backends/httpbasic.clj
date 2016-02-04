@@ -21,8 +21,8 @@
             [cuerdas.core :as str]))
 
 (defn- parse-httpbasic-header
-  "Given a request, try extract and parse
-  http basic header."
+  "Given a request, try to extract and parse
+  the http basic header."
   [request]
   (let [pattern (re-pattern "^Basic (.+)$")
         decoded (some->> (http/-get-header request "authorization")
@@ -36,10 +36,10 @@
   "Create an instance of the http-basic based
   authentication backend.
 
-  This backends also implements authorization
+  This backend also implements authorization
   workflow with some defaults. This means that
-  you can provide own unauthorized-handler hook
-  if the default not satisfies you."
+  you can provide your own unauthorized-handler hook
+  if the default one does not satisfy you."
   [& [{:keys [realm authfn unauthorized-handler] :or {realm "Buddy Auth"}}]]
   (when (nil? authfn)
     (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
