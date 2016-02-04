@@ -17,7 +17,7 @@
 
 ;; Home page controller (ring handler)
 ;; If incoming user is not authenticated it raises a not authenticated
-;; exception, else simple shows a hello world message.
+;; exception, else it simply shows a hello world message.
 
 (defn home
   [req]
@@ -30,8 +30,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; User defined application routes using compojure routing library.
-;; Note: no any middleware for authorization, all authorization system
-;; is totally decoupled from main routes.
+;; Note: there are no middleware for authorization, all authorization
+;; system is totally decoupled from main routes.
 
 (defroutes app
   (GET "/" [] home))
@@ -42,8 +42,8 @@
   {:admin "secret"
    :test "secret"})
 
-;; Define function that is responsible of authenticating requests.
-;; In this case it receives a map with username and password and i
+;; Define function that is responsible for authenticating requests.
+;; In this case it receives a map with username and password and it
 ;; should return a value that can be considered a "user" instance
 ;; and should be a logical true.
 
@@ -54,7 +54,7 @@
       (keyword username))))
 
 ;; Create an instance of auth backend without explicit handler for
-;; unauthorized request. (That leaves the responsability to default
+;; unauthorized request. (That leaves the responsibility to default
 ;; backend implementation.
 
 (def auth-backend

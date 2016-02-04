@@ -20,7 +20,7 @@
 
 ;; Home page controller (ring handler)
 ;; If incoming user is not authenticated it raises a
-;; not authenticated exception, else simple shows a
+;; not authenticated exception, else it simply shows a
 ;; hello world message.
 
 (defn home
@@ -112,7 +112,7 @@
     (authenticated? request)
     (-> (render (slurp (io/resource "error.html")) request)
         (assoc :status 403))
-    ;; In other cases, redirect it user to login.
+    ;; In other cases, redirect the user to login page.
     :else
     (let [current-url (:uri request)]
       (redirect (format "/login?next=%s" current-url)))))
