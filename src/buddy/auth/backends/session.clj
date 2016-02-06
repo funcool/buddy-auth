@@ -23,10 +23,10 @@
   "Create an instance of the http session based
   authentication backend.
 
-  This backends also implements authorization
+  This backend also implements authorization
   workflow with some defaults. This means that
-  you can provide own unauthorized-handler hook
-  if the default not satisfies you."
+  you can provide your own unauthorized-handler hook
+  if the default one does not satisfy you."
   [& [{:keys [unauthorized-handler]}]]
   (reify
     proto/IAuthentication

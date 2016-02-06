@@ -38,7 +38,7 @@
 
 ;; Home page controller (ring handler)
 ;; If incoming user is not authenticated it raises a not authenticated
-;; exception, else simple shows a hello world message.
+;; exception, else it simply shows a hello world message.
 
 (defn home
   [request]
@@ -54,12 +54,12 @@
 (def authdata {:admin "secret"
                :test "secret"})
 
-;; Global storage for store generated tokens.
+;; Global storage for generated tokens.
 (def tokens (atom {}))
 
 ;; Authenticate Handler
-;; Respons to post requests in same url as login and is responsible to
-;; identify the incoming credentials and set the appropiate authenticated
+;; Responds to post requests in same url as login and is responsible for
+;; identifying the incoming credentials and setting the appropriate authenticated
 ;; user into session. `authdata` will be used as source of valid users.
 
 (defn login
@@ -80,8 +80,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; User defined application routes using compojure routing library.
-;; Note: no any middleware for authorization, all authorization system
-;; is totally decoupled from main routes.
+;; Note: there are no middleware for authorization, all authorization
+;; system is totally decoupled from main routes.
 
 (defroutes app
   (GET "/" [] home)

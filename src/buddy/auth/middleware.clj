@@ -57,7 +57,7 @@
   workflow for your ring handler.
 
   The `backend` parameter should be a plain function
-  that accepts two paramerts: request and errordata
+  that accepts two parameters: request and errordata
   hashmap, or an instance that satisfies IAuthorization
   protocol."
   [handler backend]

@@ -24,10 +24,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defprotocol IRuleHandlerResponse
-  "Absraction for uniform handlig of rule handler return values.
+  "Abstraction for uniform handling of rule handler return values.
   It comes with default implementation for nil and boolean types."
   (success? [_] "Check if a response is a success.")
-  (get-value [_] "Get a hander response value."))
+  (get-value [_] "Get a handler response value."))
 
 (extend-protocol IRuleHandlerResponse
   nil
@@ -74,13 +74,13 @@
 (alter-meta! #'->RuleError assoc :private true)
 
 (defn success
-  "Function that return a success state
+  "Function that returns a success state
   from one access rule handler."
   ([] (RuleSuccess. nil))
   ([v] (RuleSuccess. v)))
 
 (defn error
-  "Function that return a failure state
+  "Function that returns a failure state
   from one access rule handler."
   ([] (RuleError. nil))
   ([v] (RuleError. v)))
@@ -90,19 +90,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn compile-rule-handler
-  "Receives a rule handler and return a compiled version of it.
+  "Receives a rule handler and returns a compiled version of it.
 
-  The compiled version of rule handler consists in
+  The compiled version of a rule handler consists of
   one function that accepts a request as first parameter
-  and return the result of the evaluation of it.
+  and returns the result of the evaluation of it.
 
-  The rule can be a simple function or logical expersion. Logical
-  expresion is expressed using a hashmap:
+  The rule can be a simple function or logical expression. Logical
+  expression is expressed using a hashmap:
 
       {:or [f1 f2]}
       {:and [f1 f2]}
 
-  Logical expressions can be nestest as deep as you want:
+  Logical expressions can be nested as deep as you want:
 
       {:or [f1 {:and [f2 f3]}]}
 
@@ -113,7 +113,7 @@
   validation.
 
   An error mark can return a ring response that will be
-  returned to the http client or string message that will
+  returned to the http client or string message that will be
   passed to `on-error` handler if it exists, or returned as
   bad-request response with message as response body.
 
@@ -173,11 +173,11 @@
       :else true)))
 
 (defn  compile-access-rule
-  "Receives a access rule and return a compiled version of it.
+  "Receives an access rule and returns a compiled version of it.
 
-  The plain version of access rule consists in one hash-map with
+  The plain version of access rule consists of one hash-map with
   with `:uri` and `:handler` keys. `:uri` is a url match syntax
-  that will be used for match the url and `:handler` is a rule
+  that will be used for matching the url and `:handler` is a rule
   handler.
 
   Little overview of aspect of access rules:
@@ -205,11 +205,11 @@
         :handler user-access
         :request-method :get}
 
-  The compilation process consists in transform the plain version
-  in one optimized of it for avoid unnecesary overhead to the
+  The compilation process consists in transforming the plain version
+  into an optimized one in order to avoid unnecessary overhead to the
   request process time.
 
-  The compiled version of access rule has very similar format that
+  The compiled version of access rule has a very similar format with
   the plain one. The difference is that `:handler` is a compiled
   version, and `:pattern` or `:uri` is replaced by matcher function.
 
@@ -261,8 +261,8 @@
   (mapv compile-access-rule accessrules))
 
 (defn- match-access-rules
-  "Iterates over all access rules and try match each one
-  in order. Return a first matched access rule or nil."
+  "Iterates over all access rules and try to match each one
+  in order. Return the first matched access rule or nil."
   [accessrules request]
   (reduce (fn [acc accessrule]
             (let [matcher (:matcher accessrule)
@@ -276,11 +276,11 @@
   "Handles the error situation when access rules are
   evaluated in `wrap-access-rules` middleware.
 
-  It receives a hanlder response (anything that rule handler may
+  It receives a handler response (anything that rule handler may
   return), a current request and a hashmap passwd to the access
-  rule defintion.
+  rule definition.
 
-  The received response are mandatory satisfies
+  The received response has to satisfy the
   IRuleHandlerResponse protocol."
   {:no-doc true}
   [response request {:keys [reject-handler on-error redirect]}]
@@ -318,10 +318,10 @@
         (handler))))
 
 (defn wrap-access-rules
-  "An ring middleware that helps define access rules for
+  "A ring middleware that helps to define access rules for
   ring handler.
 
-  This is a example of access rules list that `wrap-access-rules`
+  This is an example of access rules list that `wrap-access-rules`
   middleware expects:
 
       [{:uri \"/foo/*\"
@@ -331,8 +331,8 @@
        {:uri \"/baz/*\"
         :handler {:and [user-access {:or [admin-access operator-access]}]}}]
 
-  All access rules are evaluated in order and stops on first
-  match found.
+  All access rules are evaluated in order and the process stops when
+  a match is found.
 
   See docstring of `compile-rule-handler` for documentation
   about rule handlers."
@@ -352,7 +352,7 @@
 
 (defn restrict
   "Like `wrap-access-rules` middleware but works as
-  decorator. Is intended for use with compojure routing
+  decorator. It is intended to bw used with compojure routing
   library or similar. Example:
 
       (defn login-ctrl [req] ...)
@@ -363,8 +363,8 @@
         (GET \"/admin\" [] (restrict admin-ctrl {:handler admin-access ;; Mandatory
                                                  :on-error my-reject-handler)
 
-  This decorator allow use same access rules but without
-  any url matching algorithm but with disadvantage of
+  This decorator allows using the same access rules but without
+  any url matching algorithm, however it has the disadvantage of
   accoupling your routers code with access rules."
   [handler rule]
   (let [match (compile-access-rule rule)]

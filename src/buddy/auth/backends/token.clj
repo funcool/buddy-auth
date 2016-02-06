@@ -13,7 +13,7 @@
 ;; limitations under the License.
 
 (ns buddy.auth.backends.token
-  "The token based authentication and authorization backends."
+  "The token based authentication and authorization backend."
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.http :as http]
             [buddy.auth :refer [authenticated?]]
@@ -21,7 +21,7 @@
             [buddy.sign.jwe :as jwe]))
 
 (defn- handle-unauthorized-default
-  "A default response constructor for an unathorized request."
+  "A default response constructor for an unauthorized request."
   [request]
   (if (authenticated? request)
     {:status 403 :headers {} :body "Permission denied"}
@@ -37,10 +37,10 @@
   "Create an instance of the jws (json web signature)
   based authentication backend.
 
-  This backends also implements authorization workflow
+  This backend also implements authorization workflow
   with some defaults. This means that you can provide
-  own unauthorized-handler hook if the default not
-  satisfies you."
+  your own unauthorized-handler hook if the default one
+  does not satisfy you."
   [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
@@ -67,10 +67,10 @@
   "Create an instance of the jwe (json web encryption)
   based authentication backend.
 
-  This backends also implements authorization workflow
+  This backend also implements authorization workflow
   with some defaults. This means that you can provide
-  own unauthorized-handler hook if the default not
-  satisfies you."
+  your own unauthorized-handler hook if the default one
+  does not satisfy you."
   [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
@@ -95,10 +95,10 @@
   "Create an instance of the generic token based
   authentication backend.
 
-  This backends also implements authorization workflow
+  This backend also implements authorization workflow
   with some defaults. This means that you can provide
-  own unauthorized-handler hook if the default not
-  satisfies you."
+  your own unauthorized-handler hook if the default one
+  does not satisfy you."
   [{:keys [authfn unauthorized-handler token-name] :or {token-name "Token"}}]
   (when (nil? authfn)
     (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
