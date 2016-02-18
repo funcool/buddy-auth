@@ -844,8 +844,8 @@ https://github.com/funcool/buddy-auth/tree/master/examples/jws
 *What is the difference with Friend?*
 
 _buddy-auth_ authorization/authentication facilities are more low level and less opinionated
-than friend, and allow you to easily build over them other high level abstractions.
-Technically, friend abstraction can be build on top of _buddy-auth_.
+than friend, and allow you to easily build other high level abstractions over them.
+Technically, friend abstraction can be built on top of _buddy-auth_.
 
 
 *How can I use _buddy_ with link:http://clojure-liberator.github.io/liberator/[liberator]?*
