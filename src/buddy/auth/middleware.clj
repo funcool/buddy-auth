@@ -40,7 +40,7 @@
   handler. When multiple `backends` are given each of them gets a
   chance to authenticate the request."
   [handler & backends]
-  (fn [request] (handler (authentication-request request [backends]))))
+  (fn [request] (handler (apply authentication-request request backends))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization
