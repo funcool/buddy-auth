@@ -65,7 +65,7 @@
 
   On successful authentication, set appropriate user
   into the session and redirect to the value of
-  (:query-params (:next request)). On failed
+  (:next (:query-params request)). On failed
   authentication, renders the login page."
   [request]
   (let [username (get-in request [:form-params "username"])
