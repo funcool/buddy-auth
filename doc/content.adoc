@@ -1,6 +1,6 @@
 = buddy-auth - Auth/Authz facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.nz>
-0.9.0
+0.10.0
 :toc: left
 :!numbered:
 :source-highlighter: pygments
@@ -30,7 +30,7 @@ The simplest way to use _buddy-auth_ in a clojure project is by including it in 
 
 [source,clojure]
 ----
-[buddy/buddy-auth "0.9.0"]
+[buddy/buddy-auth "0.10.0"]
 ----
 
 This package is intended to be used with *jdk7* or *jdk8*.
