@@ -80,7 +80,7 @@
 <h1>buddy-auth - Auth/Authz facilities for ring based apps.</h1>
 <div class="details">
 <span id="author" class="author">Andrey Antukh, &lt;niwi@niwi.nz&gt;</span><br>
-<span id="revdate">0.11.0</span>
+<span id="revdate">0.12.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -93,17 +93,27 @@
 </li>
 <li><a href="#authentication">Authentication</a>
 <ul class="sectlevel2">
-<li><a href="#http-basic">Http Basic</a></li>
+<li><a href="#introduction-2">Introduction</a></li>
+<li><a href="#backends">Backends</a>
+<ul class="sectlevel3">
+<li><a href="#http-basic">Http-Basic</a></li>
 <li><a href="#session">Session</a></li>
 <li><a href="#token">Token</a></li>
 <li><a href="#jws-token">JWS Token</a></li>
 <li><a href="#jwe-token">JWE Token</a></li>
 </ul>
 </li>
+</ul>
+</li>
 <li><a href="#authorization">Authorization</a>
 <ul class="sectlevel2">
 <li><a href="#exception-based">Exception-Based</a></li>
-<li><a href="#access-rules">Access Rules</a></li>
+<li><a href="#access-rules">Access Rules</a>
+<ul class="sectlevel3">
+<li><a href="#rules-handlers">Rules Handlers</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#examples">Examples</a>
@@ -134,8 +144,7 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p><em>buddy-auth</em> is a module that provides authentication and authorization facilites
-for ring and ring based web applications. It is part of the
-<a href="https://github.com/funcool/buddy">buddy</a> meta package.</p>
+for ring and ring based web applications.</p>
 </div>
 <div class="sect2">
 <h3 id="project-maturity"><a class="link" href="#project-maturity">Project Maturity</a></h3>
@@ -146,12 +155,12 @@ for ring and ring based web applications. It is part of the
 <div class="sect2">
 <h3 id="install"><a class="link" href="#install">Install</a></h3>
 <div class="paragraph">
-<p>The simplest way to use <em>buddy-auth</em> in a clojure project is by including it in  your
-<strong><em>project.clj</em></strong> dependency vector:</p>
+<p>The simplest way to use <em>buddy-auth</em> in a clojure project is by including it in
+your <strong><em>project.clj</em></strong> dependency vector:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">buddy/buddy-auth</span> <span class="tok-s">&quot;0.11.0&quot;</span><span class="tok-p">]</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">buddy/buddy-auth</span> <span class="tok-s">&quot;0.12.0&quot;</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -163,13 +172,19 @@ for ring and ring based web applications. It is part of the
 <div class="sect1">
 <h2 id="authentication"><a class="link" href="#authentication">Authentication</a></h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="introduction-2"><a class="link" href="#introduction-2">Introduction</a></h3>
 <div class="paragraph">
-<p>Buddy takes a very different approach to handling authentication. First, it clearly
-distinguishes authentication and authorization as two separate steps. Second, it
-implements these concepts using protocols for easy extensibility.</p>
+<p>The buddy&#8217;s approach for authentication is pretty simple and explicit.
+In contrast to the vast majority of authentication libraries that I know that
+<em>buddy</em> does not mix authentication process with the authorization.</p>
+</div>
+<div class="paragraph">
+<p>It is implemented as plugable backends that can be picked as is or implemented
+new ones with simple steps. This is a list of builtin backends:</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 1. Here is a list of the built-in authentication backends:</caption>
+<caption class="title">Table 1. List of builtin backends.</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -183,46 +198,56 @@ implements these concepts using protocols for easy extensibility.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Http Basic</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends.httpbasic</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends/http-basic</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Session</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends.session</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends/session</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Token</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends.token</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends/token</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JWS Token</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends.token</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends/jws</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">JWE Token</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends.token</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>buddy.auth.backends/jwe</code></p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>If you are not happy with the built-in backends, you can implement your own and use it
-with <em>buddy-auth</em> middleware without any problem.</p>
+<p>If you are not happy with the built-in backends, you can implement your own and
+use it with <em>buddy-auth</em> middleware without any problem.</p>
 </div>
 <div class="paragraph">
-<p>Authentication in <em>buddy-auth</em> has two phases:</p>
+<p>The authentication process works mainly in two steps:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>parse</strong>: parsing incoming request headers, parameters etc&#8230;&#8203;</p>
+<p><strong>parse</strong>: that is responsible of analyze the request and read the auth related
+data (e.g. <code>Authorization</code> header, url params, etc..)</p>
 </li>
 <li>
-<p><strong>authenticate</strong>: having parsed data, do the authentication process, such as calling
-the auth function, unsigning the self contained token, etc.</p>
+<p><strong>auth</strong>: with the data obtained from parse step just try to authenticate the
+the request (e.g. simple access to database for obtain the possible user, unsing
+self contained jws/jwe token, check a key in the session, etc&#8230;&#8203;)</p>
 </li>
 </ol>
 </div>
+<div class="paragraph">
+<p>This step does not raises any exception and is completly transparent to the user.
+The authentication process responsability is determine if request is anonymous or
+is authenticated, nothing more.</p>
+</div>
+</div>
 <div class="sect2">
-<h3 id="http-basic"><a class="link" href="#http-basic">Http Basic</a></h3>
+<h3 id="backends"><a class="link" href="#backends">Backends</a></h3>
+<div class="sect3">
+<h4 id="http-basic"><a class="link" href="#http-basic">Http-Basic</a></h4>
 <div class="paragraph">
 <p>The HTTP Basic authentication backend is one of the simplest and most insecure
 authentication systems, but is a good first step to understanding how <em>buddy-auth</em>
@@ -231,35 +256,29 @@ authentication works.</p>
 <div class="listingblock">
 <div class="title">Example ring handler/view</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">authenticated?</span><span class="tok-p">)])</span>
-<span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">ring.util.response</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">response</span><span class="tok-p">)])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">ring.util.response</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">response</span><span class="tok-p">)])</span>
 
 <span class="tok-c1">;; Simple ring handler. This can also be a compojure router handler</span>
 <span class="tok-c1">;; or anything else compatible with ring middleware.</span>
 
-<span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">my-sample-handler</span>
+<span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">my-handler</span>
   <span class="tok-p">[</span><span class="tok-nv">request</span><span class="tok-p">]</span>
-  <span class="tok-p">(</span><span class="tok-k">if </span><span class="tok-p">(</span><span class="tok-nf">authenticated?</span> <span class="tok-nv">request</span><span class="tok-p">)</span>
+  <span class="tok-p">(</span><span class="tok-k">if </span><span class="tok-p">(</span><span class="tok-ss">:identity</span> <span class="tok-nv">request</span><span class="tok-p">)</span>
     <span class="tok-p">(</span><span class="tok-nf">response</span> <span class="tok-p">(</span><span class="tok-nf">format</span> <span class="tok-s">&quot;Hello %s&quot;</span> <span class="tok-p">(</span><span class="tok-ss">:identity</span> <span class="tok-nv">request</span><span class="tok-p">)))</span>
     <span class="tok-p">(</span><span class="tok-nf">response</span> <span class="tok-s">&quot;Hello Anonymous&quot;</span><span class="tok-p">)))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>authenticated?</code> is a predicate function that receives a request and returns
-<code>true</code> if it has been authenticated by one of the <em>buddy-auth</em> backends or <code>false</code>
-otherwise</p>
+<p>The basic step for check if a request is authenticated or not, is just check if
+it comes with <code>:identity</code> key and it contains a logical <code>true</code> (exists and contains
+something different to <code>nil</code> or <code>false</code>).</p>
 </div>
 <div class="paragraph">
-<p>Later, http-basic authentication backend requires a function with the
-responsibility of authenticating the incoming request. Let&#8217;s see how we can do it:</p>
+<p>This is how the authentication backend should be setup:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.httpbasic</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">http-basic-backend</span><span class="tok-p">]])</span>
-
-<span class="tok-c1">;; This function should return a non-nil value that</span>
-<span class="tok-c1">;; is automatically stored with an :identity key on the request</span>
-<span class="tok-c1">;; If it returns nil, a request is considered unauthenticated.</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends</span> <span class="tok-ss">:as</span> <span class="tok-nv">backends</span><span class="tok-p">])</span>
 
 <span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">my-authfn</span>
   <span class="tok-p">[</span><span class="tok-nv">request</span> <span class="tok-nv">authdata</span><span class="tok-p">]</span>
@@ -267,19 +286,18 @@ responsibility of authenticating the incoming request. Let&#8217;s see how we ca
         <span class="tok-nv">password</span> <span class="tok-p">(</span><span class="tok-ss">:password</span> <span class="tok-nv">authdata</span><span class="tok-p">)]</span>
     <span class="tok-nv">username</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">http-basic-backend</span> <span class="tok-p">{</span><span class="tok-ss">:realm</span> <span class="tok-s">&quot;MyApi&quot;</span> <span class="tok-ss">:authfn</span> <span class="tok-nv">my-authfn</span><span class="tok-p">}))</span></code></pre>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">backends/http-basic</span> <span class="tok-p">{</span><span class="tok-ss">:realm</span> <span class="tok-s">&quot;MyApi&quot;</span>
+                                   <span class="tok-ss">:authfn</span> <span class="tok-nv">my-authfn</span><span class="tok-p">}))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <strong>authfn</strong> function should accept a <em>request</em> as the first parameter and
-<em>authdata</em> as the second. <em>authdata</em> is data parsed from the request in the
-<strong>parse</strong> step.</p>
+<p>The <code>authfn</code> is the responsible of the second step of authentication. It receives
+the parsed auth data from request and should return a logical true value (e.g a user
+id, user instance, mainly something different to <code>nil</code> and <code>false</code>). And it will
+be called only if step 1 (parse) returns something.</p>
 </div>
 <div class="paragraph">
-<p>The <strong>authfn</strong> will be called only if the <strong>parse</strong> process returns not <code>nil</code>.</p>
-</div>
-<div class="paragraph">
-<p>Finally, you should wrap your ring handler with authentication middleware:</p>
+<p>And finally, you should wrap your ring handler with authentication middleware:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -292,21 +310,18 @@ responsibility of authenticating the incoming request. Let&#8217;s see how we ca
 <span class="tok-c1">;; Define app var with handler wrapped with _buddy-auth_&#39;s authentication</span>
 <span class="tok-c1">;; middleware using the previously defined backend.</span>
 
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">app</span> <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-nv">my-sample-handler</span>
-             <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span> <span class="tok-nv">backend</span><span class="tok-p">)))</span></code></pre>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">app</span> <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span> <span class="tok-nv">my-handler</span> <span class="tok-nv">backend</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>All requests that reach the <code>my-sample-handler</code> will be properly processed and
-authenticated. In the process of authentication the <code>:identity</code> keyword will be attached
-to the request with a not <code>nil</code> value if the user is successfully authenticated.</p>
+<p>From now, all requests that reaches <code>my-handler</code> will be properly authenticated.</p>
 </div>
 <div class="paragraph">
 <p>You can see a complete example of using this backend <a href="#example-httpbasic">here</a>.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="session"><a class="link" href="#session">Session</a></h3>
+<div class="sect3">
+<h4 id="session"><a class="link" href="#session">Session</a></h4>
 <div class="paragraph">
 <p>The session backend has the simplest implementation because it relies entirely on
 ring session support.</p>
@@ -319,46 +334,33 @@ forwarded to the request under the <code>:identity</code> property.</p>
 <div class="listingblock">
 <div class="title">Example creating a session backend instance and wrapping our handler</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.session</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">session-backend</span><span class="tok-p">]])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends</span> <span class="tok-ss">:as</span> <span class="tok-nv">backends</span><span class="tok-p">])</span>
 
 <span class="tok-c1">;; Create an instance</span>
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">session-backend</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">backends/session</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; Wrap the ring handler.</span>
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">app</span> <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-nv">my-sample-handler</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">app</span> <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-nv">my-handler</span>
              <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span> <span class="tok-nv">backend</span><span class="tok-p">)))</span></code></pre>
 </div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Tip</div>
-</td>
-<td class="content">
-As you can see, the authentication is completely independent of login/signin.
-It&#8217;s up to you to implement the login handler.
-</td>
-</tr>
-</table>
 </div>
 <div class="paragraph">
 <p>You can see a complete example of using this backend <a href="#example-session">here</a>.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="token"><a class="link" href="#token">Token</a></h3>
+<div class="sect3">
+<h4 id="token"><a class="link" href="#token">Token</a></h4>
 <div class="paragraph">
-<p>Is a backend that uses tokens for authenticating the user. It behaves very similarly to
-the basic-auth backend with the difference that instead of authenticating with
-credentials it authenticates with a simple token.</p>
+<p>Is a backend that uses tokens for authenticating the user. It behaves very
+similarly to the basic-auth backend with the difference that instead of
+authenticating with credentials it authenticates with a simple token.</p>
 </div>
 <div class="paragraph">
 <p>Let&#8217;s see an example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.token</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">token-backend</span><span class="tok-p">]])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends</span> <span class="tok-ss">:as</span> <span class="tok-nv">backends</span><span class="tok-p">])</span>
 
 <span class="tok-c1">;; Define a in-memory relation between tokens and users:</span>
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">tokens</span> <span class="tok-p">{</span><span class="tok-ss">:2f904e245c1f5</span> <span class="tok-ss">:admin</span>
@@ -374,17 +376,17 @@ credentials it authenticates with a simple token.</p>
     <span class="tok-p">(</span><span class="tok-nb">get </span><span class="tok-nv">tokens</span> <span class="tok-nv">token</span> <span class="tok-nv">nil</span><span class="tok-p">)))</span>
 
 <span class="tok-c1">;; Create an instance</span>
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">token-backend</span> <span class="tok-p">{</span><span class="tok-ss">:authfn</span> <span class="tok-nv">my-authfn</span><span class="tok-p">}))</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">backends/token</span> <span class="tok-p">{</span><span class="tok-ss">:authfn</span> <span class="tok-nv">my-authfn</span><span class="tok-p">}))</span>
 
 <span class="tok-c1">;; Wrap the ring handler.</span>
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">app</span> <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-nv">my-sample-handler</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">app</span> <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-nv">my-handler</span>
              <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span> <span class="tok-nv">backend</span><span class="tok-p">)))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The process of authentication of this backend consists in parsing the "Authorization"
-header, extracting the token and in case the token is extracted successfully, call
-the <code>authfn</code> with extracted token.</p>
+<p>The process of authentication of this backend consists in parsing the
+"Authorization" header, extracting the token and in case the token is extracted
+successfully, call the <code>authfn</code> with extracted token.</p>
 </div>
 <div class="listingblock">
 <div class="title">This is a possible aspect of the authorization header</div>
@@ -397,23 +399,22 @@ the <code>authfn</code> with extracted token.</p>
 key in the request.</p>
 </div>
 <div class="paragraph">
-<p>Is the responsibility of the library user to build tokens, handle its storage and
-verification process. <em>buddy-auth</em> only offers a lightweight layer over http for
-parsing and marking requests as authenticated.</p>
+<p>The responsability of <em>buddy</em> is just parse request and call the user function
+authenticate it. The token building and storage is a user responsability.</p>
 </div>
 <div class="paragraph">
 <p>You can see a complete example of using this backend <a href="#example-token">here</a>.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="jws-token"><a class="link" href="#jws-token">JWS Token</a></h3>
+<div class="sect3">
+<h4 id="jws-token"><a class="link" href="#jws-token">JWS Token</a></h4>
 <div class="paragraph">
 <p>Is a backend that uses signed and self contained tokens to authenticate the user.</p>
 </div>
 <div class="paragraph">
 <p>It behaves very similarly to the <em>Token</em> backend (previously explained) with the
-difference that this one does not need additional user defined logic to validate tokens,
-because as we previously said, everything is self contained.</p>
+difference that this one does not need additional user defined logic to validate
+tokens, because as we previously said, everything is self contained.</p>
 </div>
 <div class="paragraph">
 <p>This type of token mechanism enables a complete stateless authentication because the
@@ -425,11 +426,11 @@ contain all the needed information for authentication.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.token</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">jws-backend</span><span class="tok-p">)])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends</span> <span class="tok-ss">:as</span> <span class="tok-nv">backends</span><span class="tok-p">])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.middleware</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span><span class="tok-p">)])</span>
 
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">secret</span> <span class="tok-s">&quot;mysecret&quot;</span><span class="tok-p">)</span>
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">jws-backend</span> <span class="tok-p">{</span><span class="tok-ss">:secret</span> <span class="tok-nv">secret</span><span class="tok-p">}))</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">backends/jws</span> <span class="tok-p">{</span><span class="tok-ss">:secret</span> <span class="tok-nv">secret</span><span class="tok-p">}))</span>
 
 <span class="tok-c1">;; and wrap your ring application with</span>
 <span class="tok-c1">;; the authentication middleware</span>
@@ -479,24 +480,24 @@ responsibility of generating valid tokens:</p>
 <p>You can see a complete example of using this backend <a href="#example-jws">here</a>.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="jwe-token"><a class="link" href="#jwe-token">JWE Token</a></h3>
+<div class="sect3">
+<h4 id="jwe-token"><a class="link" href="#jwe-token">JWE Token</a></h4>
 <div class="paragraph">
 <p>This backend is almost identical to the previous one (JWS).</p>
 </div>
 <div class="paragraph">
-<p>The main difference is that the backend uses JWE (Json Web Encryption) instead of JWS
-(Json Web Signature) and it has the advantage that the content of the token is encrypted
-instead of simply signed. This is useful when token may contain some additional user
-information that should not be public.</p>
+<p>The main difference is that the backend uses JWE (Json Web Encryption) instead of
+JWS (Json Web Signature) and it has the advantage that the content of the token is
+encrypted instead of simply signed. This is useful when token may contain some
+additional user information that should not be public.</p>
 </div>
 <div class="paragraph">
-<p>It will look similar to the previous (jws) example but instead using jwe with asymmetric
-key encryption algorithm:</p>
+<p>It will look similar to the previous (jws) example but instead using jwe with
+asymmetric key encryption algorithm:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.token</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">jwe-backend</span><span class="tok-p">)])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends</span> <span class="tok-ss">:as</span> <span class="tok-nv">backends</span><span class="tok-p">])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.middleware</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">wrap-authentication</span><span class="tok-p">)])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.sign.jwe</span> <span class="tok-ss">:as</span> <span class="tok-nv">jwe</span><span class="tok-p">])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.core.keys</span> <span class="tok-ss">:as</span> <span class="tok-nv">keys</span><span class="tok-p">])</span>
@@ -505,8 +506,9 @@ key encryption algorithm:</p>
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">privkey</span> <span class="tok-p">(</span><span class="tok-nf">keys/private-key</span> <span class="tok-s">&quot;privkey.pem&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span>
-  <span class="tok-p">(</span><span class="tok-nf">jwe-backend</span> <span class="tok-p">{</span><span class="tok-ss">:secret</span> <span class="tok-nv">privkey</span>
-                <span class="tok-ss">:options</span> <span class="tok-p">{</span><span class="tok-ss">:alg</span> <span class="tok-ss">:rsa-oaep</span> <span class="tok-ss">:enc</span> <span class="tok-ss">:a128-hs256</span><span class="tok-p">}}))</span>
+  <span class="tok-p">(</span><span class="tok-nf">backends/jwe</span> <span class="tok-p">{</span><span class="tok-ss">:secret</span> <span class="tok-nv">privkey</span>
+                 <span class="tok-ss">:options</span> <span class="tok-p">{</span><span class="tok-ss">:alg</span> <span class="tok-ss">:rsa-oaep</span>
+                           <span class="tok-ss">:enc</span> <span class="tok-ss">:a128-hs256</span><span class="tok-p">}}))</span>
 
 <span class="tok-c1">;; and wrap your ring application with</span>
 <span class="tok-c1">;; the authentication middleware</span>
@@ -550,6 +552,7 @@ key pair. If you don&#8217;t have one, don&#8217;t worry, it is very easy to gen
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
 <h2 id="authorization"><a class="link" href="#authorization">Authorization</a></h2>
 <div class="sectionbody">
@@ -563,8 +566,8 @@ access-rules (explained in the next section).</p>
 <div class="paragraph">
 <p>The generic one is based on exceptions, and consists in raising an unauthorized
 exception in case the request is considered unauthorized. The access rules
-system is based on some kind of rules attached to the handler or an <em>URI</em> and that rules
-determine if a request is authorized or not.</p>
+system is based on some kind of rules attached to the handler or an <em>URI</em> and
+that rules determine if a request is authorized or not.</p>
 </div>
 <div class="sect2">
 <h3 id="exception-based"><a class="link" href="#exception-based">Exception-Based</a></h3>
@@ -593,7 +596,7 @@ authorization logic with fast skip, raising an unauthorized exception using the
 </div>
 <div class="paragraph">
 <p>Just like the authentication system, authorization is also implemented using
-protocols.</p>
+plugable backends.</p>
 </div>
 <div class="paragraph">
 <p>All built-in backends already implement the authorization protocol with default
@@ -602,7 +605,7 @@ option to the backend constructor:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends.httpbasic</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">http-basic-backend</span><span class="tok-p">]])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.backends</span> <span class="tok-ss">:as</span> <span class="tok-nv">backends</span><span class="tok-p">])</span>
 <span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.middleware</span> <span class="tok-ss">:refer</span> <span class="tok-p">[</span><span class="tok-nv">wrap-authentication</span> <span class="tok-nv">wrap-authorization</span><span class="tok-p">]])</span>
 
 <span class="tok-c1">;; Simple self defined handler for unauthorized requests.</span>
@@ -611,7 +614,7 @@ option to the backend constructor:</p>
   <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-p">(</span><span class="tok-nf">response</span> <span class="tok-s">&quot;Unauthorized request&quot;</span><span class="tok-p">)</span>
       <span class="tok-p">(</span><span class="tok-nb">assoc </span><span class="tok-ss">:status</span> <span class="tok-mi">403</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">http-basic-backend</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">backend</span> <span class="tok-p">(</span><span class="tok-nf">backends/http-basic</span>
               <span class="tok-p">{</span><span class="tok-ss">:realm</span> <span class="tok-s">&quot;API&quot;</span>
                <span class="tok-ss">:authfn</span> <span class="tok-nv">my-auth-fn</span>
                <span class="tok-ss">:unauthorized-handler</span> <span class="tok-nv">my-unauthorized-handler</span><span class="tok-p">}))</span>
@@ -629,7 +632,7 @@ option to the backend constructor:</p>
 an url to specific access rules logic.</p>
 </div>
 <div class="paragraph">
-<p>The access rules consist of an ordered list. It contains mappings between urls
+<p>The access rules consist of an ordered list that contains mappings between urls
 and rule handlers using <a href="https://github.com/weavejester/clout">clout</a> url
 matching syntax or regular expressions.</p>
 </div>
@@ -681,12 +684,11 @@ to return errors messages or even a ring response.</p>
 <div class="listingblock">
 <div class="title">This is a simple example of the aspect of one rule handler.</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">authenticated?</span><span class="tok-p">)])</span>
-<span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.accessrules</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">success</span> <span class="tok-nv">error</span><span class="tok-p">)])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">buddy.auth.accessrules</span> <span class="tok-ss">:refer</span> <span class="tok-p">(</span><span class="tok-nf">success</span> <span class="tok-nv">error</span><span class="tok-p">)])</span>
 
 <span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">authenticated-user</span>
   <span class="tok-p">[</span><span class="tok-nv">request</span><span class="tok-p">]</span>
-  <span class="tok-p">(</span><span class="tok-k">if </span><span class="tok-p">(</span><span class="tok-nf">authenticated?</span> <span class="tok-nv">request</span><span class="tok-p">)</span>
+  <span class="tok-p">(</span><span class="tok-k">if </span><span class="tok-p">(</span><span class="tok-ss">:identity</span> <span class="tok-nv">request</span><span class="tok-p">)</span>
     <span class="tok-nv">true</span>
     <span class="tok-p">(</span><span class="tok-nf">error</span> <span class="tok-s">&quot;Only authenticated users allowed&quot;</span><span class="tok-p">)))</span></code></pre>
 </div>
@@ -1196,7 +1198,7 @@ of the license on the root of the repository on <code>LICENSE</code> file.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-03-28 09:31:16 EEST
+Last updated 2016-04-09 10:28:44 EEST
 </div>
 </div>
 </body>
