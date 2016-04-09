@@ -1,6 +1,6 @@
 = buddy-auth - Auth/Authz facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.nz>
-0.11.0
+0.12.0
 :toc: left
 :!numbered:
 :source-highlighter: pygments
@@ -8,15 +8,13 @@ Andrey Antukh, <niwi@niwi.nz>
 :sectlinks:
 :idseparator: -
 :idprefix:
-:toclevels: 2
+:toclevels: 3
 
 
 == Introduction
 
 _buddy-auth_ is a module that provides authentication and authorization facilites
-for ring and ring based web applications. It is part of the
-link:https://github.com/funcool/buddy[buddy] meta package.
-
+for ring and ring based web applications.
 
 === Project Maturity
 
@@ -25,12 +23,12 @@ Since _buddy-auth_ is a young project there may be some API breakage.
 
 === Install
 
-The simplest way to use _buddy-auth_ in a clojure project is by including it in  your
-*_project.clj_* dependency vector:
+The simplest way to use _buddy-auth_ in a clojure project is by including it in
+your *_project.clj_* dependency vector:
 
 [source,clojure]
 ----
-[buddy/buddy-auth "0.11.0"]
+[buddy/buddy-auth "0.12.0"]
 ----
 
 This package is intended to be used with *jdk7* or *jdk8*.
@@ -38,32 +36,44 @@ This package is intended to be used with *jdk7* or *jdk8*.
 
 == Authentication
 
-Buddy takes a very different approach to handling authentication. First, it clearly
-distinguishes authentication and authorization as two separate steps. Second, it
-implements these concepts using protocols for easy extensibility.
+=== Introduction
 
-.Here is a list of the built-in authentication backends:
+The buddy's approach for authentication is pretty simple and explicit.
+In contrast to the vast majority of authentication libraries that I know that
+_buddy_ does not mix authentication process with the authorization.
+
+It is implemented as plugable backends that can be picked as is or implemented
+new ones with simple steps. This is a list of builtin backends:
+
+.List of builtin backends.
 [options="header"]
 |================================================
 | Backend name | Namespace
-| Http Basic   | `buddy.auth.backends.httpbasic`
-| Session      | `buddy.auth.backends.session`
-| Token        | `buddy.auth.backends.token`
-| JWS Token    | `buddy.auth.backends.token`
-| JWE Token    | `buddy.auth.backends.token`
+| Http Basic   | `buddy.auth.backends/http-basic`
+| Session      | `buddy.auth.backends/session`
+| Token        | `buddy.auth.backends/token`
+| JWS Token    | `buddy.auth.backends/jws`
+| JWE Token    | `buddy.auth.backends/jwe`
 |================================================
 
-If you are not happy with the built-in backends, you can implement your own and use it
-with _buddy-auth_ middleware without any problem.
+If you are not happy with the built-in backends, you can implement your own and
+use it with _buddy-auth_ middleware without any problem.
 
-Authentication in _buddy-auth_ has two phases:
+The authentication process works mainly in two steps:
 
-1. *parse*: parsing incoming request headers, parameters etc...
-2. *authenticate*: having parsed data, do the authentication process, such as calling
-   the auth function, unsigning the self contained token, etc.
+1. *parse*: that is responsible of analyze the request and read the auth related
+   data (e.g. `Authorization` header, url params, etc..)
+2. *auth*: with the data obtained from parse step just try to authenticate the
+   the request (e.g. simple access to database for obtain the possible user, unsing
+   self contained jws/jwe token, check a key in the session, etc...)
 
+This step does not raises any exception and is completly transparent to the user.
+The authentication process responsability is determine if request is anonymous or
+is authenticated, nothing more.
 
-=== Http Basic
+=== Backends
+
+==== Http-Basic
 
 The HTTP Basic authentication backend is one of the simplest and most insecure
 authentication systems, but is a good first step to understanding how _buddy-auth_
@@ -72,33 +82,27 @@ authentication works.
 .Example ring handler/view
 [source,clojure]
 ----
-(require '[buddy.auth :refer (authenticated?)])
 (require '[ring.util.response :refer (response)])
 
 ;; Simple ring handler. This can also be a compojure router handler
 ;; or anything else compatible with ring middleware.
 
-(defn my-sample-handler
+(defn my-handler
   [request]
-  (if (authenticated? request)
+  (if (:identity request)
     (response (format "Hello %s" (:identity request)))
     (response "Hello Anonymous")))
 ----
 
-The `authenticated?` is a predicate function that receives a request and returns
-`true` if it has been authenticated by one of the _buddy-auth_ backends or `false`
-otherwise
+The basic step for check if a request is authenticated or not, is just check if
+it comes with `:identity` key and it contains a logical `true` (exists and contains
+something different to `nil` or `false`).
 
-Later, http-basic authentication backend requires a function with the
-responsibility of authenticating the incoming request. Let's see how we can do it:
+This is how the authentication backend should be setup:
 
 [source, clojure]
 ----
-(require '[buddy.auth.backends.httpbasic :refer [http-basic-backend]])
-
-;; This function should return a non-nil value that
-;; is automatically stored with an :identity key on the request
-;; If it returns nil, a request is considered unauthenticated.
+(require '[buddy.auth.backends :as backends])
 
 (defn my-authfn
   [request authdata]
@@ -106,16 +110,16 @@ responsibility of authenticating the incoming request. Let's see how we can do i
         password (:password authdata)]
     username))
 
-(def backend (http-basic-backend {:realm "MyApi" :authfn my-authfn}))
+(def backend (backends/http-basic {:realm "MyApi"
+                                   :authfn my-authfn}))
 ----
 
-The *authfn* function should accept a _request_ as the first parameter and
-_authdata_ as the second. _authdata_ is data parsed from the request in the
-*parse* step.
+The `authfn` is the responsible of the second step of authentication. It receives
+the parsed auth data from request and should return a logical true value (e.g a user
+id, user instance, mainly something different to `nil` and `false`). And it will
+be called only if step 1 (parse) returns something.
 
-The *authfn* will be called only if the *parse* process returns not `nil`.
-
-Finally, you should wrap your ring handler with authentication middleware:
+And finally, you should wrap your ring handler with authentication middleware:
 
 [source,clojure]
 ----
@@ -128,18 +132,15 @@ Finally, you should wrap your ring handler with authentication middleware:
 ;; Define app var with handler wrapped with _buddy-auth_'s authentication
 ;; middleware using the previously defined backend.
 
-(def app (-> my-sample-handler
-             (wrap-authentication backend)))
+(def app (wrap-authentication my-handler backend))
 ----
 
-All requests that reach the `my-sample-handler` will be properly processed and
-authenticated. In the process of authentication the `:identity` keyword will be attached
-to the request with a not `nil` value if the user is successfully authenticated.
+From now, all requests that reaches `my-handler` will be properly authenticated.
 
 You can see a complete example of using this backend <<example-httpbasic,here>>.
 
 
-=== Session
+==== Session
 
 The session backend has the simplest implementation because it relies entirely on
 ring session support.
@@ -151,33 +152,30 @@ forwarded to the request under the `:identity` property.
 .Example creating a session backend instance and wrapping our handler
 [source, clojure]
 ----
-(require '[buddy.auth.backends.session :refer [session-backend]])
+(require '[buddy.auth.backends :as backends])
 
 ;; Create an instance
-(def backend (session-backend))
+(def backend (backends/session))
 
 ;; Wrap the ring handler.
-(def app (-> my-sample-handler
+(def app (-> my-handler
              (wrap-authentication backend)))
 ----
-
-TIP: As you can see, the authentication is completely independent of login/signin.
-It's up to you to implement the login handler.
 
 You can see a complete example of using this backend <<example-session, here>>.
 
 
-=== Token
+==== Token
 
-Is a backend that uses tokens for authenticating the user. It behaves very similarly to
-the basic-auth backend with the difference that instead of authenticating with
-credentials it authenticates with a simple token.
+Is a backend that uses tokens for authenticating the user. It behaves very
+similarly to the basic-auth backend with the difference that instead of
+authenticating with credentials it authenticates with a simple token.
 
 Let's see an example:
 
 [source, clojure]
 ----
-(require '[buddy.auth.backends.token :refer [token-backend]])
+(require '[buddy.auth.backends :as backends])
 
 ;; Define a in-memory relation between tokens and users:
 (def tokens {:2f904e245c1f5 :admin
@@ -193,16 +191,16 @@ Let's see an example:
     (get tokens token nil)))
 
 ;; Create an instance
-(def backend (token-backend {:authfn my-authfn}))
+(def backend (backends/token {:authfn my-authfn}))
 
 ;; Wrap the ring handler.
-(def app (-> my-sample-handler
+(def app (-> my-handler
              (wrap-authentication backend)))
 ----
 
-The process of authentication of this backend consists in parsing the "Authorization"
-header, extracting the token and in case the token is extracted successfully, call
-the `authfn` with extracted token.
+The process of authentication of this backend consists in parsing the
+"Authorization" header, extracting the token and in case the token is extracted
+successfully, call the `authfn` with extracted token.
 
 .This is a possible aspect of the authorization header
 [source, text]
@@ -213,20 +211,19 @@ Authorization: Token 45c1f5e3f05d0
 The `authfn` should return something that will be associated to the `:identity`
 key in the request.
 
-Is the responsibility of the library user to build tokens, handle its storage and
-verification process. _buddy-auth_ only offers a lightweight layer over http for
-parsing and marking requests as authenticated.
+The responsability of _buddy_ is just parse request and call the user function
+authenticate it. The token building and storage is a user responsability.
 
 You can see a complete example of using this backend <<example-token,here>>.
 
 
-=== JWS Token
+==== JWS Token
 
 Is a backend that uses signed and self contained tokens to authenticate the user.
 
 It behaves very similarly to the _Token_ backend (previously explained) with the
-difference that this one does not need additional user defined logic to validate tokens,
-because as we previously said, everything is self contained.
+difference that this one does not need additional user defined logic to validate
+tokens, because as we previously said, everything is self contained.
 
 This type of token mechanism enables a complete stateless authentication because the
 server does not need to store the token and related information, the token will
@@ -236,11 +233,11 @@ Let's see a demonstrative example:
 
 [source, clojure]
 ----
-(require '[buddy.auth.backends.token :refer (jws-backend)])
+(require '[buddy.auth.backends :as backends])
 (require '[buddy.auth.middleware :refer (wrap-authentication)])
 
 (def secret "mysecret")
-(def backend (jws-backend {:secret secret}))
+(def backend (backends/jws {:secret secret}))
 
 ;; and wrap your ring application with
 ;; the authentication middleware
@@ -279,21 +276,21 @@ Some valuable resources for learning about stateless authentication are:
 You can see a complete example of using this backend <<example-jws,here>>.
 
 
-=== JWE Token
+==== JWE Token
 
 This backend is almost identical to the previous one (JWS).
 
-The main difference is that the backend uses JWE (Json Web Encryption) instead of JWS
-(Json Web Signature) and it has the advantage that the content of the token is encrypted
-instead of simply signed. This is useful when token may contain some additional user
-information that should not be public.
+The main difference is that the backend uses JWE (Json Web Encryption) instead of
+JWS (Json Web Signature) and it has the advantage that the content of the token is
+encrypted instead of simply signed. This is useful when token may contain some
+additional user information that should not be public.
 
-It will look similar to the previous (jws) example but instead using jwe with asymmetric
-key encryption algorithm:
+It will look similar to the previous (jws) example but instead using jwe with
+asymmetric key encryption algorithm:
 
 [source, clojure]
 ----
-(require '[buddy.auth.backends.token :refer (jwe-backend)])
+(require '[buddy.auth.backends :as backends])
 (require '[buddy.auth.middleware :refer (wrap-authentication)])
 (require '[buddy.sign.jwe :as jwe])
 (require '[buddy.core.keys :as keys])
@@ -302,8 +299,9 @@ key encryption algorithm:
 (def privkey (keys/private-key "privkey.pem"))
 
 (def backend
-  (jwe-backend {:secret privkey
-                :options {:alg :rsa-oaep :enc :a128-hs256}}))
+  (backends/jwe {:secret privkey
+                 :options {:alg :rsa-oaep
+                           :enc :a128-hs256}}))
 
 ;; and wrap your ring application with
 ;; the authentication middleware
@@ -311,7 +309,6 @@ key encryption algorithm:
 (def app (-> your-ring-app
              (wrap-authentication backend)))
 ----
-
 
 The corresponding login endpoint should have a similar aspect to this:
 
@@ -351,8 +348,8 @@ access-rules (explained in the next section).
 
 The generic one is based on exceptions, and consists in raising an unauthorized
 exception in case the request is considered unauthorized. The access rules
-system is based on some kind of rules attached to the handler or an _URI_ and that rules
-determine if a request is authorized or not.
+system is based on some kind of rules attached to the handler or an _URI_ and 
+that rules determine if a request is authorized or not.
 
 
 === Exception-Based
@@ -379,7 +376,7 @@ authorization logic with fast skip, raising an unauthorized exception using the
 ----
 
 Just like the authentication system, authorization is also implemented using
-protocols.
+plugable backends.
 
 All built-in backends already implement the authorization protocol with default
 behavior. The default behavior can be overridden passing the `:unauthorized-handler`
@@ -387,7 +384,7 @@ option to the backend constructor:
 
 [source,clojure]
 ----
-(require '[buddy.auth.backends.httpbasic :refer [http-basic-backend]])
+(require '[buddy.auth.backends :as backends])
 (require '[buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
 
 ;; Simple self defined handler for unauthorized requests.
@@ -396,7 +393,7 @@ option to the backend constructor:
   (-> (response "Unauthorized request")
       (assoc :status 403)))
 
-(def backend (http-basic-backend
+(def backend (backends/http-basic
               {:realm "API"
                :authfn my-auth-fn
                :unauthorized-handler my-unauthorized-handler}))
@@ -413,7 +410,7 @@ option to the backend constructor:
 The access rules system is another part of authorization. It consists of matching
 an url to specific access rules logic.
 
-The access rules consist of an ordered list. It contains mappings between urls
+The access rules consist of an ordered list that contains mappings between urls
 and rule handlers using link:https://github.com/weavejester/clout[clout] url
 matching syntax or regular expressions.
 
@@ -463,12 +460,11 @@ to return errors messages or even a ring response.
 .This is a simple example of the aspect of one rule handler.
 [source, clojure]
 ----
-(require '[buddy.auth :refer (authenticated?)])
 (require '[buddy.auth.accessrules :refer (success error)])
 
 (defn authenticated-user
   [request]
-  (if (authenticated? request)
+  (if (:identity request)
     true
     (error "Only authenticated users allowed")))
 ----
