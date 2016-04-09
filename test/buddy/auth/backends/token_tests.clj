@@ -5,6 +5,7 @@
             [buddy.sign.jws :as jws]
             [buddy.sign.jwe :as jwe]
             [buddy.auth :refer [throw-unauthorized authenticated?]]
+            [buddy.auth.backends :as backends]
             [buddy.auth.backends.token :as token]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
 
@@ -26,12 +27,12 @@
 (deftest token-parse-test
   (testing "Parse authorization header"
     (let [request (make-request "foo")
-          parse #'token/parse-authorization-header
+          parse #'token/parse-header
           parsed  (parse request "Token")]
       (is (= parsed "foo"))))
 
   (testing "Parse authorization header different header name yields nil"
-    (let [parse #'token/parse-authorization-header
+    (let [parse #'token/parse-header
           parsed (parse (make-request "foo") "MyToken")]
      (is (= parsed nil)))))
 
@@ -40,7 +41,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def jws-secret "mysuperjwssecret")
-(def jws-backend (token/jws-backend {:secret jws-secret}))
+(def jws-backend (backends/jws {:secret jws-secret}))
 (def jws-data {:userid 1})
 
 (defn make-jws-request
@@ -92,8 +93,8 @@
   (testing "Jws token unathorized with :unauthorized-handlercalled when provided"
     (let [request (make-jws-request jws-data "wrong-key")
           onerror (fn [_ _] {:status 3000})
-          backend (token/jws-backend {:secret jws-secret
-                                      :unauthorized-handler onerror})
+          backend (backends/jws {:secret jws-secret
+                                 :unauthorized-handler onerror})
           handler (-> (fn [req] (throw-unauthorized))
                       (wrap-authorization backend)
                       (wrap-authentication backend))
@@ -104,8 +105,8 @@
     (let [request (make-jws-request jws-data "wrong-key")
           p (promise)
           onerror (fn [_ _] (deliver p true))
-          backend (token/jws-backend {:secret jws-secret
-                                      :on-error onerror})
+          backend (backends/jws {:secret jws-secret
+                                 :on-error onerror})
           handler (-> identity
                       (wrap-authorization backend)
                       (wrap-authentication backend))
@@ -117,7 +118,7 @@
   (testing "Jws token with wrong token"
     (let [request (assoc (make-request "xyz")
                          :foo :bar)
-          backend (token/jws-backend {:secret jws-secret})
+          backend (backends/jws {:secret jws-secret})
           handler (-> identity
                       (wrap-authorization backend)
                       (wrap-authentication backend))
@@ -131,7 +132,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def jwe-secret (hash/sha256 "mysupersecretkey"))
-(def jwe-backend (token/jwe-backend {:secret jwe-secret}))
+(def jwe-backend (backends/jwe {:secret jwe-secret}))
 (def jwe-data {:userid 1})
 
 (defn make-jwe-request
@@ -181,8 +182,8 @@
   (testing "Jwe token unathorized with unauth handler called when provided"
     (let [request (make-jwe-request jwe-data (hash/sha256 "wrong-key"))
           onerror (fn [_ _] {:status 3000})
-          backend (token/jwe-backend {:secret jwe-secret
-                                      :unauthorized-handler onerror})
+          backend (backends/jwe {:secret jwe-secret
+                                 :unauthorized-handler onerror})
           handler (-> (fn [req] (throw-unauthorized))
                       (wrap-authorization backend)
                       (wrap-authentication backend))
@@ -193,8 +194,8 @@
     (let [request (make-jwe-request jws-data (hash/sha256 "foobar"))
           p (promise)
           onerror (fn [_ _] (deliver p true))
-          backend (token/jwe-backend {:secret jwe-secret
-                                      :on-error onerror})
+          backend (backends/jwe {:secret jwe-secret
+                                 :on-error onerror})
           handler (-> identity
                       (wrap-authorization backend)
                       (wrap-authentication backend))
@@ -213,7 +214,7 @@
               :token2 {:userid 2}}]
     (get data (keyword token))))
 
-(def backend (token/token-backend {:authfn token-authfn}))
+(def backend (backends/token {:authfn token-authfn}))
 
 (deftest token-backend-test
   (testing "Basic token backend authentication 01"
@@ -247,7 +248,7 @@
   (testing "Token backend with unauthorized requests 3"
     (let [request (make-request "token3")
           onerror (fn [_ _] {:status 3000})
-          backend (token/token-backend {:authfn token-authfn
+          backend (backends/token {:authfn token-authfn
                                         :unauthorized-handler onerror})
           handler (-> (fn [request] (throw-unauthorized))
                       (wrap-authorization backend)

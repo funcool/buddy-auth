@@ -1,14 +1,17 @@
 (ns buddy.auth.backends.httpbasic-tests
   (:require [clojure.test :refer :all]
             [buddy.core.codecs :refer :all]
+            [buddy.core.codecs.base64 :as b64]
             [buddy.auth :refer [throw-unauthorized]]
             [buddy.auth.http :as http]
+            [buddy.auth.backends :as backends]
             [buddy.auth.backends.httpbasic :as httpbasic]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
 
 (defn make-header
   [username password]
-  (format "Basic %s" (str->base64 (format "%s:%s" username password))))
+  (format "Basic %s" (-> (b64/encode (format "%s:%s" username password))
+                         (bytes->str))))
 
 (defn make-request
   ([] {:headers {}})
@@ -22,18 +25,20 @@
     :valid
     :invalid))
 
-(def backend (httpbasic/http-basic-backend {:authfn auth-fn :realm "Foo"}))
+(def backend
+  (backends/http-basic
+   {:authfn auth-fn :realm "Foo"}))
 
 (deftest httpbasic-parse-test
   (testing "Parse httpbasic header from request"
-    (let [parse #'httpbasic/parse-httpbasic-header
+    (let [parse #'httpbasic/parse-header
           request (make-request "foo" "bar")
           parsed  (parse request)]
       (is (not (nil? parsed)))
       (is (= (:password parsed) "bar"))
       (is (= (:username parsed) "foo"))))
   (testing "Parse httpbasic header from request with colon in password"
-    (let [parse #'httpbasic/parse-httpbasic-header
+    (let [parse #'httpbasic/parse-header
           request (make-request "foo" "bar:baz")
           parsed  (parse request)]
       (is (not (nil? parsed)))

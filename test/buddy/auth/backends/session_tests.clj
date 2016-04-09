@@ -2,14 +2,14 @@
   (:require [clojure.test :refer :all]
             [buddy.core.codecs :refer :all]
             [buddy.auth :refer [throw-unauthorized]]
-            [buddy.auth.backends.session :refer [session-backend]]
+            [buddy.auth.backends :as backends]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
 
 (defn make-request
   ([] {:session {}})
   ([id] {:session {:identity {:userid 1}}}))
 
-(def backend (session-backend))
+(def backend (backends/session))
 
 (deftest session-backend-test
   (testing "Simple backend authentication 01"
@@ -34,7 +34,7 @@
 
   (testing "Handle unauthorized requests specifying unauthorized handler"
     (let [onerror (fn [request metadata] {:body "" :status 3000})
-          backend (session-backend {:unauthorized-handler onerror})
+          backend (backends/session {:unauthorized-handler onerror})
           handler (-> (fn [req] (throw-unauthorized "FooMsg"))
                       (wrap-authorization backend)
                       (wrap-authentication backend))
