@@ -20,13 +20,6 @@
             [clojure.string :refer [split]]))
 
 (defn session-backend
-  "Create an instance of the http session based
-  authentication backend.
-
-  This backend also implements authorization
-  workflow with some defaults. This means that
-  you can provide your own unauthorized-handler hook
-  if the default one does not satisfy you."
   [& [{:keys [unauthorized-handler]}]]
   (reify
     proto/IAuthentication

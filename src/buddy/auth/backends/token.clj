@@ -27,26 +27,19 @@
     {:status 403 :headers {} :body "Permission denied"}
     {:status 401 :headers {} :body "Unauthorized"}))
 
-(defn- parse-authorization-header
+(defn- parse-header
   [request token-name]
   (some->> (http/-get-header request "authorization")
            (re-find (re-pattern (str "^" token-name " (.+)$")))
            (second)))
 
 (defn jws-backend
-  "Create an instance of the jws (json web signature)
-  based authentication backend.
-
-  This backend also implements authorization workflow
-  with some defaults. This means that you can provide
-  your own unauthorized-handler hook if the default one
-  does not satisfy you."
   [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
     (-parse [_ request]
-      (parse-authorization-header request token-name))
+      (parse-header request token-name))
 
     (-authenticate [_ request data]
       (try
@@ -64,19 +57,12 @@
         (handle-unauthorized-default request)))))
 
 (defn jwe-backend
-  "Create an instance of the jwe (json web encryption)
-  based authentication backend.
-
-  This backend also implements authorization workflow
-  with some defaults. This means that you can provide
-  your own unauthorized-handler hook if the default one
-  does not satisfy you."
   [{:keys [secret unauthorized-handler options token-name on-error]
     :or {token-name "Token"}}]
   (reify
     proto/IAuthentication
     (-parse [_ request]
-      (parse-authorization-header request token-name))
+      (parse-header request token-name))
     (-authenticate [_ request data]
       (try
         (jwe/decrypt data secret options)
@@ -92,20 +78,13 @@
         (handle-unauthorized-default request)))))
 
 (defn token-backend
-  "Create an instance of the generic token based
-  authentication backend.
-
-  This backend also implements authorization workflow
-  with some defaults. This means that you can provide
-  your own unauthorized-handler hook if the default one
-  does not satisfy you."
   [{:keys [authfn unauthorized-handler token-name] :or {token-name "Token"}}]
   (when (nil? authfn)
     (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
   (reify
     proto/IAuthentication
     (-parse [_ request]
-      (parse-authorization-header request token-name))
+      (parse-header request token-name))
     (-authenticate [_ request token]
       (authfn request token))
 

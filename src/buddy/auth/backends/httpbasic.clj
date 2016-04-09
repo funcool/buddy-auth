@@ -17,10 +17,11 @@
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.http :as http]
             [buddy.auth :refer [authenticated?]]
-            [buddy.core.codecs :refer [base64->str]]
+            [buddy.core.codecs :as codecs]
+            [buddy.core.codecs.base64 :as b64]
             [cuerdas.core :as str]))
 
-(defn- parse-httpbasic-header
+(defn- parse-header
   "Given a request, try to extract and parse
   the http basic header."
   [request]
@@ -28,25 +29,20 @@
         decoded (some->> (http/-get-header request "authorization")
                          (re-find pattern)
                          (second)
-                         (base64->str))]
+                         (b64/decode)
+                         (codecs/bytes->str))]
     (when-let [[username password] (str/split decoded #":" 2)]
-      {:username username :password password})))
+      {:username username
+       :password password})))
 
 (defn http-basic-backend
-  "Create an instance of the http-basic based
-  authentication backend.
-
-  This backend also implements authorization
-  workflow with some defaults. This means that
-  you can provide your own unauthorized-handler hook
-  if the default one does not satisfy you."
   [& [{:keys [realm authfn unauthorized-handler] :or {realm "Buddy Auth"}}]]
   (when (nil? authfn)
     (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
   (reify
     proto/IAuthentication
     (-parse [_ request]
-      (parse-httpbasic-header request))
+      (parse-header request))
     (-authenticate [_ request data]
       (authfn request data))
 
