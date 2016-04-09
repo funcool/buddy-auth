@@ -1,5 +1,13 @@
 = Changelog
 
+== Version 0.12.0
+
+Date: 2016-04-09
+
+- Update buddy-sign dependency to 0.12.0
+- Improve backends api (fully backward compatible).
+
+
 == Version 0.11.0
 
 Date: 2016-03-27
