@@ -4,8 +4,8 @@
   :license {:name "Apache 2.0"
             :url "http://www.apache.org/licenses/LICENSE-2.0"}
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [buddy/buddy-sign "0.12.0"]
-                 [funcool/cuerdas "0.7.1"]
+                 [buddy/buddy-sign "0.13.0"]
+                 [funcool/cuerdas "0.7.2"]
                  [clout "2.1.2"]]
   :source-paths ["src"]
   :test-paths ["test"]
