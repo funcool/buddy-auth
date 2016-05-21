@@ -17,7 +17,7 @@
             [buddy.auth.backends.token :as token]
             [buddy.auth.backends.session :as session]))
 
-(defn http-basic
+(defn basic
   "Create an instance of the http-basic based
   authentication backend.
 
@@ -25,8 +25,12 @@
   workflow with some defaults. This means that
   you can provide your own unauthorized-handler hook
   if the default one does not satisfy you."
-  ([] (http-basic nil))
+  ([] (basic nil))
   ([opts] (httpbasic/http-basic-backend opts)))
+
+(def http-basic
+  "Alias for `basic`."
+  basic)
 
 (defn session
   "Create an instance of the http session based
