@@ -37,8 +37,7 @@
 
 (defn http-basic-backend
   [& [{:keys [realm authfn unauthorized-handler] :or {realm "Buddy Auth"}}]]
-  (when (nil? authfn)
-    (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
+  {:pre [(ifn? authfn)]}
   (reify
     proto/IAuthentication
     (-parse [_ request]

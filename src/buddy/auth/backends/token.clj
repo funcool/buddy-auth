@@ -17,8 +17,7 @@
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.http :as http]
             [buddy.auth :refer [authenticated?]]
-            [buddy.sign.jws :as jws]
-            [buddy.sign.jwe :as jwe]))
+            [buddy.sign.jwt :as jwt]))
 
 (defn- handle-unauthorized-default
   "A default response constructor for an unauthorized request."
@@ -43,7 +42,7 @@
 
     (-authenticate [_ request data]
       (try
-        (jws/unsign data secret options)
+        (jwt/unsign data secret options)
         (catch clojure.lang.ExceptionInfo e
           (let [data (ex-data e)]
             (when (fn? on-error)
@@ -65,7 +64,7 @@
       (parse-header request token-name))
     (-authenticate [_ request data]
       (try
-        (jwe/decrypt data secret options)
+        (jwt/decrypt data secret options)
         (catch clojure.lang.ExceptionInfo e
           (when (fn? on-error)
             (on-error request e))
@@ -79,8 +78,7 @@
 
 (defn token-backend
   [{:keys [authfn unauthorized-handler token-name] :or {token-name "Token"}}]
-  (when (nil? authfn)
-    (throw (IllegalArgumentException. "authfn parameter is mandatory.")))
+  {:pre [(ifn? authfn)]}
   (reify
     proto/IAuthentication
     (-parse [_ request]

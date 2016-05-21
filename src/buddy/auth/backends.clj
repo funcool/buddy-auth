@@ -44,7 +44,7 @@
   ([opts] (session/session-backend opts)))
 
 (defn jws
-  "Create an instance of the jws (json web signature)
+  "Create an instance of the jws (signed JWT)
   based authentication backend.
 
   This backend also implements authorization workflow
@@ -55,7 +55,7 @@
   ([opts] (token/jws-backend opts)))
 
 (defn jwe
-  "Create an instance of the jwe (json web encryption)
+  "Create an instance of the jwe (encrypted JWT
   based authentication backend.
 
   This backend also implements authorization workflow
