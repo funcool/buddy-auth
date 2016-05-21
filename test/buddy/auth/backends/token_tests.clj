@@ -2,8 +2,7 @@
   (:require [clojure.test :refer :all]
             [buddy.core.codecs :refer :all]
             [buddy.core.hash :as hash]
-            [buddy.sign.jws :as jws]
-            [buddy.sign.jwe :as jwe]
+            [buddy.sign.jwt :as jwt]
             [buddy.auth :refer [throw-unauthorized authenticated?]]
             [buddy.auth.backends :as backends]
             [buddy.auth.backends.token :as token]
@@ -46,7 +45,7 @@
 
 (defn make-jws-request
   [data secret]
-  (let [header (->> (jws/sign data secret)
+  (let [header (->> (jwt/sign data secret)
                     (format "Token %s"))]
     {:headers {"authorization" header}}))
 
@@ -137,7 +136,7 @@
 
 (defn make-jwe-request
   [data secret]
-  (let [header (->> (jwe/encrypt data secret)
+  (let [header (->> (jwt/encrypt data secret)
                     (format "Token %s"))]
     {:headers {"authorization" header}}))
 
