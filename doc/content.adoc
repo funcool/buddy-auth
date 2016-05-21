@@ -1,6 +1,6 @@
 = buddy-auth - Auth/Authz facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.nz>
-0.13.0
+1.0.0
 :toc: left
 :!numbered:
 :source-highlighter: pygments
@@ -28,7 +28,7 @@ your *_project.clj_* dependency vector:
 
 [source,clojure]
 ----
-[buddy/buddy-auth "0.13.0"]
+[buddy/buddy-auth "1.0.0"]
 ----
 
 This package is intended to be used with *jdk7* or *jdk8*.
@@ -49,11 +49,11 @@ new ones with simple steps. This is a list of builtin backends:
 [options="header"]
 |================================================
 | Backend name | Namespace
-| Http Basic   | `buddy.auth.backends/http-basic`
-| Session      | `buddy.auth.backends/session`
-| Token        | `buddy.auth.backends/token`
-| JWS Token    | `buddy.auth.backends/jws`
-| JWE Token    | `buddy.auth.backends/jwe`
+| Http Basic    | `buddy.auth.backends/basic`
+| Session       | `buddy.auth.backends/session`
+| Token         | `buddy.auth.backends/token`
+| Signed JWT    | `buddy.auth.backends/jws`
+| Encrypted JWT | `buddy.auth.backends/jwe`
 |================================================
 
 If you are not happy with the built-in backends, you can implement your own and
@@ -110,8 +110,8 @@ This is how the authentication backend should be setup:
         password (:password authdata)]
     username))
 
-(def backend (backends/http-basic {:realm "MyApi"
-                                   :authfn my-authfn}))
+(def backend (backends/basic {:realm "MyApi"
+                              :authfn my-authfn}))
 ----
 
 The `authfn` is the responsible of the second step of authentication. It receives
@@ -217,7 +217,7 @@ authenticate it. The token building and storage is a user responsability.
 You can see a complete example of using this backend <<example-token,here>>.
 
 
-==== JWS Token
+==== Signed JWT
 
 Is a backend that uses signed and self contained tokens to authenticate the user.
 
@@ -251,7 +251,7 @@ responsibility of generating valid tokens:
 
 [source, clojure]
 ----
-(require '[buddy.sign.jws :as jws])
+(require '[buddy.sign.jwt :as jwt])
 (require '[cheshire.core :as json])
 
 (defn login-handler
@@ -259,14 +259,14 @@ responsibility of generating valid tokens:
   (let [data (:form-params request)
         user (find-user (:username data)   ;; (implementation ommited)
                         (:password data))
-        token (jws/sign {:user (:id user)} secret)]
+        token (jwt/sign {:user (:id user)} secret)]
     {:status 200
      :body (json/encode {:token token})
      :headers {:content-type "application/json"})))
 ----
 
-For more details about jws, see the
-link:https://funcool.github.io/buddy-sign/latest/#jws[buddy-sign] documentation.
+For more details about jwt, see the
+link:https://funcool.github.io/buddy-sign/latest/#jwt[buddy-sign] documentation.
 
 Some valuable resources for learning about stateless authentication are:
 
@@ -276,9 +276,9 @@ Some valuable resources for learning about stateless authentication are:
 You can see a complete example of using this backend <<example-jws,here>>.
 
 
-==== JWE Token
+==== Encrypted JWT
 
-This backend is almost identical to the previous one (JWS).
+This backend is almost identical to the previous one (signed JWT).
 
 The main difference is that the backend uses JWE (Json Web Encryption) instead of
 JWS (Json Web Signature) and it has the advantage that the content of the token is
@@ -314,7 +314,7 @@ The corresponding login endpoint should have a similar aspect to this:
 
 [source, clojure]
 ----
-(require '[buddy.sign.jwe :as jwe])
+(require '[buddy.sign.jwt :as jwt])
 (require '[cheshire.core :as json])
 
 (defn login-handler
@@ -322,15 +322,12 @@ The corresponding login endpoint should have a similar aspect to this:
   (let [data (:form-params request)
         user (find-user (:username data)   ;; (implementation ommited)
                         (:password data))
-        token (jwe/encrypt {:user (:id user)} pubkey
+        token (jwt/encrypt {:user (:id user)} pubkey
                            {:alg :rsa-oaep :enc :a128-hs256})]
     {:status 200
      :body (json/encode {:token token})
      :headers {:content-type "application/json"})))
 ----
-
-For more details about jwe, see the
-link:https://funcool.github.io/buddy-sign/latest/#jwe[buddy-sign] documentation.
 
 In order to use any asymmetric encryption algorithm, you should have private/public
 key pair. If you don't have one, don't worry, it is very easy to generate it using
@@ -348,7 +345,7 @@ access-rules (explained in the next section).
 
 The generic one is based on exceptions, and consists in raising an unauthorized
 exception in case the request is considered unauthorized. The access rules
-system is based on some kind of rules attached to the handler or an _URI_ and 
+system is based on some kind of rules attached to the handler or an _URI_ and
 that rules determine if a request is authorized or not.
 
 
@@ -393,7 +390,7 @@ option to the backend constructor:
   (-> (response "Unauthorized request")
       (assoc :status 403)))
 
-(def backend (backends/http-basic
+(def backend (backends/basic
               {:realm "API"
                :authfn my-auth-fn
                :unauthorized-handler my-unauthorized-handler}))
@@ -771,7 +768,7 @@ https://github.com/funcool/buddy-auth/tree/master/examples/jwe
 
 
 [[example-jws]]
-=== JWS Token Auth Example
+=== Signed JWT Auth Example
 
 This example tries to show the way to setup jws stateless token based auth in a
 simple ring based application.
@@ -839,9 +836,9 @@ https://github.com/funcool/buddy-auth/tree/master/examples/jws
 
 *What is the difference with Friend?*
 
-_buddy-auth_ authorization/authentication facilities are more low level and less opinionated
-than friend, and allow you to easily build other high level abstractions over them.
-Technically, friend abstraction can be built on top of _buddy-auth_.
+_buddy-auth_ authorization/authentication facilities are more low level and less
+opinionated than friend, and allow you to easily build other high level abstractions
+over them. Technically, friend abstraction can be built on top of _buddy-auth_.
 
 
 *How can I use _buddy_ with link:http://clojure-liberator.github.io/liberator/[liberator]?*
@@ -851,6 +848,25 @@ separated. This helps a lot if you want use only one part of it (ex:
 authentication only) without including the other.
 
 In summary: yes, you can use _buddy-auth_ with liberator.
+
+
+*Can I use _buddy-auth_ with pedestal?*
+
+Although is not mentioned in this documentation, you can use _buddy-auth_ with 
+pedestal withoy any problems.
+
+https://juxt.pro/blog/posts/securing-your-clojurescript-app.html
+
+
+*Can I use _buddy-auth_ with catacumba?*
+
+Not directly.
+
+The design of _buddy-auth_ api is intrinsically blocking just because ring and ring
+based abstractions are also blocking. However _catacumba_ is asyncronous toolkit and
+it comes with its own, builtint variant of _buddy-auth_ designed for asynchronous
+workflow (reusing the underlying _buddy-sign_, _buddy-core_ and _buddy-hashers_
+modules).
 
 
 == Developers Guide
