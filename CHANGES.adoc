@@ -1,5 +1,17 @@
 = Changelog
 
+== Version 1.0.0
+
+Date: 2016-05-21
+
+**Important**: This is an major release beacause it inclused a breaking api changes.
+
+- Update buddy-sign dependency to 1.0.0 that includes breaking changes. For
+  more information, refer to buddy-sign release notes:
+  https://github.com/funcool/buddy-sign/blob/master/CHANGES.adoc#version-100
+
+
+
 == Version 0.13.0
 
 Date: 2016-04-23
