@@ -9,7 +9,7 @@
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [ring.adapter.jetty :as jetty]
             [clj-time.core :as time]
-            [buddy.sign.jwe :as jwe]
+            [buddy.sign.jwt :as jwt]
             [buddy.core.nonce :as nonce]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.auth.backends.token :refer [jwe-backend]]
@@ -61,7 +61,7 @@
     (if valid?
       (let [claims {:user (keyword username)
                     :exp (time/plus (time/now) (time/seconds 3600))}
-            token (jwe/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
+            token (jwt/encrypt claims secret {:alg :a256kw :enc :a128gcm})]
         (ok {:token token}))
       (bad-request {:message "wrong auth data"}))))
 
