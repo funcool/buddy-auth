@@ -11,7 +11,7 @@ Date: 2016-06-11
 
 Date: 2016-05-21
 
-**Important**: This is an major release beacause it inclused a breaking api changes.
+**Important**: This is an major release beacause it includes breaking api changes.
 
 - Update buddy-sign dependency to 1.0.0 that includes breaking changes. For
   more information, refer to buddy-sign release notes:
