@@ -13,8 +13,8 @@ Andrey Antukh, <niwi@niwi.nz>
 
 == Introduction
 
-_buddy-auth_ is a module that provides authentication and authorization facilites
-for ring and ring based web applications.
+_buddy-auth_ is a module that provides authentication and authorization 
+facilites or ring and ring based web applications.
 
 === Project Maturity
 
@@ -39,11 +39,11 @@ This package is intended to be used with *jdk7* or *jdk8*.
 === Introduction
 
 The buddy's approach for authentication is pretty simple and explicit.
-In contrast to the vast majority of authentication libraries that I know that
+In contrast to the vast majority of authentication libraries that I know, 
 _buddy_ does not mix authentication process with the authorization.
 
-It is implemented as plugable backends that can be picked as is or implemented
-new ones with simple steps. This is a list of builtin backends:
+It is implemented as a pluggable backend that can be picked as is or you can
+implement a new one with simple steps. This is a list of builtin backends:
 
 .List of builtin backends.
 [options="header"]
@@ -57,27 +57,27 @@ new ones with simple steps. This is a list of builtin backends:
 |================================================
 
 If you are not happy with the built-in backends, you can implement your own and
-use it with _buddy-auth_ middleware without any problem.
+use it with _buddy-auth_ middleware without any problems.
 
 The authentication process works mainly in two steps:
 
-1. *parse*: that is responsible of analyze the request and read the auth related
-   data (e.g. `Authorization` header, url params, etc..)
+1. *parse*: that is responsible for analyzing the request and read the auth 
+   related data (e.g. `Authorization` header, url params, etc..)
 2. *auth*: with the data obtained from parse step just try to authenticate the
-   the request (e.g. simple access to database for obtain the possible user, unsing
-   self contained jws/jwe token, check a key in the session, etc...)
+   the request (e.g. simple access to database for obtain the possible user, 
+   using a self contained jws/jwe token, check a key in the session, etc...)
 
-This step does not raises any exception and is completly transparent to the user.
-The authentication process responsability is determine if request is anonymous or
-is authenticated, nothing more.
+This step does not raises any exceptions and is completely transparent to the 
+user. The authentication process responsibility is to determine if a request 
+is anonymous or is authenticated, nothing more.
 
 === Backends
 
 ==== Http-Basic
 
 The HTTP Basic authentication backend is one of the simplest and most insecure
-authentication systems, but is a good first step to understanding how _buddy-auth_
-authentication works.
+authentication systems, but is a good first step to understanding how 
+_buddy-auth_ authentication works.
 
 .Example ring handler/view
 [source,clojure]
@@ -94,9 +94,9 @@ authentication works.
     (response "Hello Anonymous")))
 ----
 
-The basic step for check if a request is authenticated or not, is just check if
-it comes with `:identity` key and it contains a logical `true` (exists and contains
-something different to `nil` or `false`).
+The basic step to check if a request is authenticated or not, is just to check 
+if it comes with an `:identity` key and it contains a logical `true` (exists and
+contains something different to `nil` or `false`).
 
 This is how the authentication backend should be setup:
 
@@ -114,7 +114,7 @@ This is how the authentication backend should be setup:
                               :authfn my-authfn}))
 ----
 
-The `authfn` is the responsible of the second step of authentication. It receives
+The `authfn` is responsible for the second step of authentication. It receives
 the parsed auth data from request and should return a logical true value (e.g a user
 id, user instance, mainly something different to `nil` and `false`). And it will
 be called only if step 1 (parse) returns something.
@@ -135,7 +135,7 @@ And finally, you should wrap your ring handler with authentication middleware:
 (def app (wrap-authentication my-handler backend))
 ----
 
-From now, all requests that reaches `my-handler` will be properly authenticated.
+From now, all requests that reach `my-handler` will be properly authenticated.
 
 You can see a complete example of using this backend <<example-httpbasic,here>>.
 
@@ -167,7 +167,7 @@ You can see a complete example of using this backend <<example-session, here>>.
 
 ==== Token
 
-Is a backend that uses tokens for authenticating the user. It behaves very
+This is a backend that uses tokens for authenticating the user. It behaves very
 similarly to the basic-auth backend with the difference that instead of
 authenticating with credentials it authenticates with a simple token.
 
