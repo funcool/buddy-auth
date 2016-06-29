@@ -143,8 +143,8 @@
 <h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em>buddy-auth</em> is a module that provides authentication and authorization facilites
-for ring and ring based web applications.</p>
+<p><em>buddy-auth</em> is a module that provides authentication and authorization
+facilites or ring and ring based web applications.</p>
 </div>
 <div class="sect2">
 <h3 id="project-maturity"><a class="link" href="#project-maturity">Project Maturity</a></h3>
@@ -176,12 +176,12 @@ your <strong><em>project.clj</em></strong> dependency vector:</p>
 <h3 id="introduction-2"><a class="link" href="#introduction-2">Introduction</a></h3>
 <div class="paragraph">
 <p>The buddy&#8217;s approach for authentication is pretty simple and explicit.
-In contrast to the vast majority of authentication libraries that I know that
+In contrast to the vast majority of authentication libraries that I know,
 <em>buddy</em> does not mix authentication process with the authorization.</p>
 </div>
 <div class="paragraph">
-<p>It is implemented as plugable backends that can be picked as is or implemented
-new ones with simple steps. This is a list of builtin backends:</p>
+<p>It is implemented as a pluggable backend that can be picked as is or you can
+implement a new one with simple steps. This is a list of builtin backends:</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 1. List of builtin backends.</caption>
@@ -220,7 +220,7 @@ new ones with simple steps. This is a list of builtin backends:</p>
 </table>
 <div class="paragraph">
 <p>If you are not happy with the built-in backends, you can implement your own and
-use it with <em>buddy-auth</em> middleware without any problem.</p>
+use it with <em>buddy-auth</em> middleware without any problems.</p>
 </div>
 <div class="paragraph">
 <p>The authentication process works mainly in two steps:</p>
@@ -228,20 +228,20 @@ use it with <em>buddy-auth</em> middleware without any problem.</p>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>parse</strong>: that is responsible of analyze the request and read the auth related
-data (e.g. <code>Authorization</code> header, url params, etc..)</p>
+<p><strong>parse</strong>: that is responsible for analyzing the request and read the auth
+related data (e.g. <code>Authorization</code> header, url params, etc..)</p>
 </li>
 <li>
 <p><strong>auth</strong>: with the data obtained from parse step just try to authenticate the
-the request (e.g. simple access to database for obtain the possible user, unsing
-self contained jws/jwe token, check a key in the session, etc&#8230;&#8203;)</p>
+the request (e.g. simple access to database for obtain the possible user,
+using a self contained jws/jwe token, check a key in the session, etc&#8230;&#8203;)</p>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p>This step does not raises any exception and is completly transparent to the user.
-The authentication process responsability is determine if request is anonymous or
-is authenticated, nothing more.</p>
+<p>This step does not raises any exceptions and is completely transparent to the
+user. The authentication process responsibility is to determine if a request
+is anonymous or is authenticated, nothing more.</p>
 </div>
 </div>
 <div class="sect2">
@@ -250,8 +250,8 @@ is authenticated, nothing more.</p>
 <h4 id="http-basic"><a class="link" href="#http-basic">Http-Basic</a></h4>
 <div class="paragraph">
 <p>The HTTP Basic authentication backend is one of the simplest and most insecure
-authentication systems, but is a good first step to understanding how <em>buddy-auth</em>
-authentication works.</p>
+authentication systems, but is a good first step to understanding how
+<em>buddy-auth</em> authentication works.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example ring handler/view</div>
@@ -269,9 +269,9 @@ authentication works.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The basic step for check if a request is authenticated or not, is just check if
-it comes with <code>:identity</code> key and it contains a logical <code>true</code> (exists and contains
-something different to <code>nil</code> or <code>false</code>).</p>
+<p>The basic step to check if a request is authenticated or not, is just to check
+if it comes with an <code>:identity</code> key and it contains a logical <code>true</code> (exists and
+contains something different to <code>nil</code> or <code>false</code>).</p>
 </div>
 <div class="paragraph">
 <p>This is how the authentication backend should be setup:</p>
@@ -291,7 +291,7 @@ something different to <code>nil</code> or <code>false</code>).</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>authfn</code> is the responsible of the second step of authentication. It receives
+<p>The <code>authfn</code> is responsible for the second step of authentication. It receives
 the parsed auth data from request and should return a logical true value (e.g a user
 id, user instance, mainly something different to <code>nil</code> and <code>false</code>). And it will
 be called only if step 1 (parse) returns something.</p>
@@ -314,7 +314,7 @@ be called only if step 1 (parse) returns something.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>From now, all requests that reaches <code>my-handler</code> will be properly authenticated.</p>
+<p>From now, all requests that reach <code>my-handler</code> will be properly authenticated.</p>
 </div>
 <div class="paragraph">
 <p>You can see a complete example of using this backend <a href="#example-httpbasic">here</a>.</p>
@@ -351,7 +351,7 @@ forwarded to the request under the <code>:identity</code> property.</p>
 <div class="sect3">
 <h4 id="token"><a class="link" href="#token">Token</a></h4>
 <div class="paragraph">
-<p>Is a backend that uses tokens for authenticating the user. It behaves very
+<p>This is a backend that uses tokens for authenticating the user. It behaves very
 similarly to the basic-auth backend with the difference that instead of
 authenticating with credentials it authenticates with a simple token.</p>
 </div>
@@ -1217,7 +1217,7 @@ of the license on the root of the repository on <code>LICENSE</code> file.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-06-11 20:03:04 EEST
+Last updated 2016-06-29 09:48:57 EEST
 </div>
 </div>
 </body>
