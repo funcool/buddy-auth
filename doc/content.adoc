@@ -67,7 +67,7 @@ The authentication process works mainly in two steps:
    the request (e.g. simple access to database for obtain the possible user, 
    using a self contained jws/jwe token, check a key in the session, etc...)
 
-This step does not raises any exceptions and is completely transparent to the 
+This step does not raise any exceptions and is completely transparent to the 
 user. The authentication process responsibility is to determine if a request 
 is anonymous or is authenticated, nothing more.
 
