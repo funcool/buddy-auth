@@ -1,11 +1,11 @@
-(defproject buddy/buddy-auth "1.1.0"
+(defproject buddy/buddy-auth "1.2.0"
   :description "Authentication and Authorization facilities for ring based web applications."
   :url "https://github.com/funcool/buddy-auth"
   :license {:name "Apache 2.0"
             :url "http://www.apache.org/licenses/LICENSE-2.0"}
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [buddy/buddy-sign "1.1.0"]
-                 [funcool/cuerdas "0.7.2"]
+                 [buddy/buddy-sign "1.2.0"]
+                 [funcool/cuerdas "1.0.1"]
                  [clout "2.1.2"]]
   :source-paths ["src"]
   :test-paths ["test"]
