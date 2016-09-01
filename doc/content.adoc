@@ -1,6 +1,6 @@
 = buddy-auth - Auth/Authz facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.nz>
-1.1.0
+1.2.0
 :toc: left
 :!numbered:
 :source-highlighter: pygments
@@ -13,7 +13,7 @@ Andrey Antukh, <niwi@niwi.nz>
 
 == Introduction
 
-_buddy-auth_ is a module that provides authentication and authorization 
+_buddy-auth_ is a module that provides authentication and authorization
 facilites or ring and ring based web applications.
 
 === Project Maturity
@@ -28,7 +28,7 @@ your *_project.clj_* dependency vector:
 
 [source,clojure]
 ----
-[buddy/buddy-auth "1.1.0"]
+[buddy/buddy-auth "1.2.0"]
 ----
 
 This package is intended to be used with *jdk7* or *jdk8*.
@@ -39,7 +39,7 @@ This package is intended to be used with *jdk7* or *jdk8*.
 === Introduction
 
 The buddy's approach for authentication is pretty simple and explicit.
-In contrast to the vast majority of authentication libraries that I know, 
+In contrast to the vast majority of authentication libraries that I know,
 _buddy_ does not mix authentication process with the authorization.
 
 It is implemented as a pluggable backend that can be picked as is or you can
@@ -61,14 +61,14 @@ use it with _buddy-auth_ middleware without any problems.
 
 The authentication process works mainly in two steps:
 
-1. *parse*: that is responsible for analyzing the request and read the auth 
+1. *parse*: that is responsible for analyzing the request and read the auth
    related data (e.g. `Authorization` header, url params, etc..)
 2. *auth*: with the data obtained from parse step just try to authenticate the
-   the request (e.g. simple access to database for obtain the possible user, 
+   the request (e.g. simple access to database for obtain the possible user,
    using a self contained jws/jwe token, check a key in the session, etc...)
 
-This step does not raise any exceptions and is completely transparent to the 
-user. The authentication process responsibility is to determine if a request 
+This step does not raise any exceptions and is completely transparent to the
+user. The authentication process responsibility is to determine if a request
 is anonymous or is authenticated, nothing more.
 
 === Backends
@@ -76,7 +76,7 @@ is anonymous or is authenticated, nothing more.
 ==== Http-Basic
 
 The HTTP Basic authentication backend is one of the simplest and most insecure
-authentication systems, but is a good first step to understanding how 
+authentication systems, but is a good first step to understanding how
 _buddy-auth_ authentication works.
 
 .Example ring handler/view
@@ -94,7 +94,7 @@ _buddy-auth_ authentication works.
     (response "Hello Anonymous")))
 ----
 
-The basic step to check if a request is authenticated or not, is just to check 
+The basic step to check if a request is authenticated or not, is just to check
 if it comes with an `:identity` key and it contains a logical `true` (exists and
 contains something different to `nil` or `false`).
 
@@ -852,7 +852,7 @@ In summary: yes, you can use _buddy-auth_ with liberator.
 
 *Can I use _buddy-auth_ with pedestal?*
 
-Although is not mentioned in this documentation, you can use _buddy-auth_ with 
+Although is not mentioned in this documentation, you can use _buddy-auth_ with
 pedestal withoy any problems.
 
 https://juxt.pro/blog/posts/securing-your-clojurescript-app.html
