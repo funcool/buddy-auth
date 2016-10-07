@@ -352,7 +352,7 @@
 
 (defn restrict
   "Like `wrap-access-rules` middleware but works as
-  decorator. It is intended to bw used with compojure routing
+  decorator. It is intended to be used with compojure routing
   library or similar. Example:
 
       (defn login-ctrl [req] ...)
