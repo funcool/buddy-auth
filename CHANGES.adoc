@@ -1,5 +1,13 @@
 = Changelog
 
+== Version 1.3.0
+
+Date: 2016-11-15
+
+- Update buddy-sign to 1.3.0
+- Update cuerdas to 2.0.1
+
+
 == Version 1.2.0
 
 Date: 2016-09-01
