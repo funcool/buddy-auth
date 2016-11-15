@@ -3,9 +3,9 @@
   :url "https://github.com/funcool/buddy-auth"
   :license {:name "Apache 2.0"
             :url "http://www.apache.org/licenses/LICENSE-2.0"}
-  :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [buddy/buddy-sign "1.2.0"]
-                 [funcool/cuerdas "1.0.1"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha14" :scope "provided"]
+                 [buddy/buddy-sign "1.3.0"]
+                 [funcool/cuerdas "2.0.1"]
                  [clout "2.1.2"]]
   :source-paths ["src"]
   :test-paths ["test"]
