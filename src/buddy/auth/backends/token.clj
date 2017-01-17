@@ -33,8 +33,9 @@
            (second)))
 
 (defn jws-backend
-  [{:keys [secret unauthorized-handler options token-name on-error]
-    :or {token-name "Token"}}]
+  [{:keys [secret authfn unauthorized-handler options token-name on-error]
+    :or {authfn identity token-name "Token"}}]
+  {:pre [(ifn? authfn)]}
   (reify
     proto/IAuthentication
     (-parse [_ request]
@@ -42,7 +43,7 @@
 
     (-authenticate [_ request data]
       (try
-        (jwt/unsign data secret options)
+        (authfn (jwt/unsign data secret options))
         (catch clojure.lang.ExceptionInfo e
           (let [data (ex-data e)]
             (when (fn? on-error)
@@ -56,15 +57,16 @@
         (handle-unauthorized-default request)))))
 
 (defn jwe-backend
-  [{:keys [secret unauthorized-handler options token-name on-error]
-    :or {token-name "Token"}}]
+  [{:keys [secret authfn unauthorized-handler options token-name on-error]
+    :or {authfn identity token-name "Token"}}]
+  {:pre [(ifn? authfn)]}
   (reify
     proto/IAuthentication
     (-parse [_ request]
       (parse-header request token-name))
     (-authenticate [_ request data]
       (try
-        (jwt/decrypt data secret options)
+        (authfn (jwt/decrypt data secret options))
         (catch clojure.lang.ExceptionInfo e
           (when (fn? on-error)
             (on-error request e))

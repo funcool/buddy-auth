@@ -10,6 +10,7 @@
   ([id] {:session {:identity {:userid 1}}}))
 
 (def backend (backends/session))
+(def backend-with-authfn (backends/session {:authfn (constantly ::authorized)}))
 
 (deftest session-backend-test
   (testing "Simple backend authentication 01"
@@ -48,4 +49,10 @@
                       (wrap-authentication backend))
           request (make-request 1)
           response (handler request)]
-      (is (= (:status response) 403)))))
+      (is (= (:status response) 403))))
+
+  (testing "Uses custom authfn when provided"
+    (let [handler (wrap-authentication identity backend-with-authfn)
+          request (make-request 1)
+          response (handler request)]
+      (is (= ::authorized (:identity response))))))

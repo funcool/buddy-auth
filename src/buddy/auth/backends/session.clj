@@ -20,13 +20,13 @@
             [clojure.string :refer [split]]))
 
 (defn session-backend
-  [& [{:keys [unauthorized-handler]}]]
+  [& [{:keys [unauthorized-handler authfn] :or {authfn identity}}]]
   (reify
     proto/IAuthentication
     (-parse [_ request]
       (:identity (:session request)))
     (-authenticate [_ request data]
-      data)
+      (authfn data))
 
     proto/IAuthorization
     (-handle-unauthorized [_ request metadata]
