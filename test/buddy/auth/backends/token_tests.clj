@@ -41,6 +41,7 @@
 
 (def jws-secret "mysuperjwssecret")
 (def jws-backend (backends/jws {:secret jws-secret}))
+(def jws-backend-with-authfn (backends/jws {:secret jws-secret :authfn (constantly ::jws-authorized)}))
 (def jws-data {:userid 1})
 
 (defn make-jws-request
@@ -124,6 +125,13 @@
           response (handler request)]
       (is (nil? (:identity request)))
       (is (= :bar (:foo request)))))
+
+  (testing "Jws with custom authfn"
+    (let [request (make-jws-request jws-data jws-secret)
+          handler (wrap-authentication identity jws-backend-with-authfn)
+          request' (handler request)]
+      (is (authenticated? request'))
+      (is (= ::jws-authorized (:identity request')))))
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -132,6 +140,7 @@
 
 (def jwe-secret (hash/sha256 "mysupersecretkey"))
 (def jwe-backend (backends/jwe {:secret jwe-secret}))
+(def jwe-backend-with-authfn (backends/jwe {:secret jwe-secret :authfn (constantly ::jwe-authorized)}))
 (def jwe-data {:userid 1})
 
 (defn make-jwe-request
@@ -201,7 +210,14 @@
           response (handler request)]
       (is (deref p 1000 false))
       (is (= response
-             (assoc request :identity nil))))))
+             (assoc request :identity nil)))))
+
+  (testing "Jwe token backend authentication with custom authfn"
+    (let [request (make-jwe-request jwe-data jwe-secret)
+          handler (wrap-authentication identity jwe-backend-with-authfn)
+          request' (handler request)]
+      (is (authenticated? request'))
+      (is (= ::jwe-authorized (:identity request'))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests: Token
