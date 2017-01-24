@@ -71,8 +71,7 @@
 
     (testing "with zero backends"
       (let [request {:uri "/"}]
-        (is (= ((mw/wrap-authentication identity) request)
-               (assoc request :identity nil)))))))
+        (is (= ((mw/wrap-authentication identity) request) request))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization middleware testing

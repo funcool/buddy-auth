@@ -22,25 +22,25 @@
 ;; Authentication
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn authentication-request
-  "Updates request with authentication. If multiple `backends` are given
-  each of them gets a chance to authenticate the request."
-  [request & backends]
-  (let [authdata (loop [[backend & backends] backends]
-                   (when backend
-                     (let [request (assoc request :auth-backend backend)]
-                       (or (some->> request
-                                    (proto/-parse backend)
-                                    (proto/-authenticate backend request))
-                           (recur backends)))))]
-    (assoc request :identity authdata)))
+(defn- authenticate-request
+  [request backends]
+  (loop [[backend & backends] backends]
+    (when backend
+      (let [request (assoc request :auth-backend backend)]
+        (or (some->> request
+                     (proto/-parse backend)
+                     (proto/-authenticate backend request))
+            (recur backends))))))
 
 (defn wrap-authentication
   "Ring middleware that enables authentication for your ring
   handler. When multiple `backends` are given each of them gets a
   chance to authenticate the request."
   [handler & backends]
-  (fn [request] (handler (apply authentication-request request backends))))
+  (fn [request]
+    (if-let [authdata (authenticate-request request backends)]
+      (handler (assoc request :identity authdata))
+      (handler request))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization

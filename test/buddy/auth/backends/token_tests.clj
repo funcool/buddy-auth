@@ -112,8 +112,7 @@
                       (wrap-authentication backend))
           response (handler request)]
       (is (deref p 1000 false))
-      (is (= response
-             (assoc request :identity nil)))))
+      (is (= response request)))))
 
   (testing "Jws token with wrong token"
     (let [request (assoc (make-request "xyz")
@@ -132,7 +131,6 @@
           request' (handler request)]
       (is (authenticated? request'))
       (is (= ::jws-authorized (:identity request')))))
-)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests: JWE
@@ -209,8 +207,7 @@
                       (wrap-authentication backend))
           response (handler request)]
       (is (deref p 1000 false))
-      (is (= response
-             (assoc request :identity nil)))))
+      (is (= response request))))
 
   (testing "Jwe token backend authentication with custom authfn"
     (let [request (make-jwe-request jwe-data jwe-secret)
