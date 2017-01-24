@@ -1,5 +1,13 @@
 = Changelog
 
+== Version 1.4.0
+
+Date: 2017-01-24
+
+- Add `authfn` parameter to the rest of backends (thanks to @rymndhng)
+- Respect the value of `:identity` on request when no auth backend has
+  authenticated the request (usefull for tests).
+
 == Version 1.3.0
 
 Date: 2016-11-15
