@@ -1,4 +1,4 @@
-;; Copyright 2013-2015 Andrey Antukh <niwi@niwi.nz>
+;; Copyright 2013-2017 Andrey Antukh <niwi@niwi.nz>
 ;;
 ;; Licensed under the Apache License, Version 2.0 (the "License")
 ;; you may not use this file except in compliance with the License.
@@ -22,7 +22,14 @@
 ;; Authentication
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn- authenticate-request
+(defn authenticate-request
+  "A function that runs the authentication backend chain for
+  the provided request and return the identity of the first
+  matched backend (backend that properly authenticates the
+  provided request).
+
+  NOTE: this function is for internal use, it is public
+  because it is helpfull in enviroments different to ring."
   [request backends]
   (loop [[backend & backends] backends]
     (when backend
@@ -32,15 +39,24 @@
                      (proto/-authenticate backend request))
             (recur backends))))))
 
+(defn authentication-request
+  "Updates request with authentication. If multiple `backends` are
+  given each of them gets a chance to authenticate the request.
+
+  NOTE: this function is for internal use, it is public
+  because it is helpfull in enviroments different to ring."
+  [request & backends]
+  (if-let [authdata (authenticate-request request backends)]
+    (assoc request :identity authdata)
+    request))
+
 (defn wrap-authentication
   "Ring middleware that enables authentication for your ring
   handler. When multiple `backends` are given each of them gets a
   chance to authenticate the request."
   [handler & backends]
   (fn [request]
-    (if-let [authdata (authenticate-request request backends)]
-      (handler (assoc request :identity authdata))
-      (handler request))))
+    (handler (apply authentication-request request backends))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authorization
