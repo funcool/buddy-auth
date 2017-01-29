@@ -1,5 +1,12 @@
 = Changelog
 
+== Version 1.4.1
+
+Date: 2017-01-29
+
+- Fix some backward incompatibilities introduced in previous commit.
+
+
 == Version 1.4.0
 
 Date: 2017-01-24
