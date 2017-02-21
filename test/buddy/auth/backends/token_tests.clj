@@ -3,6 +3,7 @@
             [buddy.core.codecs :refer :all]
             [buddy.core.hash :as hash]
             [buddy.sign.jwt :as jwt]
+            [buddy.core.keys :as keys]
             [buddy.auth :refer [throw-unauthorized authenticated?]]
             [buddy.auth.backends :as backends]
             [buddy.auth.backends.token :as token]
@@ -43,6 +44,9 @@
 (def jws-backend (backends/jws {:secret jws-secret}))
 (def jws-backend-with-authfn (backends/jws {:secret jws-secret :authfn (constantly ::jws-authorized)}))
 (def jws-data {:userid 1})
+(def rsa-privkey (keys/private-key "test/_files/privkey.rsa.pem"))
+(def rsa-pubkey (keys/public-key "test/_files/pubkey.rsa.pem"))
+(def jws-backend-rsa (backends/jws {:secret rsa-pubkey}))
 
 (defn make-jws-request
   [data secret]
@@ -51,6 +55,13 @@
     {:headers {"authorization" header}}))
 
 (deftest jws-tests
+  (testing "Jws token backend authentication with RSA key"
+    (let [request (make-jws-request jws-data rsa-privkey)
+          handler (wrap-authentication identity jws-backend-rsa)
+          request' (handler request)]
+      (is (authenticated? request'))
+      (is (= (:identity request') jws-data))))
+
   (testing "Jws token backend authentication"
     (let [request (make-jws-request jws-data jws-secret)
           handler (wrap-authentication identity jws-backend)
