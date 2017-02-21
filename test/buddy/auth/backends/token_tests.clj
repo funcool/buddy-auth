@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [buddy.core.codecs :refer :all]
             [buddy.core.hash :as hash]
+            [buddy.core.keys :as keys]
             [buddy.sign.jwt :as jwt]
             [buddy.auth :refer [throw-unauthorized authenticated?]]
             [buddy.auth.backends :as backends]
@@ -41,19 +42,33 @@
 
 (def jws-secret "mysuperjwssecret")
 (def jws-backend (backends/jws {:secret jws-secret}))
-(def jws-backend-with-authfn (backends/jws {:secret jws-secret :authfn (constantly ::jws-authorized)}))
+(def jws-backend-with-authfn (backends/jws {:secret jws-secret
+                                            :authfn (constantly ::jws-authorized)}))
 (def jws-data {:userid 1})
 
+(def rsa-privkey (keys/private-key "test/_files/privkey.3des.rsa.pem" "secret"))
+(def rsa-pubkey (keys/public-key "test/_files/pubkey.3des.rsa.pem"))
+(def jws-backend-rsa (backends/jws {:secret rsa-pubkey :options {:alg :ps512}}))
+
 (defn make-jws-request
-  [data secret]
-  (let [header (->> (jwt/sign data secret)
-                    (format "Token %s"))]
-    {:headers {"authorization" header}}))
+  ([data secret]
+   (make-jws-request data secret {}))
+  ([data secret options]
+   (let [header (->> (jwt/sign data secret options)
+                     (format "Token %s"))]
+     {:headers {"authorization" header}})))
 
 (deftest jws-tests
   (testing "Jws token backend authentication"
     (let [request (make-jws-request jws-data jws-secret)
           handler (wrap-authentication identity jws-backend)
+          request' (handler request)]
+      (is (authenticated? request'))
+      (is (= (:identity request') jws-data))))
+
+  (testing "Jws token backend authentication with RSA key"
+    (let [request (make-jws-request jws-data rsa-privkey {:alg :ps512})
+          handler (wrap-authentication identity jws-backend-rsa)
           request' (handler request)]
       (is (authenticated? request'))
       (is (= (:identity request') jws-data))))
@@ -130,7 +145,8 @@
           handler (wrap-authentication identity jws-backend-with-authfn)
           request' (handler request)]
       (is (authenticated? request'))
-      (is (= ::jws-authorized (:identity request')))))
+      (is (= ::jws-authorized (:identity request'))))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests: JWE
