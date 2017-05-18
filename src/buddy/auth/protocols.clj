@@ -43,4 +43,4 @@
 (defprotocol IAuthorizationdError
   "Abstraction that allows the user to extend the exception
   based authorization system with own types."
-  (-get-error-data [_] "Ger error information."))
+  (-get-error-data [_] "Get error information."))
