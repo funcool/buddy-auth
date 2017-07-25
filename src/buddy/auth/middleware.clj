@@ -29,7 +29,7 @@
   provided request).
 
   NOTE: this function is for internal use, it is public
-  because it is helpfull in enviroments different to ring."
+  because it is helpful in environments different to ring."
   [request backends]
   (loop [[backend & backends] backends]
     (when backend
@@ -44,7 +44,7 @@
   given each of them gets a chance to authenticate the request.
 
   NOTE: this function is for internal use, it is public
-  because it is helpfull in enviroments different to ring."
+  because it is helpful in environments different to ring."
   [request & backends]
   (if-let [authdata (authenticate-request request backends)]
     (assoc request :identity authdata)
