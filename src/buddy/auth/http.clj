@@ -53,7 +53,7 @@
   "Looks up a header in a headers map case insensitively,
   returning the header map entry, or nil if not present."
   [headers ^String header-name]
-  (first (filter #(.equalsIgnoreCase header-name (key %)) headers)))
+  (first (filter #(.equalsIgnoreCase header-name (name (key %))) headers)))
 
 (extend-protocol IRequest
   clojure.lang.IPersistentMap
