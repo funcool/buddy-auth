@@ -1,5 +1,14 @@
 = Changelog
 
+== Version 2.0.0
+
+Date: 2017-08-10
+
+- Allow keywords for HTTP headers as well as strings
+- Update to use Clojure 1.9.0-alpha17
+- Update buddy-sign to 2.0.0 (implicit breaking change no longer handling `iat` validation)
+- Update cuerdas to 2.0.2
+
 == Version 1.4.1
 
 Date: 2017-01-29

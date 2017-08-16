@@ -12,9 +12,9 @@
  :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
 
  :examples
- {:dependencies [[ring "1.4.0"]
+ {:dependencies [[ring "1.6.2"]
                  [ring/ring-json "0.4.0"]
-                 [compojure "1.4.0"]]}
+                 [compojure "1.6.0"]]}
 
  :session-example
  [:examples
