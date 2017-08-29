@@ -1,6 +1,6 @@
-= Changelog
+# Changelog
 
-== Version 2.0.0
+## Version 2.0.0
 
 Date: 2017-08-10
 
@@ -9,14 +9,14 @@ Date: 2017-08-10
 - Update buddy-sign to 2.0.0 (implicit breaking change no longer handling `iat` validation)
 - Update cuerdas to 2.0.2
 
-== Version 1.4.1
+## Version 1.4.1
 
 Date: 2017-01-29
 
 - Fix some backward incompatibilities introduced in previous commit.
 
 
-== Version 1.4.0
+## Version 1.4.0
 
 Date: 2017-01-24
 
@@ -24,7 +24,7 @@ Date: 2017-01-24
 - Respect the value of `:identity` on request when no auth backend has
   authenticated the request (usefull for tests).
 
-== Version 1.3.0
+## Version 1.3.0
 
 Date: 2016-11-15
 
@@ -32,7 +32,7 @@ Date: 2016-11-15
 - Update cuerdas to 2.0.1
 
 
-== Version 1.2.0
+## Version 1.2.0
 
 Date: 2016-09-01
 
@@ -40,14 +40,14 @@ Date: 2016-09-01
 - Update cuerdas to 1.0.1
 
 
-== Version 1.1.0
+## Version 1.1.0
 
 Date: 2016-06-11
 
 - Update buddy-sign to 1.1.0
 
 
-== Version 1.0.0
+## Version 1.0.0
 
 Date: 2016-05-21
 
@@ -59,14 +59,14 @@ Date: 2016-05-21
 
 
 
-== Version 0.13.0
+## Version 0.13.0
 
 Date: 2016-04-23
 
 - Update buddy-sign dependency to 0.13.0.
 
 
-== Version 0.12.0
+## Version 0.12.0
 
 Date: 2016-04-09
 
@@ -74,42 +74,42 @@ Date: 2016-04-09
 - Improve backends api (fully backward compatible).
 
 
-== Version 0.11.0
+## Version 0.11.0
 
 Date: 2016-03-27
 
 - Update buddy-sign dependency to 0.11.0
 
 
-== Version 0.10.0
+## Version 0.10.0
 
 Date: 2016-03-26
 
 - Update buddy-sign dependency to 0.10.0
 
 
-== Version 0.9.0
+## Version 0.9.0
 
 Date: 2016-01-06
 
 - Update buddy-sign dependency to 0.9.0.
 
 
-== Version 0.8.2
+## Version 0.8.2
 
 Date: 2015-12-08
 
 - Fixed wrong handling passwords with colons (thanks @mitch-kile).
 
 
-== Version 0.8.1
+## Version 0.8.1
 
 Date: 2015-11-17
 
 - Update buddy-sign to 0.8.1
 
 
-== Version 0.8.0
+## Version 0.8.0
 
 Date: 2015-11-15
 
@@ -117,7 +117,7 @@ Date: 2015-11-15
 - Implicit update to buddy-core 0.8.1
 
 
-== Version 0.7.1
+## Version 0.7.1
 
 Date: 2015-10-03
 
@@ -125,7 +125,7 @@ Date: 2015-10-03
 - Update buddy-sign version to 0.7.1
 
 
-== Version 0.7.0
+## Version 0.7.0
 
 Date: 2015-09-19
 
@@ -135,14 +135,14 @@ Date: 2015-09-19
   changes on buddy-core and buddy-sign.
 
 
-== Version 0.6.2
+## Version 0.6.2
 
 Date: 2015-08-26
 
 - The regext access rule matcher now only uses the request `:uri` property.
 
 
-== Version 0.6.1
+## Version 0.6.1
 
 Date: 2015-08-02
 
@@ -151,7 +151,7 @@ Date: 2015-08-02
 - Update cuerdas version to 0.6.0
 
 
-== Version 0.6.0
+## Version 0.6.0
 
 Date: 2015-06-28
 
@@ -160,7 +160,7 @@ Date: 2015-06-28
 - Update cuerdas to 0.5.0
 
 
-== Version 0.5.3
+## Version 0.5.3
 
 Date: 2015-05-16
 
@@ -169,7 +169,7 @@ Date: 2015-05-16
   extensibility by third party. Making it more compatible with
   `funcool/catacumba` as example.
 
-== Version 0.5.2
+## Version 0.5.2
 
 Date: 2015-05-09
 
@@ -177,7 +177,7 @@ Date: 2015-05-09
 - Update buddy-sign version to 0.5.1 (that fixes unexpected exceptions on parsing wrong tokens)
 
 
-== Version 0.5.1
+## Version 0.5.1
 
 Date: 2015-04-16
 
@@ -185,7 +185,7 @@ Date: 2015-04-16
   system is used in access rules.
 
 
-== Version 0.5.0
+## Version 0.5.0
 
 Date: 2015-04-03
 
@@ -199,14 +199,14 @@ Date: 2015-04-03
 - Removed any java source, now is 100% clojure.
 
 
-== Version 0.4.2
+## Version 0.4.2
 
 Date: 2015-03-29
 
 - Update buddy-sign to 0.4.2
 
 
-== Version 0.4.1
+## Version 0.4.1
 
 Date: 2015-03-14
 
@@ -217,7 +217,7 @@ Date: 2015-03-14
 - Upgrade cuerdas to 0.3.1
 
 
-== Version 0.4.0
+## Version 0.4.0
 
 Date: 2014-02-22
 
@@ -228,7 +228,7 @@ Date: 2014-02-22
 - Update slingshot to 0.12.2
 
 
-== Version 0.3.0
+## Version 0.3.0
 
 Date: 2015-01-24
 
