@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 2.1.0
+
+Date: 2017-08-29
+
+- Update buddy-sign to 2.2.0
+
+
 ## Version 2.0.0
 
 Date: 2017-08-10
