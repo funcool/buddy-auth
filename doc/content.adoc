@@ -853,7 +853,7 @@ In summary: yes, you can use _buddy-auth_ with liberator.
 *Can I use _buddy-auth_ with pedestal?*
 
 Although is not mentioned in this documentation, you can use _buddy-auth_ with
-pedestal withoy any problems.
+pedestal without any problems.
 
 https://juxt.pro/blog/posts/securing-your-clojurescript-app.html
 
