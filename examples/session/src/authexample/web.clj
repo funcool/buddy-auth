@@ -28,7 +28,7 @@
   (if-not (authenticated? request)
     (throw-unauthorized)
     (let [content (slurp (io/resource "index.html"))]
-      (response content))))
+      (render content request))))
 
 ;; Login page controller
 ;; It returns a login page on get requests.
