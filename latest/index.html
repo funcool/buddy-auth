@@ -150,7 +150,7 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p><em>buddy-auth</em> is a module that provides authentication and authorization
-facilites or ring and ring based web applications.</p>
+facilities or ring and ring based web applications.</p>
 </div>
 <div class="sect2">
 <h3 id="project-maturity"><a class="link" href="#project-maturity">Project Maturity</a></h3>
@@ -405,8 +405,8 @@ successfully, call the <code>authfn</code> with extracted token.</p>
 key in the request.</p>
 </div>
 <div class="paragraph">
-<p>The responsability of <em>buddy</em> is just parse request and call the user function
-authenticate it. The token building and storage is a user responsability.</p>
+<p>The responsibility of <em>buddy</em> is just parse request and call the user function
+authenticate it. The token building and storage is a user responsibility.</p>
 </div>
 <div class="paragraph">
 <p>You can see a complete example of using this backend <a href="#example-token">here</a>.</p>
@@ -457,7 +457,7 @@ responsibility of generating valid tokens:</p>
 <span class="tok-p">(</span><span class="tok-kd">defn </span><span class="tok-nv">login-handler</span>
   <span class="tok-p">[</span><span class="tok-nv">request</span><span class="tok-p">]</span>
   <span class="tok-p">(</span><span class="tok-k">let </span><span class="tok-p">[</span><span class="tok-nv">data</span> <span class="tok-p">(</span><span class="tok-ss">:form-params</span> <span class="tok-nv">request</span><span class="tok-p">)</span>
-        <span class="tok-nv">user</span> <span class="tok-p">(</span><span class="tok-nf">find-user</span> <span class="tok-p">(</span><span class="tok-ss">:username</span> <span class="tok-nv">data</span><span class="tok-p">)</span>   <span class="tok-c1">;; (implementation ommited)</span>
+        <span class="tok-nv">user</span> <span class="tok-p">(</span><span class="tok-nf">find-user</span> <span class="tok-p">(</span><span class="tok-ss">:username</span> <span class="tok-nv">data</span><span class="tok-p">)</span>   <span class="tok-c1">;; (implementation omitted)</span>
                         <span class="tok-p">(</span><span class="tok-ss">:password</span> <span class="tok-nv">data</span><span class="tok-p">))</span>
         <span class="tok-nv">token</span> <span class="tok-p">(</span><span class="tok-nf">jwt/sign</span> <span class="tok-p">{</span><span class="tok-ss">:user</span> <span class="tok-p">(</span><span class="tok-ss">:id</span> <span class="tok-nv">user</span><span class="tok-p">)}</span> <span class="tok-nv">secret</span><span class="tok-p">)]</span>
     <span class="tok-p">{</span><span class="tok-ss">:status</span> <span class="tok-mi">200</span>
@@ -579,7 +579,7 @@ which only handles specific exceptions. When an unauthorized exception is caught
 it executes a specific function to handle it or reraises the exception.</p>
 </div>
 <div class="paragraph">
-<p>With this approach you can define your own middlewared/decorators using custom
+<p>With this approach you can define your own middlewares/decorators using custom
 authorization logic with fast skip, raising an unauthorized exception using the
 <code>throw-unauthorized</code> function.</p>
 </div>
@@ -598,7 +598,7 @@ authorization logic with fast skip, raising an unauthorized exception using the
 </div>
 <div class="paragraph">
 <p>Just like the authentication system, authorization is also implemented using
-plugable backends.</p>
+pluggable backends.</p>
 </div>
 <div class="paragraph">
 <p>All built-in backends already implement the authorization protocol with default
@@ -711,7 +711,7 @@ operators.</p>
 <span class="tok-p">{</span><span class="tok-ss">:or</span> <span class="tok-p">[</span><span class="tok-nv">authenticated-user</span> <span class="tok-nv">other-handler</span><span class="tok-p">]}</span>
 
 <span class="tok-c1">;; Logical expressions can be nested as deep as you wish</span>
-<span class="tok-c1">;; with hypotetical rule handlers with self descriptive name.</span>
+<span class="tok-c1">;; with hypothetical rule handlers with self descriptive name.</span>
 <span class="tok-p">{</span><span class="tok-ss">:or</span> <span class="tok-p">[</span><span class="tok-nv">should-be-admin</span>
       <span class="tok-p">{</span><span class="tok-ss">:and</span> <span class="tok-p">[</span><span class="tok-nv">should-be-safe</span>
              <span class="tok-nv">should-be-authenticated</span><span class="tok-p">]}]}}</span></code></pre>
@@ -1128,7 +1128,7 @@ authentication only) without including the other.</p>
 </div>
 <div class="paragraph">
 <p>Although is not mentioned in this documentation, you can use <em>buddy-auth</em> with
-pedestal withoy any problems.</p>
+pedestal without any problems.</p>
 </div>
 <div class="paragraph">
 <p><a href="https://juxt.pro/blog/posts/securing-your-clojurescript-app.html" class="bare">https://juxt.pro/blog/posts/securing-your-clojurescript-app.html</a></p>
