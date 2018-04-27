@@ -16,6 +16,7 @@
   "Access Rules system for ring based applications."
   (:require [buddy.auth :refer [throw-unauthorized]]
             [buddy.auth.http :as http]
+            [buddy.auth.fnutils :refer [fn->multi]]
             [clojure.walk :refer [postwalk]]
             [clout.core :as clout]))
 
@@ -134,10 +135,10 @@
               (cond
                ;; In this case is a handler
                (fn? form)
-               (fn [req] (form req))
+               (fn->multi [req] (form req))
 
                (:or form)
-               (fn [req]
+               (fn->multi [req]
                  (let [rules (:or form)
                        evals (map (fn [x] (x req)) rules)
                        accepts (filter success? evals)]
@@ -146,7 +147,7 @@
                      (last evals))))
 
                (:and form)
-               (fn [req]
+               (fn->multi [req]
                  (let [rules (:and form)
                        evals (map (fn [x] (x req)) rules)
                        rejects (filter (complement success?) evals)]
@@ -224,7 +225,7 @@
         handler (compile-rule-handler (:handler accessrule))
         matcher (cond
                   (:pattern accessrule)
-                  (fn [request]
+                  (fn->multi [request]
                     (let [pattern (:pattern accessrule)
                           uri (:uri request)]
                       (when (and (matches-request-method request request-method)
@@ -233,21 +234,21 @@
 
                   (:uri accessrule)
                   (let [route (clout/route-compile (:uri accessrule))]
-                    (fn [request]
+                    (fn->multi [request]
                       (let [match-params (clout/route-matches route request)]
                         (when (and (matches-request-method request request-method) match-params)
                           match-params))))
 
                   (:uris accessrule)
                   (let [routes (mapv clout/route-compile (:uris accessrule))]
-                    (fn [request]
+                    (fn->multi [request]
                       (let [match-params (->> (map #(clout/route-matches % request) routes)
                                               (filter identity)
                                               (first))]
                         (when (and (matches-request-method request request-method) match-params)
                           match-params))))
 
-                  :else (fn [request] {}))]
+                  :else (fn->multi [request] {}))]
     (assoc accessrule
            :matcher matcher
            :handler handler)))
@@ -340,7 +341,7 @@
   (when (nil? rules)
     (throw (IllegalArgumentException. "rules should not be empty.")))
   (let [accessrules (compile-access-rules rules)]
-    (fn [request]
+    (fn->multi [request]
       (if-let [match (match-access-rules accessrules request)]
         (let [res (apply-matched-access-rule match request)]
           (if (success? res)
@@ -368,7 +369,7 @@
   accoupling your routers code with access rules."
   [handler rule]
   (let [match (compile-access-rule rule)]
-    (fn [request]
+    (fn->multi [request]
       (let [rsp (apply-matched-access-rule match request)]
         (if (success? rsp)
          (handler request)
