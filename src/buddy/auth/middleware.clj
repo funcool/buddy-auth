@@ -16,7 +16,8 @@
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.accessrules :as accessrules]
             [buddy.auth.http :as http]
-            [buddy.auth :refer [authenticated? throw-unauthorized]]))
+            [buddy.auth :refer [authenticated? throw-unauthorized]]
+            [buddy.auth.fnutils :refer [fn->multi]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Authentication
@@ -55,7 +56,7 @@
   handler. When multiple `backends` are given each of them gets a
   chance to authenticate the request."
   [handler & backends]
-  (fn [request]
+  (fn->multi [request]
     (handler (apply authentication-request request backends))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -106,7 +107,7 @@
   hashmap, or an instance that satisfies IAuthorization
   protocol."
   [handler backend]
-  (fn [request]
+  (fn->multi [request]
     (try (handler request)
          (catch Exception e
            (authorization-error request e backend)))))
