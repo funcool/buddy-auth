@@ -15,22 +15,12 @@
 (ns buddy.auth.fnutils
   "Utility to reuse 1-arity handlers into 3-arity handlers for async support")
 
-
-(defn sync-async-handler-fn
-  "Receives a 1-arity ring handler function and returns a multiple arity ring 
-  handler function."
-  [handler]
-  (fn [request] 
-    (handler request))
-  (fn [request respond raise] 
-    (try (respond (handler request))
-      (catch Exception e
-        (raise e)))))
-
-
 (defmacro fn->multi 
-  "Takes an anonymous `(fn [request] ...)` declaration of 1-arity and converts it to a multiple arity `fn`,
-   supporting both sync and async handler styles."
+  "Replaces an anonymous `(fn [request] ...)` declaration of arity-1 and converts it to a multiple arity `fn`
+   (arity-1 and arity-3), supporting both sync and async handler styles.
+  
+  Instead of declaring an anonymous function `(fn [handler] ...)`, replace the `fn` with the macro:
+  `(fn->multi [handler] ...)`"
   [req body]
   {:pre [(= 1 (count req))]}
   `(fn ([~@req] ~body)
@@ -39,10 +29,3 @@
            (respond# ~body)
            (catch Exception e#
              (raise# e#))))))
-
-
-#_(def f (n->multi [r] (/ 1 r)))
-
-#_(f 1 (partial println "respond")  (partial println "raise"))
-#_(clojure.walk/macroexpand-all  '(defn wrap-auth [handler] (n->multi [request] (handler request))))
-#_(clojure.pprint/pprint (macroexpand-1  '(fnhandler [request] (+ 1 request))))
