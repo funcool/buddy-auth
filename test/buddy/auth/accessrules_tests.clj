@@ -53,8 +53,10 @@
 )
 
 (defn test-handler
-  [req]
-  (http/response req))
+  ([req]
+   (http/response req))
+  ([req respond _]
+   (respond (test-handler req))))
 
 (deftest restrict-test
   (testing "restrict handler 1"
@@ -62,15 +64,43 @@
           rsp     (handler {:foo "bar"})]
       (is (= {:foo "bar"} (:body rsp)))))
 
+  (testing "restrict async handler 1"
+    (let [handler (restrict test-handler {:handler {:or [ok fail]}})
+          req     {:foo "bar"}
+          rsp     (promise)
+          ex      (promise)]
+      (handler req rsp ex)
+      (is (= {:foo "bar"} (:body @rsp)))
+      (is (not (realized? ex)))))
+
   (testing "restrict handler with failure 1"
     (let [handler (restrict test-handler {:handler {:or [fail fail]}})]
       (is (thrown? clojure.lang.ExceptionInfo (handler {:foo "bar"})))))
+
+  (testing "restrict async handler with failure 1"
+    (let [handler (restrict test-handler {:handler {:or [fail fail]}})
+          req     {:foo "bar"}
+          rsp     (promise)
+          ex      (promise)]
+      (handler req rsp ex)
+      (is (instance? clojure.lang.ExceptionInfo @ex))
+      (is (not (realized? rsp)))))
 
   (testing "restrict handler with failure 2"
     (let [handler (restrict test-handler {:handler {:or [fail fail]}})
           rsp (handler {:msg "Failure message"})]
       (is (= "Failure message" (:body rsp)))
       (is (= 400 (:status rsp)))))
+
+  (testing "restrict async handler with failure 2"
+    (let [handler (restrict test-handler {:handler {:or [fail fail]}})
+          req     {:msg "Failure message"}
+          rsp     (promise)
+          ex      (promise)]
+      (handler req rsp ex)
+      (is (= "Failure message" (:body @rsp)))
+      (is (= 400 (:status @rsp)))
+      (is (not (realized? ex)))))
 
   (testing "restrict handlerw with failure and explicit on-error handler"
     (let [handler (restrict test-handler
@@ -79,6 +109,17 @@
           rsp     (handler {:msg "test"})]
       (is (= "onfail-test" (:body rsp)))))
 
+  (testing "restrict async handlerw with failure and explicit on-error handler"
+    (let [handler (restrict test-handler
+                            {:handler {:or [fail fail]}
+                             :on-error (fn [req val] (http/response (str "onfail-" val)))})
+          req     {:msg "test"}
+          rsp     (promise)
+          ex      (promise)]
+      (handler req rsp ex)
+      (is (= "onfail-test" (:body @rsp)))
+      (is (not (realized? ex)))))
+
   (testing "restrict handlerw with failure and redirect"
     (let [handler (restrict test-handler
                             {:handler {:or [fail fail]}
@@ -86,6 +127,18 @@
           rsp     (handler {:msg "test"})]
       (is (= 302 (:status rsp)))
       (is (= "/foobar" (get-in rsp [:headers "Location"])))))
+
+  (testing "restrict async handlerw with failure and redirect"
+    (let [handler (restrict test-handler
+                            {:handler {:or [fail fail]}
+                             :redirect "/foobar"})
+          req     {:msg "test"}
+          rsp     (promise)
+          ex      (promise)]
+      (handler req rsp ex)
+      (is (= 302 (:status @rsp)))
+      (is (= "/foobar" (get-in @rsp [:headers "Location"])))
+      (is (not (realized? ex)))))
 )
 
 (def params1
@@ -127,25 +180,75 @@
     (let [rsp (handler1 {:uri "/path1"})]
       (is (= {:uri "/path1"} (:body rsp)))))
 
+  (testing "check access rules 1 async"
+    (let [req {:uri "/path1"}
+          rsp (promise)
+          ex  (promise)]
+      (handler1 req rsp ex)
+      (is (= {:uri "/path1"} (:body @rsp)))
+      (is (not (realized? ex)))))
+
   (testing "check access rules 2"
     (let [rsp (handler1 {:uri "/path2"})]
       (is (= {:uri "/path2"} (:body rsp)))))
 
+  (testing "check access rules 2 async"
+    (let [req {:uri "/path2"}
+          rsp (promise)
+          ex  (promise)]
+      (handler1 req rsp ex)
+      (is (= {:uri "/path2"} (:body @rsp)))
+      (is (not (realized? ex)))))
+
   (testing "check access rules 3"
     (is (thrown? clojure.lang.ExceptionInfo (handler1 {:uri "/path3"}))))
 
+  (testing "check access rules 3 async"
+    (let [req {:uri "/path3"}
+          rsp (promise)
+          ex  (promise)]
+      (handler1 req rsp ex)
+      (is (instance? clojure.lang.ExceptionInfo @ex))
+      (is (not (realized? rsp)))))
+
   (testing "check access rules 4"
     (is (thrown? clojure.lang.ExceptionInfo (handler1 {:uri "/path4"}))))
+
+  (testing "check access rules 4 async"
+    (let [req {:uri "/path4"}
+          rsp (promise)
+          ex  (promise)]
+      (handler1 req rsp ex)
+      (is (instance? clojure.lang.ExceptionInfo @ex))
+      (is (not (realized? rsp)))))
 
   (testing "check access rules 5"
     (let [rsp (handler2 {:uri "/path3"})]
       (is (= 400 (:status rsp)))
       (is (= {:uri "/path3" :match-params {}} (:body rsp)))))
 
+  (testing "check access rules 5 async"
+    (let [req {:uri "/path3"}
+          rsp (promise)
+          ex  (promise)]
+      (handler2 req rsp ex)
+      (is (= 400 (:status @rsp)))
+      (is (= {:uri "/path3" :match-params {}} (:body @rsp)))
+      (is (not (realized? ex)))))
+
   (testing "check access rules 6"
     (let [rsp (handler2 {:uri "/path4"})]
       (is (= 400 (:status rsp)))
       (is (= nil (:body rsp)))))
+
+  (testing "check access rules 6 async"
+    (let [req {:uri "/path4"}
+          rsp (promise)
+          ex  (promise)]
+      (handler2 req rsp ex)
+      (is (= 400 (:status @rsp)))
+      (is (= nil (:body @rsp)))
+      (is (not (realized? ex)))))
 
   ;; Clout format
 
@@ -153,9 +256,25 @@
     (let [rsp (handler3 {:uri "/path1"})]
       (is (= {:uri "/path1"} (:body rsp)))))
 
+  (testing "check access rules 1 async"
+    (let [req {:uri "/path1"}
+          rsp (promise)
+          ex  (promise)]
+      (handler3 req rsp ex)
+      (is (= {:uri "/path1"} (:body @rsp)))
+      (is (not (realized? ex)))))
+
   (testing "check access rules 2"
     (let [rsp (handler3 {:uri "/path2"})]
       (is (= {:uri "/path2"} (:body rsp)))))
+
+  (testing "check access rules 2 async"
+    (let [req {:uri "/path2"}
+          rsp (promise)
+          ex  (promise)]
+      (handler3 req rsp ex)
+      (is (= {:uri "/path2"} (:body @rsp)))
+      (is (not (realized? ex)))))
 
   (testing "check access rules 3"
     (let [rsp (handler3 {:uri "/path/foobar" :body "Fail" :status 400 :headers {}})]
@@ -163,11 +282,37 @@
       (is (= {:param "foobar"} (:match-params rsp)))
       (is (= "Fail" (:body rsp)))))
 
+  (testing "check access rules 3 async"
+    (let [req {:uri "/path/foobar" :body "Fail" :status 400 :headers {}}
+          rsp (promise)
+          ex  (promise)]
+      (handler3 req rsp ex)
+      (is (= 400 (:status @rsp)))
+      (is (= {:param "foobar"} (:match-params @rsp)))
+      (is (= "Fail" (:body @rsp)))
+      (is (not (realized? ex)))))
+
   (testing "check access rules 4"
     (is (thrown? clojure.lang.ExceptionInfo (handler3 {:uri "/path3"}))))
 
+  (testing "check access rules 4 async"
+    (let [req {:uri "/path3"}
+          rsp (promise)
+          ex  (promise)]
+      (handler3 req rsp ex)
+      (is (instance? clojure.lang.ExceptionInfo @ex))
+      (is (not (realized? rsp)))))
+
   (testing "check access rules 5"
     (is (thrown? clojure.lang.ExceptionInfo (handler3 {:uri "/path4"}))))
+
+  (testing "check access rules 5 async"
+    (let [req {:uri "/path4"}
+          rsp (promise)
+          ex  (promise)]
+      (handler3 req rsp ex)
+      (is (instance? clojure.lang.ExceptionInfo @ex))
+      (is (not (realized? rsp)))))
 )
 
 (defn method-handler [type type-param allowed]
@@ -190,14 +335,48 @@
             (is (= (:body (handler allowed)) allowed))
             (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
+        (testing "async with keyword as allowed method"
+          (let [handler (method-handler :get)]
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler allowed rsp ex)
+              (is (= (:body @rsp) allowed))
+              (is (not (realized? ex))))
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler forbidden rsp ex)
+              (is (instance? clojure.lang.ExceptionInfo @ex))
+              (is (not (realized? rsp))))))
+
         (testing "with set of keywords as allowed method"
           (let [handler (method-handler #{:get})]
             (is (= (:body (handler allowed)) allowed))
             (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
+        (testing "async with set of keywords as allowed method"
+          (let [handler (method-handler #{:get})]
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler allowed rsp ex)
+              (is (= (:body @rsp) allowed))
+              (is (not (realized? ex))))
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler forbidden rsp ex)
+              (is (instance? clojure.lang.ExceptionInfo @ex))
+              (is (not (realized? rsp))))))
+
         (testing "with nil as allowed request method"
           (let [handler (method-handler nil)]
-            (is (= (:body (handler allowed)) allowed))))))
+            (is (= (:body (handler allowed)) allowed))))
+
+        (testing "async with nil as allowed request method"
+          (let [handler (method-handler nil)
+                rsp     (promise)
+                ex      (promise)]
+            (handler allowed rsp ex)
+            (is (= (:body @rsp) allowed))
+            (is (not (realized? ex)))))))
 
     (testing "access rule uri"
       (let [method-handler (partial method-handler :uri "/comments/:id")]
@@ -207,14 +386,48 @@
             (is (= (:body (handler allowed)) allowed))
             (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
+        (testing "async with keyword as allowed method"
+          (let [handler (method-handler :get)]
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler allowed rsp ex)
+              (is (= (:body @rsp) allowed))
+              (is (not (realized? ex))))
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler forbidden rsp ex)
+              (is (instance? clojure.lang.ExceptionInfo @ex))
+              (is (not (realized? rsp))))))
+
         (testing "with set of keywords as allowed method"
           (let [handler (method-handler #{:get})]
             (is (= (:body (handler allowed)) allowed))
             (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
+        (testing "async with set of keywords as allowed method"
+          (let [handler (method-handler #{:get})]
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler allowed rsp ex)
+              (is (= (:body @rsp) allowed))
+              (is (not (realized? ex))))
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler forbidden rsp ex)
+              (is (instance? clojure.lang.ExceptionInfo @ex))
+              (is (not (realized? rsp))))))
+
         (testing "with nil as allowed request method"
           (let [handler (method-handler nil)]
-            (is (= (:body (handler allowed)) allowed))))))
+            (is (= (:body (handler allowed)) allowed))))
+
+        (testing "async with nil as allowed request method"
+          (let [handler (method-handler nil)
+                rsp     (promise)
+                ex      (promise)]
+            (handler allowed rsp ex)
+            (is (= (:body @rsp) allowed))
+            (is (not (realized? ex)))))))
 
     (testing "access rule uris"
       (let [method-handler (partial method-handler :uris ["/comments/:id"])]
@@ -224,11 +437,45 @@
             (is (= (:body (handler allowed)) allowed))
             (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
+        (testing "async with keyword as allowed method"
+          (let [handler (method-handler :get)]
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler allowed rsp ex)
+              (is (= (:body @rsp) allowed))
+              (is (not (realized? ex))))
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler forbidden rsp ex)
+              (is (instance? clojure.lang.ExceptionInfo @ex))
+              (is (not (realized? rsp))))))
+
         (testing "with set of keywords as allowed method"
           (let [handler (method-handler #{:get})]
             (is (= (:body (handler allowed)) allowed))
             (is (thrown? clojure.lang.ExceptionInfo (handler forbidden)))))
 
+        (testing "async with set of keywords as allowed method"
+          (let [handler (method-handler #{:get})]
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler allowed rsp ex)
+              (is (= (:body @rsp) allowed))
+              (is (not (realized? ex))))
+            (let [rsp (promise)
+                  ex  (promise)]
+              (handler forbidden rsp ex)
+              (is (instance? clojure.lang.ExceptionInfo @ex))
+              (is (not (realized? rsp))))))
+
         (testing "with nil as allowed request method"
           (let [handler (method-handler nil)]
-            (is (= (:body (handler allowed)) allowed))))))))
+            (is (= (:body (handler allowed)) allowed))))
+
+        (testing "async with nil as allowed request method"
+          (let [handler (method-handler nil)
+                rsp     (promise)
+                ex      (promise)]
+            (handler allowed rsp ex)
+            (is (= (:body @rsp) allowed))
+            (is (not (realized? ex)))))))))

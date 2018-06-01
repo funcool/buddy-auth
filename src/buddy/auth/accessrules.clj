@@ -284,27 +284,33 @@
   The received response has to satisfy the
   IRuleHandlerResponse protocol."
   {:no-doc true}
-  [response request {:keys [reject-handler on-error redirect]}]
-  {:pre [(satisfies? IRuleHandlerResponse response)]}
-  (let [val (get-value response)]
-    (cond
-     (string? redirect)
-     (http/redirect redirect)
+  ([response request {:keys [reject-handler on-error redirect]}]
+   {:pre [(satisfies? IRuleHandlerResponse response)]}
+   (let [val (get-value response)]
+     (cond
+       (string? redirect)
+       (http/redirect redirect)
 
-     (fn? on-error)
-     (on-error request val)
+       (fn? on-error)
+       (on-error request val)
 
-     (http/response? val)
-     val
+       (http/response? val)
+       val
 
-     (fn? reject-handler)
-     (reject-handler request val)
+       (fn? reject-handler)
+       (reject-handler request val)
 
-     (string? val)
-     (http/response val 400)
+       (string? val)
+       (http/response val 400)
 
-     :else
-     (throw-unauthorized))))
+       :else
+       (throw-unauthorized))))
+  ([response request rule respond raise]
+   (try
+     (let [err (handle-error response request rule)]
+       (respond err))
+     (catch Exception e
+       (raise e)))))
 
 (defn- apply-matched-access-rule
   "Simple helper that executes the rule handler
@@ -341,15 +347,25 @@
   (when (nil? rules)
     (throw (IllegalArgumentException. "rules should not be empty.")))
   (let [accessrules (compile-access-rules rules)]
-    (fn->multi [request]
-      (if-let [match (match-access-rules accessrules request)]
-        (let [res (apply-matched-access-rule match request)]
-          (if (success? res)
-           (handler request)
-           (handle-error res request (merge opts match))))
-        (case policy
-          :allow (handler request)
-          :reject (handle-error (error nil) request opts))))))
+    (fn
+      ([request]
+       (if-let [match (match-access-rules accessrules request)]
+         (let [res (apply-matched-access-rule match request)]
+           (if (success? res)
+             (handler request)
+             (handle-error res request (merge opts match))))
+         (case policy
+           :allow (handler request)
+           :reject (handle-error (error nil) request opts))))
+      ([request respond raise]
+       (if-let [match (match-access-rules accessrules request)]
+         (let [res (apply-matched-access-rule match request)]
+           (if (success? res)
+             (handler request respond raise)
+             (handle-error res request (merge opts match) respond raise)))
+         (case policy
+           :allow (handler request respond raise)
+           :reject (handle-error (error nil) request opts respond raise)))))))
 
 (defn restrict
   "Like `wrap-access-rules` middleware but works as
@@ -369,8 +385,14 @@
   accoupling your routers code with access rules."
   [handler rule]
   (let [match (compile-access-rule rule)]
-    (fn->multi [request]
-      (let [rsp (apply-matched-access-rule match request)]
-        (if (success? rsp)
-         (handler request)
-         (handle-error rsp request rule))))))
+    (fn
+      ([request]
+       (let [rsp (apply-matched-access-rule match request)]
+         (if (success? rsp)
+           (handler request)
+           (handle-error rsp request rule))))
+      ([request respond raise]
+       (let [rsp (apply-matched-access-rule match request)]
+         (if (success? rsp)
+           (handler request respond raise)
+           (handle-error rsp request rule respond raise)))))))
