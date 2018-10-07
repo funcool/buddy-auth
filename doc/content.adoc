@@ -119,20 +119,24 @@ the parsed auth data from request and should return a logical true value (e.g a 
 id, user instance, mainly something different to `nil` and `false`). And it will
 be called only if step 1 (parse) returns something.
 
-And finally, you should wrap your ring handler with authentication middleware:
+And finally, you should wrap your ring handler with authentication and authorization
+middleware:
 
 [source,clojure]
 ----
-(require '[buddy.auth.middleware :refer [wrap-authentication]])
+(require '[buddy.auth.middleware :refer [wrap-authentication
+                                         wrap-authorization]])
 
 ;; Define the main handler with *app* name wrapping it
 ;; with authentication middleware using an instance of the
 ;; just created http-basic backend.
 
 ;; Define app var with handler wrapped with _buddy-auth_'s authentication
-;; middleware using the previously defined backend.
+;; and authorization middleware using the previously defined backend.
 
-(def app (wrap-authentication my-handler backend))
+(def app (-> my-handler
+             (wrap-authentication backend)
+             (wrap-authorization backend)))
 ----
 
 From now, all requests that reach `my-handler` will be properly authenticated.
