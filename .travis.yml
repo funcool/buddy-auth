@@ -5,7 +5,7 @@ script:
   - lein test
 
 jdk:
+  - openjdk11
+  - openjdk8
+  - oraclejdk11
   - oraclejdk8
-  - openjdk7
-  - oraclejdk7
-  - oraclejdk9

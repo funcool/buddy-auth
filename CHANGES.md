@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 3.0.0
+
+Date: 2019-01-02
+
+- Update Clojure to 1.10.0 (and removing java 1.7 as a result)
+- Update buddy-sign to 3.0.0 (breaking change due to new ECDSA signing algo)
+- Support for arity 3 ring middleware functions
+- Updated and expanded tests
+
 ## Version 2.1.0
 
 Date: 2017-08-29
