@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 2.2.0
+
+Date: 2018-06-28
+
+- Add support for async ring handlers
+- Update deps.
+
+
 ## Version 2.1.0
 
 Date: 2017-08-29

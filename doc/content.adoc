@@ -1,6 +1,6 @@
 = buddy-auth - Auth/Authz facilities for ring based apps.
 Andrey Antukh, <niwi@niwi.nz>
-2.1.0
+2.2.0
 :toc: left
 :!numbered:
 :source-highlighter: pygments
@@ -28,7 +28,7 @@ your *_project.clj_* dependency vector:
 
 [source,clojure]
 ----
-[buddy/buddy-auth "2.1.0"]
+[buddy/buddy-auth "2.2.0"]
 ----
 
 This package is intended to be used with *jdk7* or *jdk8*.
