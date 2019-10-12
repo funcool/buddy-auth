@@ -19,7 +19,7 @@
             [buddy.auth :refer [authenticated?]]
             [buddy.core.codecs :as codecs]
             [buddy.core.codecs.base64 :as b64]
-            [cuerdas.core :as str]))
+            [clojure.string :as str]))
 
 (defn- parse-header
   "Given a request, try to extract and parse
@@ -31,7 +31,7 @@
                          (second)
                          (b64/decode)
                          (codecs/bytes->str))]
-    (when-let [[username password] (str/split decoded #":" 2)]
+    (when-let [[username password] (some-> decoded (str/split #":" 2))]
       {:username username
        :password password})))
 
