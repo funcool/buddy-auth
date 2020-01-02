@@ -262,7 +262,7 @@ responsibility of generating valid tokens:
         token (jwt/sign {:user (:id user)} secret)]
     {:status 200
      :body (json/encode {:token token})
-     :headers {:content-type "application/json"})))
+     :headers {:content-type "application/json"}}))
 ----
 
 For more details about jwt, see the
