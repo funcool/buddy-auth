@@ -14,7 +14,7 @@ Andrey Antukh, <niwi@niwi.nz>
 == Introduction
 
 _buddy-auth_ is a module that provides authentication and authorization
-facilites or ring and ring based web applications.
+facilites for ring and ring based web applications.
 
 === Project Maturity
 
