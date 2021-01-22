@@ -355,7 +355,7 @@ This authorization approach is based on wrapping everything in a try/catch block
 which only handles specific exceptions. When an unauthorized exception is caught,
 it executes a specific function to handle it or reraises the exception.
 
-With this approach you can define your own middlewared/decorators using custom
+With this approach, you can define your own middlewares/decorators using custom
 authorization logic with fast skip, raising an unauthorized exception using the
 `throw-unauthorized` function.
 
