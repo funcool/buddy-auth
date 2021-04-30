@@ -713,7 +713,7 @@ Just run the following commands:
 ----
 git clone https://github.com/funcool/buddy-auth.git
 cd ./buddy-auth/
-lein with-profile +token-example run
+lein with-profile +jwe-example run
 ----
 
 You can use *curl* for play with the authentication example:
