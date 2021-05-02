@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 3.0.1
+
+Date: 2021-05-02
+
+- Update buddy-sign to 3.4.1
+
+
 ## Version 3.0.0
 
 Date: 2021-05-02
