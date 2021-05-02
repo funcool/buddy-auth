@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 3.0.0
+
+Date: 2021-05-02
+
+- Dependencies update
+- Documentation changes.
+
+
 ## Version 2.2.0
 
 Date: 2018-06-28

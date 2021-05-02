@@ -1,12 +1,18 @@
 {:dev
  {:aliases {"test-all" ["with-profile" "dev,1.7:dev,1.8:dev,1.9:dev" "test"]}
-  :codeina {:sources ["src"]
-            :reader :clojure
-            :target "doc/dist/latest/api"
-            :src-uri "http://github.com/funcool/buddy-auth/blob/master/"
-            :src-uri-prefix "#L"}
-  :plugins [[funcool/codeina "0.5.0"]
-            [lein-ancient "0.6.15"]]}
+  :codox {:project {:name "buddy-auth"}
+          :metadata {:doc/format :markdown}
+          :output-path "doc/dist/latest/"
+          :doc-paths ["doc/"]
+          :themes [:rdash]
+          :source-paths ["src"]
+          :source-uri "https://github.com/funcool/buddy-auth/blob/master/{filepath}#L{line}"
+          :namespaces [#"^buddy\."]}
+  :plugins [[lein-codox "0.10.7"]
+            [lein-ancient "0.7.0"]]
+
+  :dependencies [[codox-theme-rdash "0.1.2"]]}
+
 
  :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}
  :1.8 {:dependencies [[org.clojure/clojure "1.8.0"]]}
