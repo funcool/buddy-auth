@@ -6,6 +6,8 @@
   :dependencies [[org.clojure/clojure "1.10.3" :scope "provided"]
                  [buddy/buddy-sign "3.4.0"]
                  [clout "2.2.1"]]
+
+  :jar-name "buddy-auth.jar"
   :source-paths ["src"]
   :test-paths ["test"]
   :jar-exclusions [#"\.cljx|\.swp|\.swo|user.clj"]
