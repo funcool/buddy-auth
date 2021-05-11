@@ -73,7 +73,7 @@
         session (:session request)
         found-password (get authdata (keyword username))]
     (if (and found-password (= found-password password))
-      (let [next-url (get-in request [:query-params :next] "/")
+      (let [next-url (get-in request [:query-params "next"] "/")
             updated-session (assoc session :identity (keyword username))]
         (-> (redirect next-url)
             (assoc :session updated-session)))
