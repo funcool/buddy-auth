@@ -16,8 +16,7 @@
   "The session based authentication and authorization backend."
   (:require [buddy.auth.protocols :as proto]
             [buddy.auth.http :as http]
-            [buddy.auth :refer [authenticated?]]
-            [clojure.string :refer [split]]))
+            [buddy.auth :refer [authenticated?]]))
 
 (defn session-backend
   [& [{:keys [unauthorized-handler authfn] :or {authfn identity}}]]
