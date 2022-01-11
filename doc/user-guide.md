@@ -47,15 +47,15 @@ use it with _buddy-auth_ middleware without any problems.
 
 The authentication process works mainly in two steps:
 
-1. *parse*: that is responsible for analyzing the request and read the auth
+1. *parse*: that is responsible for analyzing the request and reading the auth
    related data (e.g. `Authorization` header, url params, etc..)
-2. *auth*: with the data obtained from parse step just try to authenticate the
-   the request (e.g. simple access to database for obtain the possible user,
-   using a self contained jws/jwe token, check a key in the session, etc...)
+2. *auth*: with the data obtained from parse step, just try to authenticate the
+   the request (e.g. simple access to database for obtaining the possible user,
+   using a self contained jws/jwe token, checking a key in the session, etc...)
 
 This step does not raise any exceptions and is completely transparent to the
-user. The authentication process responsibility is to determine if a request
-is anonymous or is authenticated, nothing more.
+user. It is the responsibility of the authentication process to determine if a request
+is anonymous or authenticated, nothing more.
 
 ### Backends
 
@@ -78,7 +78,7 @@ _buddy-auth_ authentication works.
     (response "Hello Anonymous")))
 ```
 
-The basic step to check if a request is authenticated or not, is just to check
+The basic step to check if a request is authenticated or not is just to check
 if it comes with an `:identity` key and it contains a logical `true` (exists and
 contains something different to `nil` or `false`).
 
@@ -188,7 +188,7 @@ Authorization: Token 45c1f5e3f05d0
 The `authfn` should return something that will be associated to the `:identity`
 key in the request.
 
-The responsability of _buddy_ is just parse request and call the user function
+The responsability of _buddy_ is just parse request and call the user function to
 authenticate it. The token building and storage is a user responsability.
 
 You can see a complete example of using this backend <<example-token,here>>.
@@ -200,9 +200,9 @@ Is a backend that uses signed and self contained tokens to authenticate the user
 
 It behaves very similarly to the _Token_ backend (previously explained) with the
 difference that this one does not need additional user defined logic to validate
-tokens, because as we previously said, everything is self contained.
+tokens, because as we said previously, everything is self contained.
 
-This type of token mechanism enables a complete stateless authentication because the
+This type of token mechanism enables a completely stateless authentication because the
 server does not need to store the token and related information, the token will
 contain all the needed information for authentication.
 
@@ -258,7 +258,7 @@ JWS (Json Web Signature) and it has the advantage that the content of the token 
 encrypted instead of simply signed. This is useful when token may contain some
 additional user information that should not be public.
 
-It will look similar to the previous (jws) example but instead using jwe with
+It will look similar to the previous (jws) example but instead uses jwe with
 asymmetric key encryption algorithm:
 
 ```clojure
