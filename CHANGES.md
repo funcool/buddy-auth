@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 3.0.323
+
+Date: 2022-01-14
+
+- Update dependencies.
+- Minimum JDK == 8.
+
+
 ## Version 3.0.1
 
 Date: 2021-05-02

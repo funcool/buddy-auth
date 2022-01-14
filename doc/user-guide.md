@@ -17,10 +17,10 @@ The simplest way to use _buddy-auth_ in a clojure project is by including it in
 your *_project.clj_* dependency vector:
 
 ```clojure
-{buddy/buddy-auth {:mvn/version "3.0.1"}
+{buddy/buddy-auth {:mvn/version "3.0.323"}
 ```
 
-This package is intended to be used with *jdk7* or *jdk8*.
+This package is intended to be used with *jdk>=8*.
 
 
 ## Authentication
