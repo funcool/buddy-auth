@@ -50,8 +50,8 @@ The authentication process works mainly in two steps:
 1. *parse*: that is responsible for analyzing the request and reading the auth
    related data (e.g. `Authorization` header, url params, etc..)
 2. *auth*: with the data obtained from parse step, just try to authenticate the
-   the request (e.g. simple access to database for obtaining the possible user,
-   using a self contained jws/jwe token, checking a key in the session, etc...)
+   request (e.g. simple access to database for obtaining the possible user, using
+   a self contained jws/jwe token, checking a key in the session, etc...)
 
 This step does not raise any exceptions and is completely transparent to the
 user. It is the responsibility of the authentication process to determine if a request
