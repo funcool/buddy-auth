@@ -9,14 +9,16 @@
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]))
 
 (defn make-header
-  [username password]
-  (format "Basic %s" (-> (b64/encode (format "%s:%s" username password))
-                         (bytes->str))))
+  ([schema username password]
+   (format "%s %s" schema (-> (b64/encode (format "%s:%s" username password))
+                          (bytes->str)))))
 
 (defn make-request
   ([] {:headers {}})
   ([username password]
-   (let [auth (make-header username password)]
+   (make-request "Basic" username password))
+  ([schema username password]
+   (let [auth (make-header schema username password)]
      {:headers {"auThorIzation" auth "lala" "2"}})))
 
 (defn auth-fn
@@ -44,6 +46,19 @@
       (is (not (nil? parsed)))
       (is (= (:password parsed) "bar:baz"))
       (is (= (:username parsed) "foo")))))
+  (testing "Parsing httpbasic header as case insensitive schema"
+    (let [parse #'httpbasic/parse-header
+              request (make-request "BASIC" "Ufoo" "Ubar")
+              parsed  (parse request)]
+          (is (not (nil? parsed)))
+          (is (= (:password parsed) "Ubar"))
+          (is (= (:username parsed) "Ufoo")))
+    (let [parse #'httpbasic/parse-header
+                  request (make-request "basic" "lfoo" "lbar")
+                  parsed  (parse request)]
+              (is (not (nil? parsed)))
+              (is (= (:password parsed) "lbar"))
+              (is (= (:username parsed) "lfoo"))))
 
 (deftest httpbasic-auth-backend
   (testing "Testing anon request"

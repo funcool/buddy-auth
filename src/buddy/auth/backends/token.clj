@@ -29,7 +29,7 @@
 (defn- parse-header
   [request token-name]
   (some->> (http/-get-header request "authorization")
-           (re-find (re-pattern (str "^" token-name " (.+)$")))
+           (re-find (re-pattern (str "^(?i)" token-name " (.+)$")))
            (second)))
 
 (defn jws-backend
