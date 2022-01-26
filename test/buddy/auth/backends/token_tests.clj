@@ -34,7 +34,15 @@
   (testing "Parse authorization header different header name yields nil"
     (let [parse #'token/parse-header
           parsed (parse (make-request "foo") "MyToken")]
-     (is (= parsed nil)))))
+     (is (= parsed nil))))
+
+  (testing "Token authorization schema is case insensitive"
+    (let [request (make-request "foo")
+            parse #'token/parse-header
+            parsed-small (parse request "token")
+            parsed-caps  (parse request "token")]
+        (is (= parsed-small "foo"))
+        (is (= parsed-caps  "foo")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests: JWS

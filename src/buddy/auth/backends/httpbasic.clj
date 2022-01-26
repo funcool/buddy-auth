@@ -25,7 +25,7 @@
   "Given a request, try to extract and parse
   the http basic header."
   [request]
-  (let [pattern (re-pattern "^Basic (.+)$")
+  (let [pattern (re-pattern "^(?i)Basic (.+)$")
         decoded (some->> (http/-get-header request "authorization")
                          (re-find pattern)
                          (second)
